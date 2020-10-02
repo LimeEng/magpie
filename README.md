@@ -1,5 +1,5 @@
 ![CI status](https://github.com/LimeEng/othello/workflows/CI/badge.svg)
-![Latest version](https://img.shields.io/crates/v/magpie.svg)
+[![Latest version](https://img.shields.io/crates/v/magpie.svg)](https://crates.io/crates/magpie)
 
 # Magpie
 
