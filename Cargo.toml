@@ -1,0 +1,20 @@
+[package]
+name = "magpie"
+version = "0.1.0"
+authors = ["Emil Englesson <englesson.emil@gmail.com>"]
+edition = "2018"
+description = "A simple Othello library built with bitboards"
+repository = "https://github.com/LimeEng/magpie/"
+license = "MIT"
+keywords = ["othello"]
+
+exclude = [
+    ".github/**"
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.test]
+opt-level = 3
+
+[dependencies]
