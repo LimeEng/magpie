@@ -24,7 +24,7 @@ impl OthelloBoard {
 
     pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
         if pos.count_ones() != 1 {
-            return Err(OthelloError::IllegalMove);
+            return Err(OthelloError::MultipleMovesAttempted);
         }
         if !self.is_legal_move(stone, pos) {
             return Err(OthelloError::IllegalMove);
@@ -52,13 +52,11 @@ impl OthelloBoard {
 
         match stone {
             Stone::Black => {
-                self.black_stones |= mask;
-                self.black_stones |= pos;
+                self.black_stones |= mask | pos;
                 self.white_stones ^= mask;
             }
             Stone::White => {
-                self.white_stones |= mask;
-                self.white_stones |= pos;
+                self.white_stones |= mask | pos;
                 self.black_stones ^= mask;
             }
         }
@@ -111,6 +109,7 @@ impl OthelloBoard {
 #[derive(Debug)]
 pub enum OthelloError {
     IllegalMove,
+    MultipleMovesAttempted,
 }
 
 impl Direction {
