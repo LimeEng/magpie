@@ -10,9 +10,27 @@ pub struct OthelloBoard {
 impl OthelloBoard {
     pub fn new() -> OthelloBoard {
         OthelloBoard {
+            black_stones: 0,
+            white_stones: 0,
+        }
+    }
+
+    pub fn standard() -> OthelloBoard {
+        OthelloBoard {
             black_stones: BLACK_START_POS,
             white_stones: WHITE_START_POS,
         }
+    }
+
+    pub fn from_state(black_stones: u64, white_stones: u64) -> Result<OthelloBoard, OthelloError> {
+        if black_stones & white_stones != 0 {
+            return Err(OthelloError::PiecesOverlapping);
+        }
+        let board = OthelloBoard {
+            black_stones,
+            white_stones,
+        };
+        Ok(board)
     }
 
     pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
