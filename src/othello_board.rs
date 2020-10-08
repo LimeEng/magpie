@@ -78,7 +78,7 @@ impl OthelloBoard {
 
     // https://core.ac.uk/download/pdf/33500946.pdf
     pub fn legal_moves_for(&self, stone: Stone) -> u64 {
-        let free_places = self.free_spaces();
+        let empty_cells = self.empty_cells();
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
@@ -86,14 +86,14 @@ impl OthelloBoard {
         for dir in Direction::cardinals() {
             let mut candidates = dir.shift(current_bits) & opponent_bits;
             while candidates != 0 {
-                moves |= free_places & dir.shift(candidates);
+                moves |= empty_cells & dir.shift(candidates);
                 candidates = dir.shift(candidates) & opponent_bits;
             }
         }
         moves
     }
 
-    pub fn free_spaces(&self) -> u64 {
+    pub fn empty_cells(&self) -> u64 {
         (!self.black_stones) & (!self.white_stones)
     }
 
