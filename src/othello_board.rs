@@ -70,7 +70,7 @@ impl OthelloBoard {
         }
     }
 
-    fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
+    pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
         (pos & self.legal_moves_for(stone)) != 0
     }
 
