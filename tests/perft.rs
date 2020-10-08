@@ -7,7 +7,7 @@ macro_rules! perft_tests {
     $(
         #[test]
         fn $test_name() -> Result<(), TestError> {
-            let board = OthelloBoard::new();
+            let board = OthelloBoard::standard();
             let stone = Stone::Black;
             let depth = $depth;
             let target = perft_key(depth)?;
