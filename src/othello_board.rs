@@ -15,11 +15,15 @@ impl OthelloBoard {
         }
     }
 
-    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) {
+    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
+        if self.bits_for(stone.flip()) & pos != 0 {
+            return Err(OthelloError::PiecesOverlapping);
+        }
         match stone {
             Stone::Black => self.black_stones |= pos,
             Stone::White => self.white_stones |= pos,
         }
+        Ok(())
     }
 
     pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
@@ -110,6 +114,7 @@ impl OthelloBoard {
 pub enum OthelloError {
     IllegalMove,
     MultipleMovesAttempted,
+    PiecesOverlapping,
 }
 
 impl Direction {
