@@ -36,3 +36,39 @@ impl Iterator for Direction {
         Some(std::mem::replace(self, next))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn direction_iter_size() -> Result<(), TestError> {
+        use Direction::*;
+        let correct_order = vec![N, NE, E, SE, S, SW, W, NW];
+        let count = Direction::cardinals().take(100).count();
+
+        if count != correct_order.len() {
+            return Err(TestError::DirectionCardinalsWrongSize);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn direction_iter_order() -> Result<(), TestError> {
+        use Direction::*;
+        let correct_order = vec![N, NE, E, SE, S, SW, W, NW];
+        let equal_count = Direction::cardinals()
+            .zip(correct_order.iter())
+            .filter(|(a, b)| a == *b)
+            .count();
+        if correct_order.len() != equal_count {
+            return Err(TestError::DirectionCardinalsWrongOrder);
+        }
+        Ok(())
+    }
+    #[derive(Debug)]
+    enum TestError {
+        DirectionCardinalsWrongOrder,
+        DirectionCardinalsWrongSize,
+    }
+}
