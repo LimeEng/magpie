@@ -3,28 +3,50 @@ use crate::stone::Stone;
 
 #[derive(Clone)]
 pub struct OthelloBoard {
-    white_stones: u64,
     black_stones: u64,
+    white_stones: u64,
 }
 
 impl OthelloBoard {
     pub fn new() -> OthelloBoard {
         OthelloBoard {
-            white_stones: WHITE_START_POS,
-            black_stones: BLACK_START_POS,
+            black_stones: 0,
+            white_stones: 0,
         }
     }
 
-    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) {
-        match stone {
-            Stone::White => self.white_stones |= pos,
-            Stone::Black => self.black_stones |= pos,
+    pub fn standard() -> OthelloBoard {
+        OthelloBoard {
+            black_stones: BLACK_START_POS,
+            white_stones: WHITE_START_POS,
         }
+    }
+
+    pub fn from_state(black_stones: u64, white_stones: u64) -> Result<OthelloBoard, OthelloError> {
+        if black_stones & white_stones != 0 {
+            return Err(OthelloError::PiecesOverlapping);
+        }
+        let board = OthelloBoard {
+            black_stones,
+            white_stones,
+        };
+        Ok(board)
+    }
+
+    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
+        if self.bits_for(stone.flip()) & pos != 0 {
+            return Err(OthelloError::PiecesOverlapping);
+        }
+        match stone {
+            Stone::Black => self.black_stones |= pos,
+            Stone::White => self.white_stones |= pos,
+        }
+        Ok(())
     }
 
     pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
         if pos.count_ones() != 1 {
-            return Err(OthelloError::IllegalMove);
+            return Err(OthelloError::MultipleMovesAttempted);
         }
         if !self.is_legal_move(stone, pos) {
             return Err(OthelloError::IllegalMove);
@@ -51,15 +73,13 @@ impl OthelloBoard {
         }
 
         match stone {
-            Stone::White => {
-                self.white_stones |= mask;
-                self.white_stones |= pos;
-                self.black_stones ^= mask;
-            }
             Stone::Black => {
-                self.black_stones |= mask;
-                self.black_stones |= pos;
+                self.black_stones |= mask | pos;
                 self.white_stones ^= mask;
+            }
+            Stone::White => {
+                self.white_stones |= mask | pos;
+                self.black_stones ^= mask;
             }
         }
         Ok(())
@@ -67,18 +87,18 @@ impl OthelloBoard {
 
     pub fn bits_for(&self, stone: Stone) -> u64 {
         match stone {
-            Stone::White => self.white_stones,
             Stone::Black => self.black_stones,
+            Stone::White => self.white_stones,
         }
     }
 
-    fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
+    pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
         (pos & self.legal_moves_for(stone)) != 0
     }
 
     // https://core.ac.uk/download/pdf/33500946.pdf
     pub fn legal_moves_for(&self, stone: Stone) -> u64 {
-        let free_places = self.free_spaces();
+        let empty_cells = self.empty_cells();
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
@@ -86,22 +106,22 @@ impl OthelloBoard {
         for dir in Direction::cardinals() {
             let mut candidates = dir.shift(current_bits) & opponent_bits;
             while candidates != 0 {
-                moves |= free_places & dir.shift(candidates);
+                moves |= empty_cells & dir.shift(candidates);
                 candidates = dir.shift(candidates) & opponent_bits;
             }
         }
         moves
     }
 
-    pub fn free_spaces(&self) -> u64 {
-        (!self.white_stones) & (!self.black_stones)
+    pub fn empty_cells(&self) -> u64 {
+        (!self.black_stones) & (!self.white_stones)
     }
 
     pub fn stone_at(&self, pos: u64) -> Option<Stone> {
-        if self.white_stones & pos > 0 {
-            Some(Stone::White)
-        } else if self.black_stones & pos > 0 {
+        if self.black_stones & pos > 0 {
             Some(Stone::Black)
+        } else if self.white_stones & pos > 0 {
+            Some(Stone::White)
         } else {
             None
         }
@@ -111,6 +131,8 @@ impl OthelloBoard {
 #[derive(Debug)]
 pub enum OthelloError {
     IllegalMove,
+    MultipleMovesAttempted,
+    PiecesOverlapping,
 }
 
 impl Direction {
@@ -129,8 +151,8 @@ impl Direction {
     }
 }
 
-const WHITE_START_POS: u64 = 0x00_00_00_10_08_00_00_00;
 const BLACK_START_POS: u64 = 0x00_00_00_08_10_00_00_00;
+const WHITE_START_POS: u64 = 0x00_00_00_10_08_00_00_00;
 
 const LEFT_MASK: u64 = 0x80_80_80_80_80_80_80_80;
 const RIGHT_MASK: u64 = 0x01_01_01_01_01_01_01_01;
