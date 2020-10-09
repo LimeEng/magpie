@@ -1,6 +1,7 @@
 use magpie::othello_board::OthelloBoard;
 use magpie::stone::Stone;
-use std::iter::successors;
+
+mod common;
 
 macro_rules! perft_tests {
     ($($test_name:ident: $depth:expr,)*) => {
@@ -9,9 +10,8 @@ macro_rules! perft_tests {
         fn $test_name() -> Result<(), TestError> {
             let board = OthelloBoard::standard();
             let stone = Stone::Black;
-            let depth = $depth;
-            let target = perft_key(depth)?;
-            let nodes = perft(&board, stone, false, depth);
+            let target = perft_key($depth)?;
+            let nodes = perft(&board, stone, false, $depth);
             if target != nodes {
                 return Err(TestError::PerftTargetMissed);
             }
@@ -61,32 +61,23 @@ fn perft(board: &OthelloBoard, stone: Stone, passed: bool, depth: u8) -> u64 {
     if depth == 0 {
         return 1;
     }
-    let mut nodes: u64 = 0;
-    let moves = board.legal_moves_for(stone);
 
+    let moves = board.legal_moves_for(stone);
     if moves == 0 {
         if passed {
-            return 1;
+            1
+        } else {
+            perft(board, stone.flip(), true, depth - 1)
         }
-        nodes += perft(board, stone.flip(), true, depth - 1);
     } else {
-        let all_moves = successors(Some(1_u64), |n| {
-            if *n == 1_u64 << 63 {
-                None
-            } else {
-                Some(n << 1)
-            }
-        })
-        .filter(|m| m & moves != 0)
-        .map(|m| m & moves)
-        .collect::<Vec<u64>>();
-        for m in all_moves.into_iter() {
-            let mut new_board = board.clone();
-            new_board.place_stone(stone, m).unwrap();
-            nodes += perft(&new_board, stone.flip(), false, depth - 1);
-        }
+        common::moves_to_list(moves)
+            .map(|pos| {
+                let mut new_board = board.clone();
+                new_board.place_stone(stone, pos).unwrap();
+                perft(&new_board, stone.flip(), false, depth - 1)
+            })
+            .sum()
     }
-    nodes
 }
 
 #[derive(Debug)]
