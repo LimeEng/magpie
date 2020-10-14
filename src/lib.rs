@@ -1,3 +1,24 @@
+//! Magpie is a reasonably efficient Othello library.
+//!
+//! This library allows the user to play a full game of Othello. Do note that
+//! there is currently no explicit support of Reversi, a very similar game.
+//! However, magpie is flexible enough that it is possible to play Reversi as
+//! well, if the user is willing to do some additional bookkeeping.
+//!
+//! Magpie is implemented using bitboards, which allows for extremely fast
+//! updates and queries while also being memory efficient. More information
+//! about bitboards can be found at [`Wikipedia`].
+//!
+//! Magpie is intentionally minimalistic and requires the user to keep track of
+//! various aspects of the game, such as the next player to move. The library
+//! is used for calculating legal moves and applying them while still giving
+//! the user enough access to the internals to satisfy a wide array of
+//! applications in a safe way.
+//!
+//! [`Wikipedia`]: https://en.wikipedia.org/wiki/Bitboard
+
 mod direction;
+/// Represents an Othello board and provides convenient methods to safely manipulate it.
 pub mod othello_board;
+/// An enum that represents the two stone colors players can play with.
 pub mod stone;
