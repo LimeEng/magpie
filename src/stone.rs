@@ -1,5 +1,11 @@
+#[cfg(feature = "serde")]
+use serde::Deserialize;
+#[cfg(feature = "serde")]
+use serde::Serialize;
+
 /// Enum that represents the two different possible stone colors available on a standard Othello board.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Stone {
     Black,
     White,
