@@ -1,6 +1,11 @@
 use crate::direction::Direction;
 use crate::stone::Stone;
 
+#[cfg(feature = "serde")]
+use serde::Deserialize;
+#[cfg(feature = "serde")]
+use serde::Serialize;
+
 /// Represents an Othello board and provides convenient methods to safely manipulate it.
 ///
 /// The board is represented by two bitboards, one for black player and one for
@@ -35,7 +40,8 @@ use crate::stone::Stone;
 /// 8 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 |
 ///   +----+----+----+----+----+----+----+----+
 /// ```
-#[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct OthelloBoard {
     black_stones: u64,
     white_stones: u64,
