@@ -9,6 +9,11 @@ Magpie is intentionally minimalistic and delegates some basic functionality to t
 
 The library is intended to be consumed behind another abstraction which may keep track of the next player to play or cache various calculations.
 
+## Table of Contents
+- [Documentation](#documentation)
+- [Usage](#usage)
+- [Crate Features](#crate-features)
+
 ## Documentation
 
 Documentation is hosted on [docs.rs](https://docs.rs/magpie/)
@@ -47,4 +52,13 @@ pub fn play(...) {
     let white = board.bits_for(Stone::White).count_ones();
     println!("Game finished with {} - {} (black - white)", black, white);
 }
+```
+
+## Crate features
+
+Serialization with [Serde](https://serde.rs/) is not supported by default. If you want to opt into using magpie with Serde you can enable a feature flag. Simply change your magpie dependency to the following:
+
+```toml
+[dependencies]
+magpie = {version = "0.1.0", features = ["serde"]}
 ```

@@ -15,7 +15,17 @@
 //! the user enough access to the internals to satisfy a wide array of
 //! applications in a safe way.
 //!
+//! Serialization with [Serde](https://serde.rs/) is not supported by default.
+//! If you want to opt into using magpie with Serde you can enable a feature
+//! flag. Simply change your magpie dependency to the following:
+//!
+//! ```toml
+//! [dependencies]
+//! magpie = {version = "0.1.0", features = ["serde"]}
+//! ```
+//!
 //! [`Wikipedia`]: https://en.wikipedia.org/wiki/Bitboard
+//! [`Serde`]: https://serde.rs
 
 mod direction;
 /// Represents an Othello board and provides convenient methods to safely manipulate it.
