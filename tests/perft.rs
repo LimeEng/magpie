@@ -1,7 +1,6 @@
 use magpie::othello_board::OthelloBoard;
+use magpie::othello_board::PositionExt;
 use magpie::stone::Stone;
-
-mod common;
 
 macro_rules! perft_tests {
     ($($test_name:ident: $depth:expr,)*) => {
@@ -70,7 +69,8 @@ fn perft(board: &OthelloBoard, stone: Stone, passed: bool, depth: u8) -> u64 {
             perft(board, stone.flip(), true, depth - 1)
         }
     } else {
-        common::moves_to_list(moves)
+        moves
+            .positions()
             .map(|pos| {
                 let mut new_board = board.clone();
                 new_board.place_stone(stone, pos).unwrap();
