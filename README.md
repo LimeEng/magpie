@@ -24,7 +24,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-magpie = "0.1.0"
+magpie = "0.2.0"
 ```
 
 With magpie installed it is possible to play a game of Othello. Below is an example of how it can be implemented. Do note that error-handling has been omitted for brevity, and the algorithm for choosing the next move is left as an exercise to the reader.
@@ -60,5 +60,5 @@ Serialization with [Serde](https://serde.rs/) is not supported by default. If yo
 
 ```toml
 [dependencies]
-magpie = {version = "0.1.0", features = ["serde"]}
+magpie = {version = "0.2.0", features = ["serde"]}
 ```
