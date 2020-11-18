@@ -240,7 +240,10 @@ impl OthelloBoard {
         }
     }
 
-    /// Checks whether or not a move is valid for the specified player
+    /// Checks whether or not a move is valid for the specified player.
+    ///
+    /// The specified bitboard must have one and only one bit set. If this is
+    /// not true, the function will always return false.
     ///
     /// # Examples
     /// ```rust
@@ -251,7 +254,24 @@ impl OthelloBoard {
     /// assert_eq!(board.is_legal_move(Stone::Black, 1_u64), false);
     /// ```
     pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
-        (pos & self.legal_moves_for(stone)) != 0
+        if pos.count_ones() != 1 {
+            return false;
+        }
+        let current_bits = self.bits_for(stone);
+        let opponent_bits = self.bits_for(stone.flip());
+
+        for dir in Direction::cardinals() {
+            let mut candidates = dir.shift(pos) & opponent_bits;
+            while candidates != 0 {
+                candidates = dir.shift(candidates);
+                let is_own_piece = candidates & current_bits != 0;
+                candidates &= opponent_bits;
+                if candidates == 0 && is_own_piece {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     /// Calculates and returns the set of all legal moves for the specified player.
