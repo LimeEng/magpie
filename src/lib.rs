@@ -21,7 +21,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! magpie = {version = "0.1.0", features = ["serde"]}
+//! magpie = {version = "0.2.0", features = ["serde"]}
 //! ```
 //!
 //! [`Wikipedia`]: https://en.wikipedia.org/wiki/Bitboard
