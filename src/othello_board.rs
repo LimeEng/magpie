@@ -18,7 +18,7 @@ use serde::Serialize;
 /// operations, like [`place_stone`] expects that the argument bitboard only
 /// has a single bit set and will return an error if that is false.
 ///
-/// [`place_stone`]: #method.place_stone
+/// [`place_stone`]: crate::othello_board::OthelloBoard::place_stone
 ///
 /// ```text
 ///     A    B    C    D    E    F    G    H
@@ -53,7 +53,7 @@ impl OthelloBoard {
     /// This can be useful for setting up specific scenarios but for most
     /// users, the [`standard`] constructor will be more useful.
     ///
-    /// [`standard`]: #method.standard
+    /// [`standard`]: crate::othello_board::OthelloBoard::standard
     ///
     /// # Examples
     /// ```rust
@@ -134,7 +134,7 @@ impl OthelloBoard {
     /// placed on top of a stone of the opposite color, and if so, returns an
     /// error leaving the board untouched.
     ///
-    ///  [`place_stone`]: #method.place_stone
+    ///  [`place_stone`]: crate::othello_board::OthelloBoard::place_stone
     ///
     /// # Examples
     /// ```rust
@@ -220,7 +220,7 @@ impl OthelloBoard {
     /// The returned bitboard represents the Othello board. For a more detailed
     /// description, refer to the documentation of the [`OthelloBoard struct`].
     ///
-    /// [`OthelloBoard struct`]: ../othello_board/struct.OthelloBoard.html
+    /// [`OthelloBoard struct`]: crate::othello_board::OthelloBoard
     ///
     /// # Examples
     /// ```rust
@@ -279,7 +279,7 @@ impl OthelloBoard {
     /// The returned bitboard represents the Othello board. For a more detailed
     /// description, refer to the documentation of the [`OthelloBoard struct`].
     ///
-    /// [`OthelloBoard struct`]: ../othello_board/struct.OthelloBoard.html
+    /// [`OthelloBoard struct`]: crate::othello_board::OthelloBoard
     ///
     /// # Examples
     /// ```rust
@@ -311,7 +311,7 @@ impl OthelloBoard {
     /// The returned bitboard represents the Othello board. For a more detailed
     /// description, refer to the documentation of the [`OthelloBoard struct`]
     ///
-    /// [`OthelloBoard struct`]: ../othello_board/struct.OthelloBoard.html
+    /// [`OthelloBoard struct`]: crate::othello_board::OthelloBoard
     ///
     /// # Examples
     /// ```rust
