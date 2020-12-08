@@ -13,6 +13,7 @@ The library is intended to be consumed behind another abstraction which may keep
 - [Documentation](#documentation)
 - [Usage](#usage)
 - [Crate Features](#crate-features)
+- [Examples](#examples)
 
 ## Documentation
 
@@ -27,33 +28,6 @@ Add this to your `Cargo.toml`:
 magpie = "0.2.0"
 ```
 
-With magpie installed it is possible to play a game of Othello. Below is an example of how it can be implemented. Do note that error-handling has been omitted for brevity, and the algorithm for choosing the next move is left as an exercise to the reader.
-
-```rust
-pub fn play(...) {
-    let mut board = OthelloBoard::standard();
-    let mut passed_last_turn = false;
-    let mut player = Stone::Black;
-    while board.free_spaces().count_ones() > 0 {
-        let legal_moves = board.legal_moves_for(player);
-        if legal_moves == 0 {
-            if passed_last_turn {
-                break;
-            }
-            passed_last_turn = true;
-        } else {
-            let chosen_move = choose_move(...);
-            board.place_stone(player, chosen_move).unwrap();
-            passed_last_turn = false;
-        }
-        player = player.flip();
-    }
-    let black = board.bits_for(Stone::Black).count_ones();
-    let white = board.bits_for(Stone::White).count_ones();
-    println!("Game finished with {} - {} (black - white)", black, white);
-}
-```
-
 ## Crate features
 
 Serialization with [Serde](https://serde.rs/) is not supported by default. If you want to opt into using magpie with Serde you can enable a feature flag. Simply change your magpie dependency to the following:
@@ -61,4 +35,14 @@ Serialization with [Serde](https://serde.rs/) is not supported by default. If yo
 ```toml
 [dependencies]
 magpie = {version = "0.2.0", features = ["serde"]}
+```
+
+## Examples
+
+Examples are [found here](/examples).
+
+Currently, there is only one example available. It is a game that allow you to play Othello against a random AI. To start the game, run the following command:
+
+```
+cargo run --example human_vs_ai
 ```
