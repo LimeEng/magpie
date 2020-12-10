@@ -1,5 +1,6 @@
 use crate::direction::Direction;
 use crate::stone::Stone;
+use std::convert::TryFrom;
 
 #[cfg(feature = "serde")]
 use serde::Deserialize;
@@ -96,33 +97,6 @@ impl OthelloBoard {
             black_stones: BLACK_START_POS,
             white_stones: WHITE_START_POS,
         }
-    }
-
-    /// Returns a board built from the two specified bitboards.
-    ///
-    /// Returns an error if the two bitboards intersect.
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello_board::OthelloBoard;
-    /// use magpie::stone::Stone;
-    ///
-    /// let board = OthelloBoard::standard();
-    /// let black = board.bits_for(Stone::Black);
-    /// let white = board.bits_for(Stone::White);
-    ///
-    /// // Quite a contrived example
-    /// let board = OthelloBoard::from_state(black, white).unwrap();
-    /// ```
-    pub fn from_state(black_stones: u64, white_stones: u64) -> Result<OthelloBoard, OthelloError> {
-        if black_stones & white_stones != 0 {
-            return Err(OthelloError::PiecesOverlapping);
-        }
-        let board = OthelloBoard {
-            black_stones,
-            white_stones,
-        };
-        Ok(board)
     }
 
     /// Places a stone in the specified position, which may be several at a time.
@@ -351,6 +325,63 @@ impl OthelloBoard {
         } else {
             None
         }
+    }
+}
+
+// impl<'de> Deserialize<'de> for OthelloBoard {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//     where
+//         D: Deserializer<'de>,
+//     {
+//         let unchecked = OthelloBoard::deserialize(deserializer)?;
+//         if unchecked.black_stones & unchecked.white_stones != 0 {
+//             return Err(de::Error::custom("Overlapping pieces"));
+//         }
+//         Ok(unchecked)
+//     }
+// }
+
+impl Default for OthelloBoard {
+    /// Returns a board with the standard opening position configured.
+    ///
+    /// Simply delegates to the [`standard`] constructor.
+    ///
+    /// [`standard`]: crate::othello_board::OthelloBoard::standard
+    fn default() -> Self {
+        OthelloBoard::standard()
+    }
+}
+
+impl TryFrom<(u64, u64)> for OthelloBoard {
+    type Error = OthelloError;
+
+    /// Returns a board built from the two specified bitboards.
+    ///
+    /// Returns an error if the two bitboards intersect.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello_board::OthelloBoard;
+    /// use magpie::stone::Stone;
+    /// use std::convert::TryFrom;
+    ///
+    /// let board = OthelloBoard::standard();
+    /// let black = board.bits_for(Stone::Black);
+    /// let white = board.bits_for(Stone::White);
+    ///
+    /// // Quite a contrived example
+    /// let board = OthelloBoard::try_from((black, white)).unwrap();
+    /// ```
+    fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
+        let (black_stones, white_stones) = stones;
+        if black_stones & white_stones != 0 {
+            return Err(OthelloError::PiecesOverlapping);
+        }
+        let board = OthelloBoard {
+            black_stones,
+            white_stones,
+        };
+        Ok(board)
     }
 }
 
