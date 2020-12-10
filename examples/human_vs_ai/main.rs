@@ -56,6 +56,9 @@ fn play() {
         }
         active_agent = active_agent.next_agent();
     }
+    println!("Final board");
+    let repr = util::display(&board, None);
+    println!("{}", repr);
     let black = board.bits_for(Stone::Black).count_ones();
     let white = board.bits_for(Stone::White).count_ones();
     println!("Game finished with {} - {} (black - white)", black, white);
