@@ -1,4 +1,6 @@
+use std::convert::TryFrom;
 use std::convert::TryInto;
+use std::str::FromStr;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -8,55 +10,12 @@ pub struct Coord {
 }
 
 impl Coord {
-    pub fn from_notation(text: &str) -> Result<Coord, ParseCoordError> {
-        let mut graphemes = UnicodeSegmentation::graphemes(text, true).take(2);
-
-        let file = graphemes.next();
-        let rank = graphemes.next();
-
-        let file = file
-            .ok_or(ParseCoordError::InvalidSize)
-            .and_then(|chr| match chr {
-                "a" => Ok(0),
-                "b" => Ok(1),
-                "c" => Ok(2),
-                "d" => Ok(3),
-                "e" => Ok(4),
-                "f" => Ok(5),
-                "g" => Ok(6),
-                "h" => Ok(7),
-                _ => Err(ParseCoordError::InvalidFile),
-            })?;
-
-        let rank = rank
-            .ok_or(ParseCoordError::InvalidSize)
-            .and_then(|chr| match chr {
-                "1" => Ok(0),
-                "2" => Ok(1),
-                "3" => Ok(2),
-                "4" => Ok(3),
-                "5" => Ok(4),
-                "6" => Ok(5),
-                "7" => Ok(6),
-                "8" => Ok(7),
-                _ => Err(ParseCoordError::InvalidRank),
-            })?;
-        Ok(Coord { rank, file })
-    }
-
-    pub fn from_cartesian(rank: u8, file: u8) -> Option<Coord> {
+    fn new(rank: u8, file: u8) -> Result<Coord, RankFilePairError> {
         if rank > 7 || file > 7 {
-            return None;
+            Err(RankFilePairError::OutOfBounds)
+        } else {
+            Ok(Coord { rank, file })
         }
-        Some(Coord { rank, file })
-    }
-
-    pub fn from_bitboard(bitboard: u64) -> Option<Coord> {
-        // An Othello board is 8x8
-        let file: u8 = (bitboard.leading_zeros() % 8).try_into().unwrap();
-        let rank: u8 = (bitboard.leading_zeros() / 8).try_into().unwrap();
-
-        Coord::from_cartesian(rank, file)
     }
 
     pub fn rank(&self) -> u8 {
@@ -87,11 +46,89 @@ impl Coord {
     }
 }
 
+impl FromStr for Coord {
+    type Err = ParseCoordError;
+
+    fn from_str(text: &str) -> Result<Self, Self::Err> {
+        let text: &str = &text.to_lowercase();
+        let mut graphemes = UnicodeSegmentation::graphemes(text, true).take(2);
+
+        let file = graphemes.next();
+        let rank = graphemes.next();
+
+        let file = file
+            .ok_or(ParseCoordError::InvalidSize)
+            .and_then(|chr| match chr {
+                "a" => Ok(0),
+                "b" => Ok(1),
+                "c" => Ok(2),
+                "d" => Ok(3),
+                "e" => Ok(4),
+                "f" => Ok(5),
+                "g" => Ok(6),
+                "h" => Ok(7),
+                _ => Err(ParseCoordError::InvalidFile),
+            })?;
+        let rank = rank
+            .ok_or(ParseCoordError::InvalidSize)
+            .and_then(|chr| match chr {
+                "1" => Ok(0),
+                "2" => Ok(1),
+                "3" => Ok(2),
+                "4" => Ok(3),
+                "5" => Ok(4),
+                "6" => Ok(5),
+                "7" => Ok(6),
+                "8" => Ok(7),
+                _ => Err(ParseCoordError::InvalidRank),
+            })?;
+
+        Ok(Coord::new(rank, file).unwrap())
+    }
+}
+
+impl TryFrom<u64> for Coord {
+    type Error = BitboardFormatError;
+
+    fn try_from(bitboard: u64) -> Result<Self, Self::Error> {
+        if bitboard.count_ones() == 1 {
+            let file: u8 = (bitboard.leading_zeros() % 8).try_into().unwrap();
+            let rank: u8 = (bitboard.leading_zeros() / 8).try_into().unwrap();
+            Ok(Coord::new(rank, file).unwrap())
+        } else {
+            Err(BitboardFormatError::MultipleBitsSet)
+        }
+    }
+}
+
+impl TryFrom<(u8, u8)> for Coord {
+    type Error = RankFilePairError;
+
+    fn try_from(pair: (u8, u8)) -> Result<Self, Self::Error> {
+        let (rank, file) = pair;
+        if rank > 7 || file > 7 {
+            Err(RankFilePairError::OutOfBounds)
+        } else {
+            Ok(Coord::new(rank, file).unwrap())
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum ParseCoordError {
     InvalidSize,
     InvalidRank,
     InvalidFile,
+}
+
+#[derive(Debug)]
+pub enum BitboardFormatError {
+    MultipleBitsSet,
+}
+
+#[derive(Debug)]
+pub enum RankFilePairError {
+    OutOfBounds,
 }
 
 const FILE_A: u64 = 0x80_80_80_80_80_80_80_80;

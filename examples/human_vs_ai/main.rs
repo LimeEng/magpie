@@ -5,6 +5,7 @@ use agent::human_agent::HumanAgent;
 use agent::random_agent::RandomAgent;
 use magpie::othello_board::OthelloBoard;
 use magpie::stone::Stone;
+use std::convert::TryFrom;
 
 pub mod agent;
 pub mod coord;
@@ -45,7 +46,7 @@ fn play() {
                         .unwrap_or_else(|_| {
                             panic!("{:?} tried to make an illegal move", active_agent.stone())
                         });
-                    let played_pos = Coord::from_bitboard(ply).unwrap().as_notation();
+                    let played_pos = Coord::try_from(ply).unwrap().as_notation();
                     println!("{:?} played {}", active_agent.stone(), played_pos);
                 }
                 Action::Pass => {

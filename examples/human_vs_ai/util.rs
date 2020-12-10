@@ -1,11 +1,12 @@
 use crate::coord::Coord;
 use magpie::othello_board::OthelloBoard;
 use magpie::stone::Stone;
+use std::convert::TryFrom;
 
 pub fn display(board: &OthelloBoard, stone: Option<Stone>) -> String {
     let legal_moves = stone.map(|stone| board.legal_moves_for(stone)).unwrap_or(0);
     let char_at = |rank: usize, file: usize| {
-        let pos = Coord::from_cartesian(rank as u8, file as u8)
+        let pos = Coord::try_from((rank as u8, file as u8))
             .unwrap()
             .as_bitboard();
         board

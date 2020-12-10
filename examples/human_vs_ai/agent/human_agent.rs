@@ -19,7 +19,7 @@ impl Agent for HumanAgent {
             let input = input.trim();
             if input.to_lowercase() == "pass" {
                 break Action::Pass;
-            } else if let Ok(coord) = Coord::from_notation(&input) {
+            } else if let Ok(coord) = input.parse::<Coord>() {
                 let action = coord.as_bitboard();
                 if board.is_legal_move(stone, action) {
                     break Action::Move(action);
