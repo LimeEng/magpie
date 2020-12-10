@@ -3,9 +3,7 @@ use crate::stone::Stone;
 use std::convert::TryFrom;
 
 #[cfg(feature = "serde")]
-use serde::Deserialize;
-#[cfg(feature = "serde")]
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Represents an Othello board and provides convenient methods to safely manipulate it.
 ///
@@ -42,6 +40,11 @@ use serde::Serialize;
 ///   +----+----+----+----+----+----+----+----+
 /// ```
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+// Since we need to perform some validation but do not want to write a custom
+// serde deserializer, we instead create a shadow type. This shadow type can be
+// deserialized and nothing else. Thanks to some Serde magic it is possible to
+// reuse the TryFrom trait and get proper validation.
+#[cfg_attr(feature = "serde", serde(try_from = "ShadowOthelloBoard"))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct OthelloBoard {
     black_stones: u64,
@@ -328,18 +331,27 @@ impl OthelloBoard {
     }
 }
 
-// impl<'de> Deserialize<'de> for OthelloBoard {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//     where
-//         D: Deserializer<'de>,
-//     {
-//         let unchecked = OthelloBoard::deserialize(deserializer)?;
-//         if unchecked.black_stones & unchecked.white_stones != 0 {
-//             return Err(de::Error::custom("Overlapping pieces"));
-//         }
-//         Ok(unchecked)
-//     }
-// }
+#[cfg_attr(feature = "serde", derive(Deserialize))]
+#[cfg(feature = "serde")]
+struct ShadowOthelloBoard {
+    black_stones: u64,
+    white_stones: u64,
+}
+
+#[cfg(feature = "serde")]
+impl std::convert::TryFrom<ShadowOthelloBoard> for OthelloBoard {
+    type Error = &'static str;
+
+    fn try_from(unchecked: ShadowOthelloBoard) -> Result<Self, Self::Error> {
+        // Simply delegate to the main TryFrom trait implementation
+        OthelloBoard::try_from((unchecked.black_stones, unchecked.white_stones)).map_err(|_| {
+            // While it would be possible to simply implement fmt::Display on OthelloError,
+            // this solution leaves that trait open for future uses.
+            // Furthermore, in this case, no other error will be reasonably returned.
+            "Overlapping pieces detected"
+        })
+    }
+}
 
 impl Default for OthelloBoard {
     /// Returns a board with the standard opening position configured.
