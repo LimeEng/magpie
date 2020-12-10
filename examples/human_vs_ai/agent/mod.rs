@@ -10,6 +10,9 @@ pub enum Action {
     Pass,
 }
 
+/// This trait defines an agent. Given a board with a certain state and a
+/// stone, which represents the color of the agent, it needs to provide an
+/// action.
 pub trait Agent {
     fn play(&mut self, stone: Stone, board: &OthelloBoard) -> Action;
 }

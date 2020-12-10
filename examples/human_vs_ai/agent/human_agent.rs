@@ -6,6 +6,8 @@ use magpie::stone::Stone;
 use std::io;
 use std::io::Write;
 
+/// Queries the user to provide a valid move to play. The user can also pass
+/// their turn.
 pub struct HumanAgent;
 
 impl Agent for HumanAgent {
@@ -34,5 +36,6 @@ impl Agent for HumanAgent {
 
 fn print_prompt() {
     print!("> ");
+    // print!() does not flush, unlike println!(), so it needs to be done manually
     io::stdout().flush().expect("Could not flush stdout");
 }

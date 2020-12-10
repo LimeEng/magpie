@@ -29,6 +29,8 @@ fn play() {
         if legal_moves == 0 {
             println!("{:?} have no moves to make", active_agent.stone());
             if passed_last_turn {
+                // In Othello, if both players passed their turn in succession,
+                // the game is over.
                 println!("No player have any legal moves to make, exiting");
                 break;
             }
@@ -46,6 +48,8 @@ fn play() {
                         .unwrap_or_else(|_| {
                             panic!("{:?} tried to make an illegal move", active_agent.stone())
                         });
+                    // It is safe to unwrap since the previous "place_stone"
+                    // succeeded.
                     let played_pos = Coord::try_from(ply).unwrap().as_notation();
                     println!("{:?} played {}", active_agent.stone(), played_pos);
                 }

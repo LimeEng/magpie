@@ -5,6 +5,8 @@ use magpie::othello_board::PositionExt;
 use magpie::stone::Stone;
 use rand::seq::SliceRandom;
 
+/// Plays completely randomly. If no legal moves are available, passes their
+/// turn.
 pub struct RandomAgent;
 
 impl Agent for RandomAgent {

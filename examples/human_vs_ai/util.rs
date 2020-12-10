@@ -3,6 +3,10 @@ use magpie::othello_board::OthelloBoard;
 use magpie::stone::Stone;
 use std::convert::TryFrom;
 
+/// Prints the specified board with optional legal moves included
+///
+/// If a stone is specified, this function prints the legal moves for that
+/// stone.
 pub fn display(board: &OthelloBoard, stone: Option<Stone>) -> String {
     let legal_moves = stone.map(|stone| board.legal_moves_for(stone)).unwrap_or(0);
     let char_at = |rank: usize, file: usize| {

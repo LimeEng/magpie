@@ -9,6 +9,14 @@ pub struct Coord {
     file: u8,
 }
 
+/// Coordinate type to help convert between different representations
+///
+/// Mostly a complicated mess and not especially important for understanding
+/// the magpie library. It helps to convert between three different coordinate
+/// representations. The one closest to the library is the bitboard
+/// representation and the one closest to the user is the standard board
+/// notation, such as "A1". The standard board notation can also be described
+/// as ranks and files which is the third and final coordinate representation.
 impl Coord {
     fn new(rank: u8, file: u8) -> Result<Coord, RankFilePairError> {
         if rank > 7 || file > 7 {
@@ -46,6 +54,8 @@ impl Coord {
     }
 }
 
+/// Parses standard board notation into a coordinate. The coordinate can later
+/// be converted to more convenient formats. The parser is not case-sensitive.
 impl FromStr for Coord {
     type Err = ParseCoordError;
 
@@ -87,6 +97,9 @@ impl FromStr for Coord {
     }
 }
 
+/// While a bitboard can represent several coordinates in one point, it is
+/// important that only one bit is set when converting to different notations,
+/// since other notations only support one coordinate at a time.
 impl TryFrom<u64> for Coord {
     type Error = BitboardFormatError;
 
@@ -101,6 +114,7 @@ impl TryFrom<u64> for Coord {
     }
 }
 
+/// Ranks and files are indexed from zero
 impl TryFrom<(u8, u8)> for Coord {
     type Error = RankFilePairError;
 
