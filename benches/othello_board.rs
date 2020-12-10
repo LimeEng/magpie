@@ -2,6 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use magpie::othello_board::OthelloBoard;
 use magpie::othello_board::PositionExt;
 use magpie::stone::Stone;
+use std::convert::TryFrom;
 
 fn bench_clone(c: &mut Criterion) {
     let board = OthelloBoard::standard();
@@ -58,12 +59,12 @@ fn board_for_place_stone() -> OthelloBoard {
     let black_pos = 0x88_01_00_00_81_00_00_49;
     let white_pos = 0x00_48_2a_1c_76_1c_2a_00;
 
-    OthelloBoard::from_state(black_pos, white_pos).unwrap()
+    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
 }
 
 fn board_for_legal_moves() -> OthelloBoard {
     let black_pos = 0x00_11_66_0c_3c_2c_00_00;
     let white_pos = 0x00_66_00_52_40_52_56_00;
 
-    OthelloBoard::from_state(black_pos, white_pos).unwrap()
+    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
 }
