@@ -41,7 +41,7 @@ magpie = {version = "0.2.0", features = ["serde"]}
 
 Examples are [found here](/examples).
 
-Currently, there is only one example available. It is a game that allow you to play Othello against a random AI. To start the game, run the following command:
+Included as an example is a functional game which allows you to play Othello against a random AI. To start the game, run the following command:
 
 ```
 cargo run --example human_vs_ai
