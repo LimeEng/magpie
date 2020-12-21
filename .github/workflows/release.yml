@@ -1,0 +1,41 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  push-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      version_tag: ${{ steps.tag.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create and push new tag
+        id: tag
+        # https://github.com/rust-cli/meta/issues/33
+        # Thanks ashutoshrishi!
+        run: |
+          VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml)
+          VERSION="v${VERSION}"
+          echo "Detected version: ${VERSION}"
+          git config --global user.name 'Emil Englesson'
+          git config --global user.email 'englesson.emil@gmail.com'
+          git tag -a ${VERSION} -m ''
+          git push origin refs/tags/${VERSION}
+          echo "::set-output name=version_tag::${VERSION}"
+
+  publish:
+    needs: push-tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Publish to crates.io
+        run: cargo publish --token $SECRET_TOKEN
+        env:
+          SECRET_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
