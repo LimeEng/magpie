@@ -1,5 +1,5 @@
-use magpie::othello_board::OthelloBoard;
-use magpie::stone::Stone;
+use magpie::othello::OthelloBoard;
+use magpie::othello::Stone;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 

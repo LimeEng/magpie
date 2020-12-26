@@ -28,7 +28,5 @@
 //! [`Serde`]: https://serde.rs
 
 mod direction;
-/// Represents an Othello board and provides convenient methods to safely manipulate it.
-pub mod othello_board;
-/// An enum that represents the two stone colors players can play with.
-pub mod stone;
+/// Contains structs and functions that are useful when playing Othello.
+pub mod othello;

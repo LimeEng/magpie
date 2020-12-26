@@ -1,8 +1,8 @@
 use crate::agent::Action;
 use crate::agent::Agent;
-use magpie::othello_board::OthelloBoard;
-use magpie::othello_board::PositionExt;
-use magpie::stone::Stone;
+use magpie::othello::OthelloBoard;
+use magpie::othello::PositionExt;
+use magpie::othello::Stone;
 use rand::seq::SliceRandom;
 
 /// Plays completely randomly. If no legal moves are available, passes their

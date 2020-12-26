@@ -3,8 +3,8 @@ use crate::agent::Agent;
 use crate::coord::Coord;
 use agent::human_agent::HumanAgent;
 use agent::random_agent::RandomAgent;
-use magpie::othello_board::OthelloBoard;
-use magpie::stone::Stone;
+use magpie::othello::OthelloBoard;
+use magpie::othello::Stone;
 use std::convert::TryFrom;
 
 pub mod agent;
