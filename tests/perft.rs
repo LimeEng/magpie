@@ -1,6 +1,6 @@
-use magpie::othello_board::OthelloBoard;
-use magpie::othello_board::PositionExt;
-use magpie::stone::Stone;
+use magpie::othello::OthelloBoard;
+use magpie::othello::PositionExt;
+use magpie::othello::Stone;
 
 macro_rules! perft_tests {
     ($($test_name:ident: $depth:expr,)*) => {

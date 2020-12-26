@@ -1,6 +1,6 @@
 use crate::coord::Coord;
-use magpie::othello_board::OthelloBoard;
-use magpie::stone::Stone;
+use magpie::othello::OthelloBoard;
+use magpie::othello::Stone;
 use std::convert::TryFrom;
 
 /// Prints the specified board with optional legal moves included

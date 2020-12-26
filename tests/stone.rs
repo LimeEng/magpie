@@ -1,4 +1,4 @@
-use magpie::stone::Stone;
+use magpie::othello::Stone;
 
 #[test]
 fn stone_flip_equality() -> Result<(), TestError> {

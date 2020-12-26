@@ -14,7 +14,7 @@ impl Stone {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::stone::Stone;
+    /// use magpie::othello::Stone;
     ///
     /// let stone = Stone::Black;
     /// assert_eq!(stone.flip(), Stone::White);

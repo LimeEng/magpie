@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use magpie::othello_board::OthelloBoard;
-use magpie::othello_board::PositionExt;
-use magpie::stone::Stone;
+use magpie::othello::OthelloBoard;
+use magpie::othello::PositionExt;
+use magpie::othello::Stone;
 use std::convert::TryFrom;
 
 fn bench_clone(c: &mut Criterion) {
