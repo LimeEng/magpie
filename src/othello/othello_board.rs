@@ -102,7 +102,7 @@ impl OthelloBoard {
         }
     }
 
-    /// Places a stone in the specified position, which may be several at a time.
+    /// Places stones in the specified positions.
     ///
     /// Unlike the similar [`place_stone`] function, this function places no
     /// restrictions on the `pos` argument. Multiple stones may be placed at
@@ -130,6 +130,27 @@ impl OthelloBoard {
             Stone::White => self.white_stones |= pos,
         }
         Ok(())
+    }
+
+    /// Removes stones in the specified positions.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::OthelloBoard;
+    /// use magpie::othello::Stone;
+    ///
+    /// let mut board = OthelloBoard::standard();
+    /// let black_stones = board.bits_for(Stone::Black);
+    /// let white_stones = board.bits_for(Stone::White);
+    /// board.remove_stone_unchecked(Stone::Black, black_stones);
+    /// board.remove_stone_unchecked(Stone::White, white_stones);
+    /// assert_eq!(OthelloBoard::empty(), board);
+    /// ```
+    pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: u64) {
+        match stone {
+            Stone::Black => self.black_stones &= !pos,
+            Stone::White => self.white_stones &= !pos,
+        }
     }
 
     /// Places a stone in the specified position and updates the board accordingly.
