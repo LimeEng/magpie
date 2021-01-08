@@ -8,16 +8,17 @@ fn serde_legal_deserialization() -> Result<()> {
     let json = serde_json::to_string_pretty(&board)?;
     let board: OthelloBoard = serde_json::from_str(&json)?;
 
-    assert_eq!(board.legal_moves_for(Stone::Black).count_ones(), 4);
+    assert_eq!(OthelloBoard::standard(), board);
 
     Ok(())
 }
 
 #[test]
 fn serde_illegal_deserialization() {
+    // These two numbers share a bit with value 1 in the same position
     let json = r#"{
-        "black_stones": 111111111,
-        "white_stones": 111111111
+        "black_stones": 123456789,
+        "white_stones": 1
     }"#;
 
     let board = serde_json::from_str::<OthelloBoard>(&json);

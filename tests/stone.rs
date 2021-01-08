@@ -1,15 +1,7 @@
 use magpie::othello::Stone;
 
 #[test]
-fn stone_flip_equality() -> Result<(), TestError> {
+fn stone_flip_equality() {
     let stone = Stone::Black;
-    if stone.flip().flip() != stone {
-        return Err(TestError::StoneNotEqual);
-    }
-    Ok(())
-}
-
-#[derive(Debug)]
-enum TestError {
-    StoneNotEqual,
+    assert_eq!(stone, stone.flip().flip());
 }

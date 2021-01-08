@@ -229,7 +229,7 @@ impl OthelloBoard {
     /// let black = board.bits_for(Stone::Black);
     /// let white = board.bits_for(Stone::White);
     /// // The two bitboards do not intersect
-    /// assert_eq!(black & white, 0);
+    /// assert_eq!(0, black & white);
     /// ```
     pub fn bits_for(&self, stone: Stone) -> u64 {
         match stone {
@@ -249,7 +249,7 @@ impl OthelloBoard {
     /// use magpie::othello::Stone;
     ///
     /// let board = OthelloBoard::standard();
-    /// assert_eq!(board.is_legal_move(Stone::Black, 1_u64), false);
+    /// assert_eq!(false, board.is_legal_move(Stone::Black, 1_u64));
     /// ```
     pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
         if pos.count_ones() != 1 {

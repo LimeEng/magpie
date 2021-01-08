@@ -20,6 +20,25 @@ macro_rules! perft_tests {
     }
 }
 
+macro_rules! ignored_perft_tests {
+    ($($test_name:ident: $depth:expr,)*) => {
+    $(
+        #[ignore]
+        #[test]
+        fn $test_name() -> Result<(), TestError> {
+            let board = OthelloBoard::standard();
+            let stone = Stone::Black;
+            let target = perft_key($depth)?;
+            let nodes = perft(&board, stone, false, $depth);
+            if target != nodes {
+                return Err(TestError::PerftTargetMissed);
+            }
+            Ok(())
+        }
+    )*
+    }
+}
+
 perft_tests! {
     perft_1: 1,
     perft_2: 2,
@@ -28,13 +47,18 @@ perft_tests! {
     perft_5: 5,
     perft_6: 6,
     perft_7: 7,
+}
+
+ignored_perft_tests! {
     // Too expensive to run regularly.
-    // TODO: add #[ignore] to these tests
-    // perft_8: 8,
-    // perft_9: 9,
-    // perft_10: 10,
-    // perft_11: 11,
-    // perft_12: 12,
+    perft_8: 8,
+    perft_9: 9,
+    perft_10: 10,
+    perft_11: 11,
+    perft_12: 12,
+    // Too ridiculously expensive to run at all.
+    // perft_13: 13,
+    // perft_14: 14,
 }
 
 fn perft_key(depth: u8) -> Result<u64, TestError> {
@@ -51,6 +75,8 @@ fn perft_key(depth: u8) -> Result<u64, TestError> {
         10 => 24571284,
         11 => 212258800,
         12 => 1939886636,
+        13 => 18429641748,
+        14 => 184042084512,
         _ => return Err(TestError::PerftDepthTooLarge),
     })
 }
