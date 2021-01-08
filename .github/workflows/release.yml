@@ -2,6 +2,15 @@ name: Publish
 
 on:
   workflow_dispatch:
+    inputs:
+      create-tag:
+        description: 'If a new tag should be created and pushed'
+        required: true
+        default: true
+      publish-crate:
+        description: 'If a new version should be published to crates.io'
+        required: true
+        default: true
 
 jobs:
   push-tag:
@@ -15,16 +24,30 @@ jobs:
         # https://github.com/rust-cli/meta/issues/33
         # Thanks ashutoshrishi!
         run: |
+          echo "Create tag: ${{ github.event.inputs.create-tag }}"
+          echo "Publish crate: ${{ github.event.inputs.publish-crate }}"
           VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml)
           VERSION="v${VERSION}"
           echo "Detected version: ${VERSION}"
-          git config --global user.name 'Emil Englesson'
-          git config --global user.email 'englesson.emil@gmail.com'
-          git tag -a ${VERSION} -m ''
-          git push origin refs/tags/${VERSION}
+          if [[ "${{ github.event.inputs.create-tag }}" == "true" ]]
+          then
+            echo "Creating new tag"
+            git config --global user.name 'Emil Englesson'
+            git config --global user.email 'englesson.emil@gmail.com'
+            git tag -a ${VERSION} -m ''
+            git push origin refs/tags/${VERSION}
+          elif [[ "${{ github.event.inputs.create-tag }}" == "false" ]]
+          then
+            echo "Skipping creation of new tag"
+          else
+            echo "Invalid value: create-tag: ${{ github.event.inputs.create-tag }}"
+            echo "Aborting"
+            exit 1
+          fi
           echo "::set-output name=version_tag::${VERSION}"
 
   publish:
+    if: ${{ github.event.inputs.publish-crate == 'true' }}
     needs: push-tag
     runs-on: ubuntu-latest
     steps:
