@@ -46,3 +46,11 @@ Included as an example is a functional game which allows you to play Othello aga
 ```
 cargo run --example human_vs_ai
 ```
+
+## Benchmarks
+
+Benchmarks are [found here](/benchmarks)
+
+Performance is important, although is should be noted that it is not the most prioritized feature. These benchmarks are here to guide improvements of the current algorithms as well as the implementation of new features.
+
+Simply run `cargo bench` to run all benchmarks.

@@ -1,5 +1,4 @@
-use magpie::othello::OthelloBoard;
-use magpie::othello::Stone;
+use magpie::othello::{OthelloBoard, Stone};
 use std::convert::TryFrom;
 
 #[test]

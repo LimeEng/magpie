@@ -169,7 +169,7 @@ impl OthelloBoard {
     /// let pos = board
     ///     .legal_moves_for(player)
     ///     .positions()
-    ///     .nth(0)
+    ///     .next()
     ///     .unwrap();
     /// board.place_stone(Stone::Black, pos).unwrap();
     /// ```
@@ -380,6 +380,13 @@ impl Default for OthelloBoard {
     /// Simply delegates to the [`standard`] constructor.
     ///
     /// [`standard`]: crate::othello::OthelloBoard::standard
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::OthelloBoard;
+    ///
+    /// assert_eq!(OthelloBoard::standard(), OthelloBoard::default());
+    /// ```
     fn default() -> Self {
         OthelloBoard::standard()
     }
@@ -482,7 +489,7 @@ pub trait PositionExt: Sized {
     /// let pos = board
     ///     .legal_moves_for(player) // Returns bitboards
     ///     .positions() // Converts that into multiple bitboards
-    ///     .nth(0)
+    ///     .next()
     ///     .unwrap(); // The standard Othello opening is guaranteed to have at
     ///                // least one valid move
     /// board.place_stone(player, pos).unwrap();

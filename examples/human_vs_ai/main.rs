@@ -1,10 +1,7 @@
-use crate::agent::Action;
-use crate::agent::Agent;
+use crate::agent::{Action, Agent};
 use crate::coord::Coord;
-use agent::human_agent::HumanAgent;
-use agent::random_agent::RandomAgent;
-use magpie::othello::OthelloBoard;
-use magpie::othello::Stone;
+use agent::{HumanAgent, RandomAgent};
+use magpie::othello::{OthelloBoard, Stone};
 use std::convert::TryFrom;
 
 pub mod agent;

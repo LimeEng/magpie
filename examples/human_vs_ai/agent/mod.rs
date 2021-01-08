@@ -1,8 +1,10 @@
-use magpie::othello::OthelloBoard;
-use magpie::othello::Stone;
+use magpie::othello::{OthelloBoard, Stone};
 
 pub mod human_agent;
 pub mod random_agent;
+
+pub use human_agent::HumanAgent;
+pub use random_agent::RandomAgent;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Action {
