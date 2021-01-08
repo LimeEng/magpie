@@ -17,7 +17,7 @@ impl Stone {
     /// use magpie::othello::Stone;
     ///
     /// let stone = Stone::Black;
-    /// assert_eq!(stone.flip(), Stone::White);
+    /// assert_eq!(Stone::White, stone.flip());
     /// ```
     pub fn flip(&self) -> Stone {
         use Stone::*;
