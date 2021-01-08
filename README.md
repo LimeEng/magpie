@@ -14,6 +14,7 @@ The library is intended to be consumed behind another abstraction which may keep
 - [Usage](#usage)
 - [Crate Features](#crate-features)
 - [Examples](#examples)
+- [Benchmarks](#benchmarks)
 
 ## Documentation
 
@@ -25,7 +26,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-magpie = "0.5.1"
+magpie = "0.5.2"
 ```
 
 ## Crate features
@@ -34,7 +35,7 @@ Serialization with [Serde](https://serde.rs/) is not supported by default. If yo
 
 ```toml
 [dependencies]
-magpie = {version = "0.5.1", features = ["serde"]}
+magpie = {version = "0.5.2", features = ["serde"]}
 ```
 
 ## Examples
@@ -49,7 +50,7 @@ cargo run --example human_vs_ai
 
 ## Benchmarks
 
-Benchmarks are [found here](/benchmarks)
+Benchmarks are [found here](/benches)
 
 Performance is important, although is should be noted that it is not the most prioritized feature. These benchmarks are here to guide improvements of the current algorithms as well as the implementation of new features.
 
