@@ -3,10 +3,11 @@ name = "magpie"
 version = "0.5.0"
 authors = ["Emil Englesson <englesson.emil@gmail.com>"]
 edition = "2018"
-description = "A simple Othello library built with bitboards"
+description = "Reasonably efficient Othello library built with bitboards"
 repository = "https://github.com/LimeEng/magpie/"
 license = "MIT"
-keywords = ["othello"]
+keywords = ["othello", "reversi", "bitboard"]
+categories = ["algorithms", "game-engines"]
 
 exclude = [
     ".github/**"

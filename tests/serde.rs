@@ -1,5 +1,4 @@
 use magpie::othello::OthelloBoard;
-use magpie::othello::Stone;
 use serde_json::Result;
 
 #[test]
