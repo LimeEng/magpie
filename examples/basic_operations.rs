@@ -115,16 +115,17 @@ fn main() {
     // ========================================================================
 }
 
+// This is largely unimportant and quite messy.
 pub fn debug_board(board: &OthelloBoard) {
-    let char_at = |black: u64, white: u64, rank: usize, file: usize| {
-        let nth_bit = (rank * 8) + file;
-        if ((black >> (63 - nth_bit)) & 1) == 1 {
-            "B"
-        } else if ((white >> (63 - nth_bit)) & 1) == 1 {
-            "W"
-        } else {
-            "."
-        }
+    let char_at = |rank: usize, file: usize| {
+        let pos = RANKS[rank] & FILES[file];
+        board
+            .stone_at(pos)
+            .map(|stone| match stone {
+                Stone::Black => "B",
+                Stone::White => "W",
+            })
+            .unwrap_or(".")
     };
 
     let black = board.bits_for(Stone::Black);
@@ -139,9 +140,34 @@ pub fn debug_board(board: &OthelloBoard) {
     for rank in 0..8 {
         print!("{} |", rank + 1);
         for file in 0..8 {
-            print!("{}", char_at(black, white, rank, file));
+            print!("{}", char_at(rank, file));
         }
         println!("|");
     }
     println!("  +--------+");
 }
+
+// Only used for debug purposes.
+const FILE_A: u64 = 0x80_80_80_80_80_80_80_80;
+const FILE_B: u64 = 0x40_40_40_40_40_40_40_40;
+const FILE_C: u64 = 0x20_20_20_20_20_20_20_20;
+const FILE_D: u64 = 0x10_10_10_10_10_10_10_10;
+const FILE_E: u64 = 0x08_08_08_08_08_08_08_08;
+const FILE_F: u64 = 0x04_04_04_04_04_04_04_04;
+const FILE_G: u64 = 0x02_02_02_02_02_02_02_02;
+const FILE_H: u64 = 0x01_01_01_01_01_01_01_01;
+const FILES: [u64; 8] = [
+    FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H,
+];
+
+const RANK_1: u64 = 0xff_00_00_00_00_00_00_00;
+const RANK_2: u64 = 0x00_ff_00_00_00_00_00_00;
+const RANK_3: u64 = 0x00_00_ff_00_00_00_00_00;
+const RANK_4: u64 = 0x00_00_00_ff_00_00_00_00;
+const RANK_5: u64 = 0x00_00_00_00_ff_00_00_00;
+const RANK_6: u64 = 0x00_00_00_00_00_ff_00_00;
+const RANK_7: u64 = 0x00_00_00_00_00_00_ff_00;
+const RANK_8: u64 = 0x00_00_00_00_00_00_00_ff;
+const RANKS: [u64; 8] = [
+    RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8,
+];
