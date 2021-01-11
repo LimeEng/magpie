@@ -258,6 +258,11 @@ impl OthelloBoard {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
+        // Pos must be on an empty square to be legal
+        if pos & (current_bits | opponent_bits) != 0 {
+            return false;
+        }
+
         for dir in Direction::cardinals() {
             let mut candidates = dir.shift(pos) & opponent_bits;
             while candidates != 0 {
