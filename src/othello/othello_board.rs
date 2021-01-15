@@ -1,5 +1,5 @@
 use crate::direction::Direction;
-use crate::othello::Stone;
+use crate::othello::{display::OthelloDisplay, Stone};
 use std::convert::TryFrom;
 
 #[cfg(feature = "serde")]
@@ -354,6 +354,25 @@ impl OthelloBoard {
         } else {
             None
         }
+    }
+
+    /// Returns a struct that implements [`Display`] for customizing the display of Othello boards.
+    ///
+    /// Formatting options can be found in the docs for [`OthelloDisplay`].
+    ///
+    /// [`Display`]: std::fmt::Display
+    /// [`OthelloDisplay`]: crate::othello::OthelloDisplay
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::OthelloBoard;
+    /// use magpie::othello::Stone;
+    ///
+    /// let board = OthelloBoard::standard();
+    /// println!("{}", board.display());
+    ///  ```
+    pub fn display(&self) -> OthelloDisplay {
+        OthelloDisplay::new(&self)
     }
 }
 

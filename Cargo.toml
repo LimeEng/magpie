@@ -26,6 +26,7 @@ serde_json = "1.0.60"
 quickcheck = "1.0.2"
 quickcheck_macros = "1.0.0"
 lazy_static = "1.4.0"
+indoc = "1.0.3"
 
 [[example]]
 name = "serde"
