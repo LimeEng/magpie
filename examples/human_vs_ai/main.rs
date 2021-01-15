@@ -1,12 +1,12 @@
-use crate::agent::{Action, Agent};
-use crate::coord::Coord;
-use agent::{HumanAgent, RandomAgent};
+use crate::{
+    agent::{Action, Agent, HumanAgent, RandomAgent},
+    coord::Coord,
+};
 use magpie::othello::{OthelloBoard, Stone};
 use std::convert::TryFrom;
 
 pub mod agent;
 pub mod coord;
-pub mod util;
 
 fn main() {
     play();
@@ -20,8 +20,7 @@ fn play() {
     let mut board = OthelloBoard::standard();
     let mut passed_last_turn = false;
     while board.empty_cells().count_ones() > 0 {
-        let repr = util::display(&board, Some(active_agent.stone()));
-        println!("{}", repr);
+        println!("{}", board.display().with_stone(active_agent.stone()));
         let legal_moves = board.legal_moves_for(active_agent.stone());
         if legal_moves == 0 {
             println!("{:?} have no moves to make", active_agent.stone());
@@ -59,8 +58,7 @@ fn play() {
         active_agent = active_agent.next_agent();
     }
     println!("Final board");
-    let repr = util::display(&board, None);
-    println!("{}", repr);
+    println!("{}", board.display());
     let black = board.bits_for(Stone::Black).count_ones();
     let white = board.bits_for(Stone::White).count_ones();
     println!("Game finished with {} - {} (black - white)", black, white);

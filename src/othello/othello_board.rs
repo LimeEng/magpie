@@ -115,8 +115,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let mut board = OthelloBoard::empty();
     /// board.place_stone_unchecked(Stone::Black, 1_u64).unwrap()
@@ -136,8 +135,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let mut board = OthelloBoard::standard();
     /// let black_stones = board.bits_for(Stone::Black);
@@ -160,9 +158,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::PositionExt;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, PositionExt, Stone};
     ///
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
@@ -222,8 +218,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
     /// let black = board.bits_for(Stone::Black);
@@ -245,8 +240,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
     /// assert_eq!(false, board.is_legal_move(Stone::Black, 1_u64));
@@ -286,8 +280,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
     /// let stone = Stone::Black;
@@ -334,8 +327,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
     /// let pos = 0x8000000;
@@ -365,8 +357,7 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
     /// println!("{}", board.display());
@@ -425,8 +416,7 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, Stone};
     /// use std::convert::TryFrom;
     ///
     /// let board = OthelloBoard::standard();
@@ -504,9 +494,7 @@ pub trait PositionExt: Sized {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
-    /// use magpie::othello::PositionExt;
-    /// use magpie::othello::Stone;
+    /// use magpie::othello::{OthelloBoard, PositionExt, Stone};
     ///
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;

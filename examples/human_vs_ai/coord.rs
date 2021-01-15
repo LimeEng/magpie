@@ -1,5 +1,7 @@
-use std::convert::{TryFrom, TryInto};
-use std::str::FromStr;
+use std::{
+    convert::{TryFrom, TryInto},
+    str::FromStr,
+};
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
