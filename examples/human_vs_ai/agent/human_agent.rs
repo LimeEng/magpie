@@ -1,5 +1,7 @@
-use crate::agent::{Action, Agent};
-use crate::coord::Coord;
+use crate::{
+    agent::{Action, Agent},
+    coord::Coord,
+};
 use magpie::othello::{OthelloBoard, Stone};
 use std::io;
 use std::io::Write;

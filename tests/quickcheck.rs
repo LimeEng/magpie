@@ -81,6 +81,54 @@ fn illegal_moves_should_be_illegal(board: ShadowOthelloBoard) {
     assert!(!failed);
 }
 
+#[quickcheck]
+fn bits_should_be_consistent(board: ShadowOthelloBoard) {
+    // Check that black and white stones do not overlap with each other or the
+    // empty set
+    let board = OthelloBoard::try_from(board).unwrap();
+
+    let black = board.bits_for(Stone::Black);
+    let white = board.bits_for(Stone::White);
+    let empty = board.empty_cells();
+
+    assert!(black & white == 0);
+    assert!((black | white) & empty == 0);
+}
+
+#[quickcheck]
+fn stone_at_consistency(board: ShadowOthelloBoard, rand_pos: u64) {
+    // Check that stone_at returns the correct stones
+    let board = OthelloBoard::try_from(board).unwrap();
+
+    let black = board.bits_for(Stone::Black);
+    let white = board.bits_for(Stone::White);
+    let empty = board.empty_cells();
+
+    // Test all board positions and one random element, that may have multiple
+    // bits set
+    let mut positions = MASKS.iter().chain(std::iter::once(&rand_pos));
+
+    let success = positions.all(|pos| {
+        board
+            .stone_at(*pos)
+            .map(|stone| match stone {
+                Stone::Black => pos & black != 0,
+                Stone::White => pos & white != 0,
+            })
+            .unwrap_or_else(|| {
+                if pos.count_ones() != 1 {
+                    // If the position has multiple bits set, stone_at should
+                    // return None
+                    true
+                } else {
+                    pos & empty != 0
+                }
+            })
+    });
+
+    assert!(success);
+}
+
 #[derive(Debug, Clone)]
 struct ShadowOthelloBoard {
     black_stones: u64,

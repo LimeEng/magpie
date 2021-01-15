@@ -52,7 +52,7 @@ impl<'a> OthelloDisplay<'a> {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Format, OthelloBoard, Stone};
+    /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
     /// println!("{}", board.display().with_stone(Stone::Black));
@@ -69,7 +69,7 @@ impl<'a> OthelloDisplay<'a> {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Format, OthelloBoard, Stone};
+    /// use magpie::othello::{Format, OthelloBoard};
     ///
     /// let board = OthelloBoard::standard();
     /// println!("{}", board.display().with_format(Format::Compact));
