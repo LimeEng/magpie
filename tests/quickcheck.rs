@@ -89,7 +89,7 @@ fn bits_should_be_consistent(board: ShadowOthelloBoard) {
 
     let black = board.bits_for(Stone::Black);
     let white = board.bits_for(Stone::White);
-    let empty = board.empty_cells();
+    let empty = board.empty_squares();
 
     assert!(black & white == 0);
     assert!((black | white) & empty == 0);
@@ -102,7 +102,7 @@ fn stone_at_consistency(board: ShadowOthelloBoard, rand_pos: u64) {
 
     let black = board.bits_for(Stone::Black);
     let white = board.bits_for(Stone::White);
-    let empty = board.empty_cells();
+    let empty = board.empty_squares();
 
     // Test all board positions and one random element, that may have multiple
     // bits set

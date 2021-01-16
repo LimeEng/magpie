@@ -287,7 +287,7 @@ impl OthelloBoard {
     /// println!("{:?} has {} legal moves", stone, board.legal_moves_for(stone).count_ones());
     /// ```
     pub fn legal_moves_for(&self, stone: Stone) -> u64 {
-        let empty_cells = self.empty_cells();
+        let empty_squares = self.empty_squares();
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
@@ -295,14 +295,14 @@ impl OthelloBoard {
         for dir in Direction::cardinals() {
             let mut candidates = dir.shift(current_bits) & opponent_bits;
             while candidates != 0 {
-                moves |= empty_cells & dir.shift(candidates);
+                moves |= empty_squares & dir.shift(candidates);
                 candidates = dir.shift(candidates) & opponent_bits;
             }
         }
         moves
     }
 
-    /// Returns the set of all empty cells on the board.
+    /// Returns the set of all empty squares on the board.
     ///
     /// The returned bitboard represents the Othello board. For a more detailed
     /// description, refer to the documentation of the [`OthelloBoard struct`]
@@ -314,9 +314,9 @@ impl OthelloBoard {
     /// use magpie::othello::OthelloBoard;
     ///
     /// let board = OthelloBoard::standard();
-    /// println!("Number of free cells: {}", board.empty_cells().count_ones());
+    /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
-    pub fn empty_cells(&self) -> u64 {
+    pub fn empty_squares(&self) -> u64 {
         (!self.black_stones) & (!self.white_stones)
     }
 
