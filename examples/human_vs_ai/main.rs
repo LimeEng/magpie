@@ -19,7 +19,7 @@ fn play() {
 
     let mut board = OthelloBoard::standard();
     let mut passed_last_turn = false;
-    while board.empty_cells().count_ones() > 0 {
+    while board.empty_squares().count_ones() > 0 {
         println!("{}", board.display().with_stone(active_agent.stone()));
         let legal_moves = board.legal_moves_for(active_agent.stone());
         if legal_moves == 0 {
