@@ -1,5 +1,7 @@
-use crate::direction::Direction;
-use crate::othello::{display::OthelloDisplay, Stone};
+use crate::{
+    direction::Direction,
+    othello::{display::OthelloDisplay, Stone},
+};
 use std::convert::TryFrom;
 
 #[cfg(feature = "serde")]
@@ -534,7 +536,7 @@ pub trait SquareExt: Sized {
     /// ```text
     /// 100    010    001    000    000    000    000    000    000
     /// 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000
-    /// 000    000    000    000    000    000    100    000    000
+    /// 000    000    000    000    000    000    100    010    001
     /// ```
     /// The iterator always return 64 bitboards since Othello has 64 positions.
     ///
