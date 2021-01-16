@@ -6,5 +6,5 @@ mod othello_board;
 mod stone;
 
 pub use display::{Format, OthelloDisplay};
-pub use othello_board::{OthelloBoard, OthelloError, PositionExt};
+pub use othello_board::{OthelloBoard, OthelloError, SquareExt, StoneExt};
 pub use stone::Stone;

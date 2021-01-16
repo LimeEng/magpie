@@ -1,4 +1,4 @@
-use magpie::othello::{OthelloBoard, PositionExt, Stone};
+use magpie::othello::{OthelloBoard, Stone, StoneExt};
 use std::convert::TryFrom;
 fn main() {
     // The board can be initialized in a few different ways.
@@ -60,10 +60,10 @@ fn main() {
     // with value 1 is a legal move.
     let legal_moves: u64 = board.legal_moves_for(stone);
     // Since the bitboard might be difficult to work with, magpie defines an
-    // extension trait called `PositionExt`. It extracts all individual bits
+    // extension trait called `StoneExt`. It extracts all individual bits
     // that are set to 1 and returns an iterator, yielding these bits as if
     // they were independent bitboards (i.e with only one bit set).
-    let mut positions = legal_moves.positions();
+    let mut positions = legal_moves.stones();
     // Here it is verified that all legal moves extracted are indeed legal to
     // play.
     assert!(positions.all(|pos| board.is_legal_move(stone, pos)));
@@ -74,7 +74,7 @@ fn main() {
     let stone = Stone::Black;
     let any_move = board
         .legal_moves_for(stone)
-        .positions()
+        .stones()
         .next() // Get the first legal move we find
         .unwrap(); // Errors should be handled in a real application
                    // (I won't tell anyone though)

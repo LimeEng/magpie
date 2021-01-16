@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use magpie::othello::{OthelloBoard, OthelloError, PositionExt, Stone};
+use magpie::othello::{OthelloBoard, OthelloError, SquareExt, Stone, StoneExt};
 use quickcheck::{Arbitrary, Gen};
 use quickcheck_macros::quickcheck;
 use std::{collections::HashSet, convert::TryFrom, iter::successors};
@@ -25,7 +25,7 @@ fn legal_moves_should_place(board: ShadowOthelloBoard) {
 
     let result = board
         .legal_moves_for(stone)
-        .positions()
+        .stones()
         .map(|pos| board.clone().place_stone(stone, pos))
         .all(|result| result.is_ok());
     assert!(result);
@@ -38,7 +38,7 @@ fn illegal_moves_should_not_place(board: ShadowOthelloBoard) {
     let board = OthelloBoard::try_from(board).unwrap();
     let stone = Stone::Black;
 
-    let legal_positions: HashSet<u64> = board.legal_moves_for(stone).positions().collect();
+    let legal_positions: HashSet<u64> = board.legal_moves_for(stone).stones().collect();
 
     let failed = MASKS
         .iter()
@@ -57,7 +57,7 @@ fn legal_moves_should_be_legal(board: ShadowOthelloBoard) {
 
     let result = board
         .legal_moves_for(stone)
-        .positions()
+        .stones()
         .map(|pos| board.is_legal_move(stone, pos))
         .all(|result| result);
     assert!(result);
@@ -70,7 +70,7 @@ fn illegal_moves_should_be_illegal(board: ShadowOthelloBoard) {
     let board = OthelloBoard::try_from(board).unwrap();
     let stone = Stone::Black;
 
-    let legal_positions: HashSet<u64> = board.legal_moves_for(stone).positions().collect();
+    let legal_positions: HashSet<u64> = board.legal_moves_for(stone).stones().collect();
 
     let failed = MASKS
         .iter()
@@ -127,6 +127,25 @@ fn stone_at_consistency(board: ShadowOthelloBoard, rand_pos: u64) {
     });
 
     assert!(success);
+}
+
+#[quickcheck]
+fn squares_bit_count(rand_bitboard: u64) {
+    let bit_at = |index: usize| rand_bitboard & (1 << index);
+    let success = rand_bitboard
+        .squares()
+        .enumerate()
+        .all(|(index, pos)| bit_at(index) == pos);
+
+    assert!(success);
+}
+
+#[quickcheck]
+fn stones_bit_count(rand_bitboard: u64) {
+    let expected = rand_bitboard.count_ones();
+    let result = rand_bitboard.stones().filter(|pos| *pos != 0).count();
+
+    assert_eq!(expected as usize, result);
 }
 
 #[derive(Debug, Clone)]

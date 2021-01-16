@@ -158,13 +158,13 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, PositionExt, Stone};
+    /// use magpie::othello::{OthelloBoard, StoneExt, Stone};
     ///
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
     /// let pos = board
     ///     .legal_moves_for(player)
-    ///     .positions()
+    ///     .stones()
     ///     .next()
     ///     .unwrap();
     /// board.place_stone(Stone::Black, pos).unwrap();
@@ -466,54 +466,104 @@ impl Direction {
     }
 }
 
-/// Extension trait to make it somewhat easier to work with bitboards.
-pub trait PositionExt: Sized {
+/// Extension trait that extracts all set bits from a bitboard.
+pub trait StoneExt: Sized {
     type Iter: Iterator<Item = Self>;
     /// Given a bitboard, extracts each bit set to one as its own bitboard.
     ///
-    /// For example, given the following bitboard:
+    /// For example, given the following (tiny) bitboard:
     /// ```text
-    /// 10000000
-    /// 00000000
-    /// 00000000
-    /// 00000001
+    /// 100
+    /// 000
+    /// 001
     /// ```
     ///
-    /// That bitboard will be broken up into these two bitboards:
+    /// The iterator will break up that bitboard and yield the following
+    /// bitboards:
     /// ```text
-    /// 1. 10000000
-    ///    00000000
-    ///    00000000
-    ///    00000000
-    ///
-    /// 2. 00000000
-    ///    00000000
-    ///    00000000
-    ///    00000001
+    /// 100    000
+    /// 000 => 000
+    /// 000    001
     /// ```
+    ///
+    /// [`SquareExt`] is a similar extension trait which may be of use as well.
+    ///
+    /// [`SquareExt`]: crate::othello::SquareExt
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, PositionExt, Stone};
+    /// use magpie::othello::{OthelloBoard, StoneExt, Stone};
     ///
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
     /// let pos = board
-    ///     .legal_moves_for(player) // Returns bitboards
-    ///     .positions() // Converts that into multiple bitboards
+    ///     .legal_moves_for(player) // Returns bitboard
+    ///     .stones() // Convert that into multiple bitboards
     ///     .next()
     ///     .unwrap(); // The standard Othello opening is guaranteed to have at
     ///                // least one valid move
     /// board.place_stone(player, pos).unwrap();
     ///  ```
-    fn positions(&self) -> Self::Iter;
+    fn stones(&self) -> Self::Iter;
 }
 
-impl PositionExt for u64 {
+impl StoneExt for u64 {
     type Iter = Box<dyn Iterator<Item = u64>>;
-    fn positions(&self) -> Self::Iter {
+    fn stones(&self) -> Self::Iter {
         let this = *self;
         let iter = MASKS.iter().map(move |m| m & this).filter(|m| *m != 0);
+
+        Box::new(iter)
+    }
+}
+
+/// Extension trait that extracts all bits from a bitboard.
+pub trait SquareExt: Sized {
+    type Iter: Iterator<Item = Self>;
+    /// Given a bitboard, extracts each bit as its own bitboard.
+    ///
+    /// For example, given the following (tiny) bitboard:
+    /// ```text
+    /// 111
+    /// 000
+    /// 111
+    /// ```
+    ///
+    /// The iterator will break up that bitboard and yield the following
+    /// bitboards:
+    /// ```text
+    /// 100    010    001    000    000    000    000    000    000
+    /// 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000
+    /// 000    000    000    000    000    000    100    000    000
+    /// ```
+    /// The iterator always return 64 bitboards since Othello has 64 positions.
+    ///
+    /// [`StoneExt`] is a similar extension trait which may be of use as well.
+    ///
+    /// [`StoneExt`]: crate::othello::StoneExt
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::{OthelloBoard, SquareExt, Stone};
+    ///
+    /// let mut board = OthelloBoard::standard();
+    /// let player = Stone::Black;
+    /// let pos = board
+    ///     .legal_moves_for(player) // Returns bitboard
+    ///     .squares() // Convert that into multiple bitboards
+    ///     .next()
+    ///     .unwrap(); // Othello has 64 positions which means that this
+    ///                // iterator will always return 64 bitboards
+    /// assert_eq!(0, pos);
+    ///  ```
+    fn squares(&self) -> Self::Iter;
+}
+
+impl SquareExt for u64 {
+    type Iter = Box<dyn Iterator<Item = u64>>;
+    fn squares(&self) -> Self::Iter {
+        let this = *self;
+        let iter = MASKS.iter().map(move |m| m & this);
 
         Box::new(iter)
     }

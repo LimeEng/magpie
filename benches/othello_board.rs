@@ -1,7 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use magpie::othello::OthelloBoard;
-use magpie::othello::PositionExt;
-use magpie::othello::Stone;
+use magpie::othello::{OthelloBoard, SquareExt, Stone, StoneExt};
 use std::convert::TryFrom;
 
 fn bench_clone(c: &mut Criterion) {
@@ -41,7 +39,15 @@ fn bench_legal_moves_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.legal_moves_for(Stone::Black);
     c.bench_function("legal_moves_extraction", |b| {
-        b.iter(|| moves.positions().collect::<Vec<u64>>())
+        b.iter(|| moves.stones().collect::<Vec<u64>>())
+    });
+}
+
+fn bench_square_extraction(c: &mut Criterion) {
+    let board = board_for_legal_moves();
+    let moves = board.legal_moves_for(Stone::Black);
+    c.bench_function("square_extraction", |b| {
+        b.iter(|| moves.squares().collect::<Vec<u64>>())
     });
 }
 
@@ -51,7 +57,8 @@ criterion_group!(
     bench_legal_moves,
     bench_place_stone,
     bench_legal_move_check,
-    bench_legal_moves_extraction
+    bench_legal_moves_extraction,
+    bench_square_extraction
 );
 criterion_main!(benches);
 
