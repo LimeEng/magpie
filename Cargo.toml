@@ -1,6 +1,6 @@
 [package]
 name = "magpie"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Emil Englesson <englesson.emil@gmail.com>"]
 edition = "2018"
 description = "Reasonably efficient Othello library built with bitboards"
