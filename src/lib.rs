@@ -27,6 +27,5 @@
 //! [`Wikipedia`]: https://en.wikipedia.org/wiki/Bitboard
 //! [`Serde`]: https://serde.rs
 
-mod direction;
 /// Contains structs and functions that are useful when playing Othello.
 pub mod othello;

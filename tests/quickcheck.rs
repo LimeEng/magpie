@@ -135,7 +135,7 @@ fn squares_bit_count(rand_bitboard: u64) {
     let success = rand_bitboard
         .squares()
         .enumerate()
-        .all(|(index, pos)| bit_at(index) == pos);
+        .all(|(index, pos)| bit_at(63 - index) == pos);
 
     assert!(success);
 }

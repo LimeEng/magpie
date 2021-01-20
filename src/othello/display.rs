@@ -1,4 +1,7 @@
-use crate::othello::{OthelloBoard, Stone};
+use crate::othello::{
+    constants::{FILES, RANKS},
+    OthelloBoard, Stone,
+};
 
 /// Helper struct to customize the printing of Othello boards.
 ///
@@ -147,27 +150,3 @@ fn display(
         }
     }
 }
-
-const FILE_A: u64 = 0x80_80_80_80_80_80_80_80;
-const FILE_B: u64 = 0x40_40_40_40_40_40_40_40;
-const FILE_C: u64 = 0x20_20_20_20_20_20_20_20;
-const FILE_D: u64 = 0x10_10_10_10_10_10_10_10;
-const FILE_E: u64 = 0x08_08_08_08_08_08_08_08;
-const FILE_F: u64 = 0x04_04_04_04_04_04_04_04;
-const FILE_G: u64 = 0x02_02_02_02_02_02_02_02;
-const FILE_H: u64 = 0x01_01_01_01_01_01_01_01;
-const FILES: [u64; 8] = [
-    FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H,
-];
-
-const RANK_1: u64 = 0xff_00_00_00_00_00_00_00;
-const RANK_2: u64 = 0x00_ff_00_00_00_00_00_00;
-const RANK_3: u64 = 0x00_00_ff_00_00_00_00_00;
-const RANK_4: u64 = 0x00_00_00_ff_00_00_00_00;
-const RANK_5: u64 = 0x00_00_00_00_ff_00_00_00;
-const RANK_6: u64 = 0x00_00_00_00_00_ff_00_00;
-const RANK_7: u64 = 0x00_00_00_00_00_00_ff_00;
-const RANK_8: u64 = 0x00_00_00_00_00_00_00_ff;
-const RANKS: [u64; 8] = [
-    RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8,
-];
