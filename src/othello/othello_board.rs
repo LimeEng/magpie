@@ -124,7 +124,7 @@ impl OthelloBoard {
     /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let mut board = OthelloBoard::empty();
-    /// board.place_stone_unchecked(Stone::Black, 1_u64).unwrap()
+    /// assert!(board.place_stone_unchecked(Stone::Black, 1_u64).is_ok());
     /// ```
     pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
         if self.bits_for(stone.flip()) & pos != 0 {
@@ -173,7 +173,7 @@ impl OthelloBoard {
     ///     .stones()
     ///     .next()
     ///     .unwrap();
-    /// board.place_stone(Stone::Black, pos).unwrap();
+    /// assert!(board.place_stone(Stone::Black, pos).is_ok());
     /// ```
     pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
         if pos.count_ones() != 1 {
@@ -304,7 +304,7 @@ impl OthelloBoard {
     ///
     /// let board = OthelloBoard::standard();
     /// let stone = Stone::Black;
-    /// println!("{:?} has {} legal moves", stone, board.legal_moves_for(stone).count_ones());
+    /// assert_eq!(4, board.legal_moves_for(stone).count_ones());
     /// ```
     pub fn legal_moves_for(&self, stone: Stone) -> u64 {
         let current_bits = self.bits_for(stone);
@@ -364,10 +364,7 @@ impl OthelloBoard {
     ///
     /// let board = OthelloBoard::standard();
     /// let pos = 0x8000000;
-    /// match board.stone_at(pos) {
-    ///     Some(stone) => println!("Found stone: {:?}", stone),
-    ///     None => println!("Nothing found at that position"),
-    /// }
+    /// assert_eq!(Some(Stone::White), board.stone_at(pos));
     ///  ```
     pub fn stone_at(&self, pos: u64) -> Option<Stone> {
         if pos.count_ones() != 1 {
@@ -457,7 +454,8 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
     /// let white = board.bits_for(Stone::White);
     ///
     /// // Quite a contrived example
-    /// let board = OthelloBoard::try_from((black, white)).unwrap();
+    /// let board = OthelloBoard::try_from((black, white));
+    /// assert_eq!(Ok(OthelloBoard::standard()), board);
     /// ```
     fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
         let (black_stones, white_stones) = stones;
@@ -473,7 +471,7 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
 }
 
 /// This enum represents errors that may occur when using the Othello board.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum OthelloError {
     /// Indicates that an illegal move was attempted.
     IllegalMove,
@@ -519,7 +517,7 @@ pub trait StoneExt: Sized {
     ///     .next()
     ///     .unwrap(); // The standard Othello opening is guaranteed to have at
     ///                // least one valid move
-    /// board.place_stone(player, pos).unwrap();
+    /// assert!(board.place_stone(player, pos).is_ok());
     ///  ```
     fn stones(&self) -> Self::Iter;
 }
@@ -561,17 +559,15 @@ pub trait SquareExt: Sized {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, SquareExt, Stone};
+    /// use magpie::othello::{OthelloBoard, SquareExt};
     ///
     /// let mut board = OthelloBoard::standard();
-    /// let player = Stone::Black;
-    /// let pos = board
-    ///     .legal_moves_for(player) // Returns bitboard
+    /// let pos = u64::MAX // Full bitboard (all bits set to 1)
     ///     .squares() // Convert that into multiple bitboards
     ///     .next()
     ///     .unwrap(); // Othello has 64 positions which means that this
     ///                // iterator will always return 64 bitboards
-    /// assert_eq!(0, pos);
+    /// assert_eq!(2_u64.pow(63), pos);
     ///  ```
     fn squares(&self) -> Self::Iter;
 }
