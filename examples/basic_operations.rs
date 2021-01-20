@@ -58,7 +58,7 @@ fn main() {
     // Here, the legal moves for black is calculated from the starting
     // position. A bitboard is returned, represented as an `u64`, where each bit
     // with value 1 is a legal move.
-    let legal_moves: u64 = board.legal_moves_for(stone);
+    let legal_moves: u64 = board.moves_for(stone);
     // Since the bitboard might be difficult to work with, magpie defines an
     // extension trait called `StoneExt`. It extracts all individual bits
     // that are set to 1 and returns an iterator, yielding these bits as if
@@ -73,7 +73,7 @@ fn main() {
     let mut board = OthelloBoard::standard();
     let stone = Stone::Black;
     let any_move = board
-        .legal_moves_for(stone)
+        .moves_for(stone)
         .stones()
         .next() // Get the first legal move we find
         .unwrap(); // Errors should be handled in a real application

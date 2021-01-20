@@ -98,7 +98,7 @@ fn display(
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {
-    let legal_moves = stone.map(|stone| board.legal_moves_for(stone)).unwrap_or(0);
+    let legal_moves = stone.map(|stone| board.moves_for(stone)).unwrap_or(0);
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];
         board

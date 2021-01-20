@@ -85,7 +85,7 @@ fn perft(board: &OthelloBoard, stone: Stone, passed: bool, depth: u8) -> u64 {
         return 1;
     }
 
-    let moves = board.legal_moves_for(stone);
+    let moves = board.moves_for(stone);
     if moves == 0 {
         if passed {
             1

@@ -169,7 +169,7 @@ impl OthelloBoard {
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
     /// let pos = board
-    ///     .legal_moves_for(player)
+    ///     .moves_for(player)
     ///     .stones()
     ///     .next()
     ///     .unwrap();
@@ -271,7 +271,6 @@ impl OthelloBoard {
             return false;
         }
 
-        let current_bits = current_bits | pos;
         for (i, shift) in SHIFT_DIRS.iter().enumerate() {
             let mut dir_mask = 0;
             let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.leading_zeros() as usize][i];
@@ -304,9 +303,9 @@ impl OthelloBoard {
     ///
     /// let board = OthelloBoard::standard();
     /// let stone = Stone::Black;
-    /// assert_eq!(4, board.legal_moves_for(stone).count_ones());
+    /// assert_eq!(4, board.moves_for(stone).count_ones());
     /// ```
-    pub fn legal_moves_for(&self, stone: Stone) -> u64 {
+    pub fn moves_for(&self, stone: Stone) -> u64 {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
         let empty_squares = self.empty_squares();
@@ -512,7 +511,7 @@ pub trait StoneExt: Sized {
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
     /// let pos = board
-    ///     .legal_moves_for(player) // Returns bitboard
+    ///     .moves_for(player) // Returns bitboard
     ///     .stones() // Convert that into multiple bitboards
     ///     .next()
     ///     .unwrap(); // The standard Othello opening is guaranteed to have at
