@@ -10,7 +10,7 @@ fn bench_clone(c: &mut Criterion) {
 fn bench_legal_moves(c: &mut Criterion) {
     let board = board_for_legal_moves();
     c.bench_function("legal_moves", |b| {
-        b.iter(|| board.legal_moves_for(black_box(Stone::Black)))
+        b.iter(|| board.moves_for(black_box(Stone::Black)))
     });
 }
 
@@ -37,7 +37,7 @@ fn bench_legal_move_check(c: &mut Criterion) {
 
 fn bench_legal_moves_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
-    let moves = board.legal_moves_for(Stone::Black);
+    let moves = board.moves_for(Stone::Black);
     c.bench_function("legal_moves_extraction", |b| {
         b.iter(|| moves.stones().collect::<Vec<u64>>())
     });
@@ -45,7 +45,7 @@ fn bench_legal_moves_extraction(c: &mut Criterion) {
 
 fn bench_square_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
-    let moves = board.legal_moves_for(Stone::Black);
+    let moves = board.moves_for(Stone::Black);
     c.bench_function("square_extraction", |b| {
         b.iter(|| moves.squares().collect::<Vec<u64>>())
     });

@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use magpie::othello::{OthelloBoard, OthelloError, SquareExt, Stone, StoneExt};
 use quickcheck::{Arbitrary, Gen};
 use quickcheck_macros::quickcheck;
-use std::{collections::HashSet, convert::TryFrom, iter::successors};
+use std::{convert::TryFrom, iter::successors};
 
 lazy_static! {
     static ref MASKS: Vec<u64> = {
@@ -24,7 +24,7 @@ fn legal_moves_should_place(board: ShadowOthelloBoard) {
     let stone = Stone::Black;
 
     let result = board
-        .legal_moves_for(stone)
+        .moves_for(stone)
         .stones()
         .map(|pos| board.clone().place_stone(stone, pos))
         .all(|result| result.is_ok());
@@ -38,11 +38,11 @@ fn illegal_moves_should_not_place(board: ShadowOthelloBoard) {
     let board = OthelloBoard::try_from(board).unwrap();
     let stone = Stone::Black;
 
-    let legal_positions: HashSet<u64> = board.legal_moves_for(stone).stones().collect();
+    let legal_positions = board.moves_for(stone);
 
     let failed = MASKS
         .iter()
-        .filter(|pos| !legal_positions.contains(pos))
+        .filter(|pos| *pos & legal_positions == 0)
         .map(|pos| board.clone().place_stone(stone, *pos))
         .any(|result| result.is_ok());
 
@@ -56,7 +56,7 @@ fn legal_moves_should_be_legal(board: ShadowOthelloBoard) {
     let stone = Stone::Black;
 
     let result = board
-        .legal_moves_for(stone)
+        .moves_for(stone)
         .stones()
         .map(|pos| board.is_legal_move(stone, pos))
         .all(|result| result);
@@ -70,11 +70,11 @@ fn illegal_moves_should_be_illegal(board: ShadowOthelloBoard) {
     let board = OthelloBoard::try_from(board).unwrap();
     let stone = Stone::Black;
 
-    let legal_positions: HashSet<u64> = board.legal_moves_for(stone).stones().collect();
+    let legal_positions = board.moves_for(stone);
 
     let failed = MASKS
         .iter()
-        .filter(|pos| !legal_positions.contains(pos))
+        .filter(|pos| *pos & legal_positions == 0)
         .map(|pos| board.is_legal_move(stone, *pos))
         .any(|result| result);
 
@@ -135,7 +135,7 @@ fn squares_bit_count(rand_bitboard: u64) {
     let success = rand_bitboard
         .squares()
         .enumerate()
-        .all(|(index, pos)| bit_at(index) == pos);
+        .all(|(index, pos)| bit_at(63 - index) == pos);
 
     assert!(success);
 }

@@ -1,6 +1,10 @@
-use crate::{
-    direction::Direction,
-    othello::{display::OthelloDisplay, Stone},
+use crate::othello::{
+    constants::{
+        BLACK_START_POS, FILE_A, FILE_H, MASKS, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS,
+        SHIFT_RAYS, WHITE_START_POS,
+    },
+    display::OthelloDisplay,
+    Stone,
 };
 use std::convert::TryFrom;
 
@@ -120,7 +124,7 @@ impl OthelloBoard {
     /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let mut board = OthelloBoard::empty();
-    /// board.place_stone_unchecked(Stone::Black, 1_u64).unwrap()
+    /// assert!(board.place_stone_unchecked(Stone::Black, 1_u64).is_ok());
     /// ```
     pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
         if self.bits_for(stone.flip()) & pos != 0 {
@@ -165,39 +169,47 @@ impl OthelloBoard {
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
     /// let pos = board
-    ///     .legal_moves_for(player)
+    ///     .moves_for(player)
     ///     .stones()
     ///     .next()
     ///     .unwrap();
-    /// board.place_stone(Stone::Black, pos).unwrap();
+    /// assert!(board.place_stone(Stone::Black, pos).is_ok());
     /// ```
     pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
         if pos.count_ones() != 1 {
             return Err(OthelloError::MultipleMovesAttempted);
         }
-        if !self.is_legal_move(stone, pos) {
+
+        let current_bits = self.bits_for(stone);
+        let opponent_bits = self.bits_for(stone.flip());
+
+        // Pos must be on an empty square to be legal
+        if pos & (current_bits | opponent_bits) != 0 {
             return Err(OthelloError::IllegalMove);
         }
 
         let mut mask = 0;
-        let current_bits = self.bits_for(stone);
-        let opponent_bits = self.bits_for(stone.flip());
-        for dir in Direction::cardinals() {
+        for (i, shift) in SHIFT_DIRS.iter().enumerate() {
             let mut dir_mask = 0;
-            let mut candidates = dir.shift(pos) & opponent_bits;
-            let mut valid_direction = false;
-            while candidates != 0 {
-                dir_mask |= candidates;
-                let is_own_piece = dir.shift(candidates) & current_bits != 0;
-                candidates = dir.shift(candidates) & opponent_bits;
-                if candidates == 0 && is_own_piece {
-                    valid_direction = true;
-                }
+            let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.leading_zeros() as usize][i];
+            let opponent_bits = opponent_bits & shift_mask;
+
+            let mut current = pos;
+            let mut next = current;
+            while current != 0 {
+                dir_mask |= current;
+                next = dir_shift(current, *shift);
+                current = next & opponent_bits;
             }
-            if valid_direction {
-                mask |= dir_mask;
+            if next & current_bits != 0 {
+                mask |= dir_mask ^ pos;
             }
         }
+
+        if mask == 0 {
+            return Err(OthelloError::IllegalMove);
+        }
+
         match stone {
             Stone::Black => {
                 self.black_stones |= mask | pos;
@@ -259,15 +271,20 @@ impl OthelloBoard {
             return false;
         }
 
-        for dir in Direction::cardinals() {
-            let mut candidates = dir.shift(pos) & opponent_bits;
-            while candidates != 0 {
-                candidates = dir.shift(candidates);
-                let is_own_piece = candidates & current_bits != 0;
-                candidates &= opponent_bits;
-                if candidates == 0 && is_own_piece {
-                    return true;
-                }
+        for (i, shift) in SHIFT_DIRS.iter().enumerate() {
+            let mut dir_mask = 0;
+            let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.leading_zeros() as usize][i];
+            let opponent_bits = opponent_bits & shift_mask;
+
+            let mut current = pos;
+            let mut next = current;
+            while current != 0 {
+                dir_mask |= current;
+                next = dir_shift(current, *shift);
+                current = next & opponent_bits;
+            }
+            if next & current_bits != 0 && dir_mask ^ pos != 0 {
+                return true;
             }
         }
         false
@@ -286,22 +303,35 @@ impl OthelloBoard {
     ///
     /// let board = OthelloBoard::standard();
     /// let stone = Stone::Black;
-    /// println!("{:?} has {} legal moves", stone, board.legal_moves_for(stone).count_ones());
+    /// assert_eq!(4, board.moves_for(stone).count_ones());
     /// ```
-    pub fn legal_moves_for(&self, stone: Stone) -> u64 {
-        let empty_squares = self.empty_squares();
+    pub fn moves_for(&self, stone: Stone) -> u64 {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
+        let empty_squares = self.empty_squares();
 
-        let mut moves = 0;
-        for dir in Direction::cardinals() {
-            let mut candidates = dir.shift(current_bits) & opponent_bits;
-            while candidates != 0 {
-                moves |= empty_squares & dir.shift(candidates);
-                candidates = dir.shift(candidates) & opponent_bits;
-            }
-        }
-        moves
+        let move_in_dir = |mask: u64, shift: i8| {
+            let excluded: u64 = opponent_bits & mask;
+            let mut m: u64 = dir_shift(current_bits, shift) & excluded;
+            m |= dir_shift(m, shift) & excluded;
+            m |= dir_shift(m, shift) & excluded;
+            m |= dir_shift(m, shift) & excluded;
+            m |= dir_shift(m, shift) & excluded;
+            m |= dir_shift(m, shift) & excluded;
+            dir_shift(m, shift) & empty_squares
+        };
+
+        let exclude_top_bottom = !(RANK_1 | RANK_8);
+        let exclude_left_right = !(FILE_A | FILE_H);
+
+        let mut moves = move_in_dir(exclude_top_bottom, -8);
+        moves |= move_in_dir(exclude_left_right, -7);
+        moves |= move_in_dir(exclude_left_right, 1);
+        moves |= move_in_dir(exclude_left_right, 9);
+        moves |= move_in_dir(exclude_top_bottom, 8);
+        moves |= move_in_dir(exclude_left_right, 7);
+        moves |= move_in_dir(exclude_left_right, -1);
+        moves | move_in_dir(exclude_left_right, -9)
     }
 
     /// Returns the set of all empty squares on the board.
@@ -319,7 +349,7 @@ impl OthelloBoard {
     /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
     pub fn empty_squares(&self) -> u64 {
-        (!self.black_stones) & (!self.white_stones)
+        !(self.black_stones | self.white_stones)
     }
 
     /// Queries the board in the specified position after a stone.
@@ -333,10 +363,7 @@ impl OthelloBoard {
     ///
     /// let board = OthelloBoard::standard();
     /// let pos = 0x8000000;
-    /// match board.stone_at(pos) {
-    ///     Some(stone) => println!("Found stone: {:?}", stone),
-    ///     None => println!("Nothing found at that position"),
-    /// }
+    /// assert_eq!(Some(Stone::White), board.stone_at(pos));
     ///  ```
     pub fn stone_at(&self, pos: u64) -> Option<Stone> {
         if pos.count_ones() != 1 {
@@ -426,7 +453,8 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
     /// let white = board.bits_for(Stone::White);
     ///
     /// // Quite a contrived example
-    /// let board = OthelloBoard::try_from((black, white)).unwrap();
+    /// let board = OthelloBoard::try_from((black, white));
+    /// assert_eq!(Ok(OthelloBoard::standard()), board);
     /// ```
     fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
         let (black_stones, white_stones) = stones;
@@ -442,7 +470,7 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
 }
 
 /// This enum represents errors that may occur when using the Othello board.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum OthelloError {
     /// Indicates that an illegal move was attempted.
     IllegalMove,
@@ -450,22 +478,6 @@ pub enum OthelloError {
     MultipleMovesAttempted,
     /// Indicates that the operation would have resulted in one or more stones overlapping.
     PiecesOverlapping,
-}
-
-impl Direction {
-    fn shift(&self, pos: u64) -> u64 {
-        use Direction::*;
-        match self {
-            N => (pos << 8),
-            NE => (pos << 7) & !LEFT_MASK,
-            E => (pos >> 1) & !LEFT_MASK,
-            SE => (pos >> 9) & !LEFT_MASK,
-            S => (pos >> 8),
-            SW => (pos >> 7) & !RIGHT_MASK,
-            W => (pos << 1) & !RIGHT_MASK,
-            NW => (pos << 9) & !RIGHT_MASK,
-        }
-    }
 }
 
 /// Extension trait that extracts all set bits from a bitboard.
@@ -499,12 +511,12 @@ pub trait StoneExt: Sized {
     /// let mut board = OthelloBoard::standard();
     /// let player = Stone::Black;
     /// let pos = board
-    ///     .legal_moves_for(player) // Returns bitboard
+    ///     .moves_for(player) // Returns bitboard
     ///     .stones() // Convert that into multiple bitboards
     ///     .next()
     ///     .unwrap(); // The standard Othello opening is guaranteed to have at
     ///                // least one valid move
-    /// board.place_stone(player, pos).unwrap();
+    /// assert!(board.place_stone(player, pos).is_ok());
     ///  ```
     fn stones(&self) -> Self::Iter;
 }
@@ -546,17 +558,15 @@ pub trait SquareExt: Sized {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, SquareExt, Stone};
+    /// use magpie::othello::{OthelloBoard, SquareExt};
     ///
     /// let mut board = OthelloBoard::standard();
-    /// let player = Stone::Black;
-    /// let pos = board
-    ///     .legal_moves_for(player) // Returns bitboard
+    /// let pos = u64::MAX // Full bitboard (all bits set to 1)
     ///     .squares() // Convert that into multiple bitboards
     ///     .next()
     ///     .unwrap(); // Othello has 64 positions which means that this
     ///                // iterator will always return 64 bitboards
-    /// assert_eq!(0, pos);
+    /// assert_eq!(2_u64.pow(63), pos);
     ///  ```
     fn squares(&self) -> Self::Iter;
 }
@@ -571,76 +581,11 @@ impl SquareExt for u64 {
     }
 }
 
-const BLACK_START_POS: u64 = 0x00_00_00_08_10_00_00_00;
-const WHITE_START_POS: u64 = 0x00_00_00_10_08_00_00_00;
-
-const LEFT_MASK: u64 = 0x80_80_80_80_80_80_80_80;
-const RIGHT_MASK: u64 = 0x01_01_01_01_01_01_01_01;
-
-/// Masks representing each position on the board.
-const MASKS: [u64; 64] = [
-    1,
-    2,
-    4,
-    8,
-    16,
-    32,
-    64,
-    128,
-    256,
-    512,
-    1024,
-    2048,
-    4096,
-    8192,
-    16384,
-    32768,
-    65536,
-    131072,
-    262144,
-    524288,
-    1048576,
-    2097152,
-    4194304,
-    8388608,
-    16777216,
-    33554432,
-    67108864,
-    134217728,
-    268435456,
-    536870912,
-    1073741824,
-    2147483648,
-    4294967296,
-    8589934592,
-    17179869184,
-    34359738368,
-    68719476736,
-    137438953472,
-    274877906944,
-    549755813888,
-    1099511627776,
-    2199023255552,
-    4398046511104,
-    8796093022208,
-    17592186044416,
-    35184372088832,
-    70368744177664,
-    140737488355328,
-    281474976710656,
-    562949953421312,
-    1125899906842624,
-    2251799813685248,
-    4503599627370496,
-    9007199254740992,
-    18014398509481984,
-    36028797018963968,
-    72057594037927936,
-    144115188075855872,
-    288230376151711744,
-    576460752303423488,
-    1152921504606846976,
-    2305843009213693952,
-    4611686018427387904,
-    9223372036854775808,
-];
+// https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift
+fn dir_shift(x: u64, shift: i8) -> u64 {
+    if shift > 0 {
+        x >> shift
+    } else {
+        x << -shift
+    }
+}

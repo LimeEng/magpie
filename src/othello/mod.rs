@@ -1,3 +1,5 @@
+/// Collection of constants useful for various calculations.
+mod constants;
 /// Structs and functions that format Othello boards.
 mod display;
 /// Represents an Othello board and provides convenient methods to safely manipulate it.
