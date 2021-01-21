@@ -1,21 +1,7 @@
-use lazy_static::lazy_static;
 use magpie::othello::{OthelloBoard, OthelloError, SquareExt, Stone, StoneExt};
 use quickcheck::{Arbitrary, Gen};
 use quickcheck_macros::quickcheck;
-use std::{convert::TryFrom, iter::successors};
-
-lazy_static! {
-    static ref MASKS: Vec<u64> = {
-        successors(Some(1_u64), |n| {
-            if *n == 1_u64 << 63 {
-                None
-            } else {
-                Some(n << 1)
-            }
-        })
-        .collect()
-    };
-}
+use std::convert::TryFrom;
 
 #[quickcheck]
 fn legal_moves_should_place(board: ShadowOthelloBoard) {
@@ -40,10 +26,10 @@ fn illegal_moves_should_not_place(board: ShadowOthelloBoard) {
 
     let legal_positions = board.moves_for(stone);
 
-    let failed = MASKS
-        .iter()
+    let failed = u64::MAX
+        .squares()
         .filter(|pos| *pos & legal_positions == 0)
-        .map(|pos| board.clone().place_stone(stone, *pos))
+        .map(|pos| board.clone().place_stone(stone, pos))
         .any(|result| result.is_ok());
 
     assert!(!failed);
@@ -72,10 +58,10 @@ fn illegal_moves_should_be_illegal(board: ShadowOthelloBoard) {
 
     let legal_positions = board.moves_for(stone);
 
-    let failed = MASKS
-        .iter()
+    let failed = u64::MAX
+        .squares()
         .filter(|pos| *pos & legal_positions == 0)
-        .map(|pos| board.is_legal_move(stone, *pos))
+        .map(|pos| board.is_legal_move(stone, pos))
         .any(|result| result);
 
     assert!(!failed);
@@ -106,11 +92,11 @@ fn stone_at_consistency(board: ShadowOthelloBoard, rand_pos: u64) {
 
     // Test all board positions and one random element, that may have multiple
     // bits set
-    let mut positions = MASKS.iter().chain(std::iter::once(&rand_pos));
+    let mut positions = u64::MAX.squares().chain(std::iter::once(rand_pos));
 
     let success = positions.all(|pos| {
         board
-            .stone_at(*pos)
+            .stone_at(pos)
             .map(|stone| match stone {
                 Stone::Black => pos & black != 0,
                 Stone::White => pos & white != 0,
