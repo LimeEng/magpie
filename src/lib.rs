@@ -1,5 +1,7 @@
 //! Magpie is a reasonably efficient Othello library.
 //!
+//! <img src="https://limeeng.github.io/cdn/repo/magpie/logo.svg" width="200" align="right">
+//!
 //! This library allows the user to play a full game of Othello. Do note that
 //! there is currently no explicit support of Reversi, a very similar game.
 //! However, magpie is flexible enough that it is possible to play Reversi as
