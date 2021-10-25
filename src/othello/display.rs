@@ -62,7 +62,7 @@ impl<'a> OthelloDisplay<'a> {
     /// ```
     pub fn with_stone(&self, stone: Stone) -> OthelloDisplay {
         OthelloDisplay {
-            board: &self.board,
+            board: self.board,
             display: self.display,
             stone: Some(stone),
         }
@@ -79,7 +79,7 @@ impl<'a> OthelloDisplay<'a> {
     /// ```
     pub fn with_format(&self, display: Format) -> OthelloDisplay {
         OthelloDisplay {
-            board: &self.board,
+            board: self.board,
             display,
             stone: self.stone,
         }
@@ -88,7 +88,7 @@ impl<'a> OthelloDisplay<'a> {
 
 impl std::fmt::Display for OthelloDisplay<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        display(f, &self.board, self.stone, self.display)
+        display(f, self.board, self.stone, self.display)
     }
 }
 

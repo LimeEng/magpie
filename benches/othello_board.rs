@@ -1,6 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use magpie::othello::{OthelloBoard, SquareExt, Stone, StoneExt};
-use std::convert::TryFrom;
 
 fn bench_clone(c: &mut Criterion) {
     let board = OthelloBoard::standard();
