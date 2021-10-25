@@ -6,7 +6,6 @@ use crate::othello::{
     display::OthelloDisplay,
     Stone,
 };
-use std::convert::TryFrom;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -392,7 +391,7 @@ impl OthelloBoard {
     /// println!("{}", board.display());
     ///  ```
     pub fn display(&self) -> OthelloDisplay {
-        OthelloDisplay::new(&self)
+        OthelloDisplay::new(self)
     }
 }
 
@@ -446,7 +445,6 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
     /// # Examples
     /// ```rust
     /// use magpie::othello::{OthelloBoard, Stone};
-    /// use std::convert::TryFrom;
     ///
     /// let board = OthelloBoard::standard();
     /// let black = board.bits_for(Stone::Black);

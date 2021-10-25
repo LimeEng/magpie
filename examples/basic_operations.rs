@@ -1,5 +1,5 @@
 use magpie::othello::{OthelloBoard, Stone, StoneExt};
-use std::convert::TryFrom;
+
 fn main() {
     // The board can be initialized in a few different ways.
 

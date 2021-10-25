@@ -1,7 +1,6 @@
 use magpie::othello::{OthelloBoard, OthelloError, SquareExt, Stone, StoneExt};
 use quickcheck::{Arbitrary, Gen};
 use quickcheck_macros::quickcheck;
-use std::convert::TryFrom;
 
 #[quickcheck]
 fn legal_moves_should_place(board: ShadowOthelloBoard) {

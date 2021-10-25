@@ -1,5 +1,4 @@
 use magpie::othello::{OthelloBoard, Stone};
-use std::convert::TryFrom;
 
 #[test]
 fn legal_move_check_one_valid() {

@@ -3,7 +3,6 @@ use crate::{
     coord::Coord,
 };
 use magpie::othello::{OthelloBoard, Stone};
-use std::convert::TryFrom;
 
 pub mod agent;
 pub mod coord;
