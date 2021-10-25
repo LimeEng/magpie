@@ -15,7 +15,7 @@ fn main() {
     // These two constructors are equivalent. These boards are setup in the
     // default Othello opening, as can be seen in this graphic, where "B" and
     // "W" stands for black and white, respectively:
-    //     ABCDEFGH
+    //      ABCDEFGH
     //     +--------+
     //   1 |........|
     //   2 |........|
