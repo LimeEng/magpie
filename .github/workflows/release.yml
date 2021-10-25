@@ -25,8 +25,8 @@ jobs:
         # https://github.com/rust-cli/meta/issues/33
         # Thanks ashutoshrishi!
         run: |
-          CRATE_NAME=$(awk -F ' = ' '$1 ~ /name/ { gsub(/["]/, "", $2); printf("%s",$2) }' Cargo.toml)
-          CRATE_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' Cargo.toml)
+          CRATE_NAME=$(awk -F ' = ' '$1 ~ /name/ { gsub(/["]/, "", $2); printf("%s",$2); exit }' Cargo.toml)
+          CRATE_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2); exit }' Cargo.toml)
           CRATE_VERSION="v${CRATE_VERSION}"
 
           echo "Detected crate: ${CRATE_NAME}@${CRATE_VERSION}"
