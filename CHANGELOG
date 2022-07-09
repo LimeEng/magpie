@@ -1,0 +1,123 @@
+# Changelog
+
+## [Indev]
+---
+## [0.9.1]
+### Added
+- Updated crate to Rust Edition 2021.
+- Added a logo.
+### Changed
+- Improved the workflow responsible for publishing to crates.io. 
+---
+## [0.9.0]
+### Changed
+- Increased performance. Move generation and board updates are now hugely more performant and the legal move checker also got a small boost.
+- Renamed `OthelloBoard::legal_moves_for(...)` to `OthelloBoard::moves_for(...)`.
+- Rewrote some documentation tests to use `assert`-macros instead of simply printing values.
+- Theoretically optimized `OthelloBoard::empty_squares()`.
+---
+## [0.8.0]
+### Changed
+- Renamed `OthelloBoard::empty_cells()` to `OthelloBoard::empty_squares()`.
+### Fixed
+- Documentation issue regarding `SquareExt`.
+---
+## [0.7.0]
+### Added
+- Added `OthelloBoard::display(...)` to pretty print the board.
+- Added `SquareExt` to enumerate all positions on a bitboard.
+### Changed
+- Renamed `PositionExt` to `StoneExt`.
+---
+## [0.6.0]
+### Added
+- Added quickcheck tests that generate test cases by themselves.
+### Fixed
+- Fixed a bug in `OthelloBoard::is_legal_move(...)`. The position must be on an empty tile to be considered legal.
+---
+## [0.5.2]
+### Fixed
+- Broken links in the README was fixed.
+---
+## [0.5.1]
+### Added
+- Added a link to the benchmarks in the README.
+- Added a description of the benchmarks.
+- Added some example code walking through the most common operations.
+### Changed
+- Simplified tests.
+---
+## [0.5.0]
+### Added
+- Added `OthelloBoard::remove_stone_unchecked(...)`.
+---
+## [0.4.0]
+### Added
+- Added workflow to handle publishing to crates.io.
+
+### Changed
+- Reorganized the library to avoid repetitive imports.
+  Before:
+  ```rust
+  magpie::othello_board::OthelloBoard;
+  magpie::stone::Stone;
+  ```
+  After:
+  ```rust
+  magpie::othello::OthelloBoard;
+  magpie::othello::Stone;
+  ```
+---
+## [0.3.0]
+### Added
+- Example code was added, featuring a demonstration of how to use `serde` and a fully playable game where you are pit against an opponent who only makes random moves. In conjunction with this, the example code from the README was removed and a link to this new example code was added.
+- Implemented `TryFrom` and `Default` traits for `OthelloBoard`.
+- Added basic tests for common `serde`-usage.
+
+### Removed
+- Removed `OthelloBoard::from_state(...)`. Replaced by `TryFrom` trait.
+
+### Fixed
+- An unsound deserialization bug was fixed, outlined in [PR#16].
+- The CI workflow now also runs tests with the optional `serde`-dependency enabled.
+- Documentation links have been updated to a better format, introduced in Rust 1.48.
+---
+## [0.2.0]
+### Added
+- An extension trait `PositionExt` has been added to simplify handling of bitboards.
+- Added `OthelloBoard::is_legal_move(...)`.
+- The OthelloBoard can now be constructed in three different ways
+  - `OthelloBoard::new()` creates a completely empty board without any stones on it.
+  - `OthelloBoard::standard()` returns a board with the starting position pre-filled.
+  - `OthelloBoard::from_state(...)` creates a new board from the supplied positions. It returns an error if any of the positions overlap.
+- An optional dependency on `serde` has been added.
+- Significantly expanded the README.
+- Benchmarks are now included to help guide development.
+- Documented more functions.
+- Added more tests, including inline documentation tests.
+- The documentation now includes a high level outline of the project.
+### Changed
+- Renamed function `OthelloBoard::free_spaces()` to `OthelloBoard::empty_cells()`.
+- `OthelloBoard::place_stone(...)` now differentiates between two types of user error.
+- `OthelloBoard::place_stone_unchecked(...)` is not entirely unchecked anymore. It needs to make sure that no stones overlap.
+- `OthelloBoard::stone_at(...)` will now return `None` if supplied with a bitboard that does not have exactly one bit set.
+---
+## [0.1.0]
+
+---
+
+[Indev]: https://github.com/LimeEng/magpie/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/LimeEng/magpie/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/LimeEng/magpie/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/LimeEng/magpie/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/LimeEng/magpie/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/LimeEng/magpie/compare/v0.5.2...v0.6.0
+[0.5.2]: https://github.com/LimeEng/magpie/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/LimeEng/magpie/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/LimeEng/magpie/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/LimeEng/magpie/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/LimeEng/magpie/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/LimeEng/magpie/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/LimeEng/magpie/releases/tag/v0.1.0
+
+[PR#16]: https://github.com/LimeEng/magpie/pull/16
