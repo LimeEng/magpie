@@ -48,14 +48,14 @@ pub const SHIFT_MASKS: [u64; 8] = [
 // Masks representing each position on the board starting with A1.
 #[rustfmt::skip]
 pub const MASKS: [u64; 64] = [
-    9223372036854775808, 4611686018427387904, 2305843009213693952, 1152921504606846976, 576460752303423488,
-    288230376151711744, 144115188075855872, 72057594037927936, 36028797018963968, 18014398509481984,
-    9007199254740992, 4503599627370496, 2251799813685248, 1125899906842624, 562949953421312, 281474976710656,
-    140737488355328, 70368744177664, 35184372088832, 17592186044416, 8796093022208, 4398046511104, 2199023255552,
-    1099511627776, 549755813888, 274877906944, 137438953472, 68719476736, 34359738368, 17179869184, 8589934592,
-    4294967296, 2147483648, 1073741824, 536870912, 268435456, 134217728, 67108864, 33554432, 16777216, 8388608,
-    4194304, 2097152, 1048576, 524288, 262144, 131072, 65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128,
-    64, 32, 16, 8, 4, 2, 1,
+    1 << 63, 1 << 62, 1 << 61, 1 << 60, 1 << 59, 1 << 58, 1 << 57, 1 << 56,
+    1 << 55, 1 << 54, 1 << 53, 1 << 52, 1 << 51, 1 << 50, 1 << 49, 1 << 48,
+    1 << 47, 1 << 46, 1 << 45, 1 << 44, 1 << 43, 1 << 42, 1 << 41, 1 << 40,
+    1 << 39, 1 << 38, 1 << 37, 1 << 36, 1 << 35, 1 << 34, 1 << 33, 1 << 32,
+    1 << 31, 1 << 30, 1 << 29, 1 << 28, 1 << 27, 1 << 26, 1 << 25, 1 << 24,
+    1 << 23, 1 << 22, 1 << 21, 1 << 20, 1 << 19, 1 << 18, 1 << 17, 1 << 16,
+    1 << 15, 1 << 14, 1 << 13, 1 << 12, 1 << 11, 1 << 10, 1 << 9 , 1 << 8 ,
+    1 << 7 , 1 << 6 , 1 << 5 , 1 << 4 , 1 << 3 , 1 << 2 , 1 << 1 , 1 << 0 ,
 ];
 
 // For each position on the board starting with A1, shift rays are presented in the following order: N, NE, E, SE, S, SW, W, NW.
@@ -194,55 +194,31 @@ pub const SHIFT_RAYS: [[u64; 8]; 64] = [
 
 // Code to generate the shift rays below
 // ============================================================================
-// use magpie::othello::{SquareExt, FILE_A, FILE_H, SHIFT_DIRS};
+// const FILE_A: u64 = 0x80_80_80_80_80_80_80_80;
+// const FILE_H: u64 = 0x01_01_01_01_01_01_01_01;
+
+// const SHIFT_DIRS: [i8; 8] = [-8, -7, 1, 9, 8, 7, -1, -9];
+// const MASKS: [u64; 8] = [
+//     u64::MAX,
+//     !FILE_A,
+//     !FILE_A,
+//     !FILE_A,
+//     u64::MAX,
+//     !FILE_H,
+//     !FILE_H,
+//     !FILE_H,
+// ];
 
 // fn main() {
-//     print_rays();
-// }
-
-// fn print_rays() {
-//     let masks = vec![
-//         u64::MAX,
-//         !FILE_A,
-//         !FILE_A,
-//         !FILE_A,
-//         u64::MAX,
-//         !FILE_H,
-//         !FILE_H,
-//         !FILE_H,
-//     ];
-//     let mut result: Vec<Vec<u64>> = Vec::new();
-//     for pos in u64::MAX.squares() {
-//         let mut pos_result = Vec::new();
-//         for (i, shift) in SHIFT_DIRS.iter().enumerate() {
-//             let mut moves = 0;
-//             let mut candidates = dir_shift(pos, *shift) & masks[i];
-//             while candidates != 0 {
-//                 moves |= candidates;
-//                 candidates = dir_shift(candidates, *shift) & masks[i];
-//             }
-//             pos_result.push(moves);
+//     let formatted_numbers: Vec<String> = std::iter::successors(Some(1_u64 << 63), |next| {
+//         if *next != 1 {
+//             Some(next >> 1)
+//         } else {
+//             None
 //         }
-//         result.push(pos_result)
-//     }
-
-//     let formatted_numbers: Vec<String> = result
-//         .iter()
-//         .map(|pos_rays| {
-//             let hex_formatted: Vec<String> = pos_rays.iter().map(|ray| to_hex(*ray)).collect();
-//             format!(
-//                 "    [ {}, {}, {}, {},\n      {}, {}, {}, {} ]",
-//                 hex_formatted.get(0).unwrap(),
-//                 hex_formatted.get(1).unwrap(),
-//                 hex_formatted.get(2).unwrap(),
-//                 hex_formatted.get(3).unwrap(),
-//                 hex_formatted.get(4).unwrap(),
-//                 hex_formatted.get(5).unwrap(),
-//                 hex_formatted.get(6).unwrap(),
-//                 hex_formatted.get(7).unwrap()
-//             )
-//         })
-//         .collect();
+//     })
+//     .map(formatted_shift_rays_for)
+//     .collect();
 
 //     let output = format!(
 //         "#[rustfmt::skip]\npub const SHIFT_RAYS: [[u64; 8]; 64] = [\n{}\n];",
@@ -252,10 +228,44 @@ pub const SHIFT_RAYS: [[u64; 8]; 64] = [
 //     println!("{}", output);
 // }
 
+// fn formatted_shift_rays_for(pos: u64) -> String {
+//     let shift_rays = shift_rays_for(pos)
+//         .into_iter()
+//         .map(to_hex)
+//         .collect::<Vec<String>>();
+//     format!(
+//         "    [ {}, {}, {}, {},\n      {}, {}, {}, {} ]",
+//         shift_rays.get(0).unwrap(),
+//         shift_rays.get(1).unwrap(),
+//         shift_rays.get(2).unwrap(),
+//         shift_rays.get(3).unwrap(),
+//         shift_rays.get(4).unwrap(),
+//         shift_rays.get(5).unwrap(),
+//         shift_rays.get(6).unwrap(),
+//         shift_rays.get(7).unwrap()
+//     )
+// }
+
+// fn shift_rays_for(pos: u64) -> Vec<u64> {
+//     SHIFT_DIRS
+//         .iter()
+//         .enumerate()
+//         .map(|(i, shift)| {
+//             let mut moves = 0;
+//             let mut candidates = dir_shift(pos, *shift) & MASKS[i];
+//             while candidates != 0 {
+//                 moves |= candidates;
+//                 candidates = dir_shift(candidates, *shift) & MASKS[i];
+//             }
+//             moves
+//         })
+//         .collect()
+// }
+
 // fn to_hex(num: u64) -> String {
 //     let mut hex = format!("{:#018x}", num);
 //     for i in (4..23).step_by(3) {
-//         hex.insert_str(i, "_");
+//         hex.insert(i, '_');
 //     }
 //     hex
 // }
