@@ -4,15 +4,8 @@ macro_rules! perft_tests {
     ($($test_name:ident: $depth:expr,)*) => {
     $(
         #[test]
-        fn $test_name() -> Result<(), TestError> {
-            let board = OthelloBoard::standard();
-            let stone = Stone::Black;
-            let target = perft_key($depth)?;
-            let nodes = perft(&board, stone, false, $depth);
-            if target != nodes {
-                return Err(TestError::PerftTargetMissed);
-            }
-            Ok(())
+        fn $test_name() -> Result<(), PerftError> {
+            test_perft($depth)
         }
     )*
     }
@@ -23,17 +16,22 @@ macro_rules! ignored_perft_tests {
     $(
         #[ignore]
         #[test]
-        fn $test_name() -> Result<(), TestError> {
-            let board = OthelloBoard::standard();
-            let stone = Stone::Black;
-            let target = perft_key($depth)?;
-            let nodes = perft(&board, stone, false, $depth);
-            if target != nodes {
-                return Err(TestError::PerftTargetMissed);
-            }
-            Ok(())
+        fn $test_name() -> Result<(), PerftError> {
+            test_perft($depth)
         }
     )*
+    }
+}
+
+fn test_perft(depth: u8) -> Result<(), PerftError> {
+    let board = OthelloBoard::standard();
+    let stone = Stone::Black;
+    let target = perft_key(depth)?;
+    let nodes = perft(&board, stone, false, depth);
+    if target == nodes {
+        Ok(())
+    } else {
+        Err(PerftError::TargetMissed)
     }
 }
 
@@ -59,7 +57,7 @@ ignored_perft_tests! {
     // perft_14: 14,
 }
 
-fn perft_key(depth: u8) -> Result<u64, TestError> {
+fn perft_key(depth: u8) -> Result<u64, PerftError> {
     Ok(match depth {
         1 => 4,
         2 => 12,
@@ -75,7 +73,7 @@ fn perft_key(depth: u8) -> Result<u64, TestError> {
         12 => 1939886636,
         13 => 18429641748,
         14 => 184042084512,
-        _ => return Err(TestError::PerftDepthTooLarge),
+        _ => return Err(PerftError::DepthTooLarge),
     })
 }
 
@@ -105,7 +103,7 @@ fn perft(board: &OthelloBoard, stone: Stone, passed: bool, depth: u8) -> u64 {
 }
 
 #[derive(Debug)]
-enum TestError {
-    PerftTargetMissed,
-    PerftDepthTooLarge,
+enum PerftError {
+    TargetMissed,
+    DepthTooLarge,
 }
