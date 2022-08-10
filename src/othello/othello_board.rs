@@ -45,10 +45,10 @@ use serde::{Deserialize, Serialize};
 ///   +----+----+----+----+----+----+----+----+
 /// ```
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-// Since we need to perform some validation but do not want to write a custom
-// serde deserializer, we instead create a shadow type. This shadow type can be
-// deserialized and nothing else. Thanks to some Serde magic it is possible to
-// reuse the TryFrom trait and get proper validation.
+// Some validation need to be performed when deserializing an Othello board.
+// Instead of writing a custom serde deserializer, a shadow type is created.
+// This shadow type can be deserialized and nothing else. Thanks to some Serde
+// magic it is possible to reuse the TryFrom trait and get proper validation.
 #[cfg_attr(feature = "serde", serde(try_from = "ShadowOthelloBoard"))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct OthelloBoard {
@@ -69,6 +69,7 @@ impl OthelloBoard {
     /// use magpie::othello::OthelloBoard;
     ///
     /// let board = OthelloBoard::empty();
+    /// assert_eq!(64, board.empty_squares().count_ones());
     /// ```
     pub fn empty() -> OthelloBoard {
         OthelloBoard {
@@ -99,6 +100,7 @@ impl OthelloBoard {
     /// use magpie::othello::OthelloBoard;
     ///
     /// let board = OthelloBoard::standard();
+    /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
     pub fn standard() -> OthelloBoard {
         OthelloBoard {
@@ -256,7 +258,7 @@ impl OthelloBoard {
     /// use magpie::othello::{OthelloBoard, Stone};
     ///
     /// let board = OthelloBoard::standard();
-    /// assert_eq!(false, board.is_legal_move(Stone::Black, 1_u64));
+    /// assert!(!board.is_legal_move(Stone::Black, 1_u64));
     /// ```
     pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
         if pos.count_ones() != 1 {
@@ -562,8 +564,7 @@ pub trait SquareExt: Sized {
     /// let pos = u64::MAX // Full bitboard (all bits set to 1)
     ///     .squares() // Convert that into multiple bitboards
     ///     .next()
-    ///     .unwrap(); // Othello has 64 positions which means that this
-    ///                // iterator will always return 64 bitboards
+    ///     .unwrap(); // This iterator will always return 64 bitboards
     /// assert_eq!(2_u64.pow(63), pos);
     ///  ```
     fn squares(&self) -> Self::Iter;

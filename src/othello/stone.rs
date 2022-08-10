@@ -16,8 +16,7 @@ impl Stone {
     /// ```rust
     /// use magpie::othello::Stone;
     ///
-    /// let stone = Stone::Black;
-    /// assert_eq!(Stone::White, stone.flip());
+    /// assert_eq!(Stone::White, Stone::Black.flip());
     /// ```
     pub fn flip(&self) -> Stone {
         use Stone::*;
