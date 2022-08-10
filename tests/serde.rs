@@ -20,6 +20,6 @@ fn serde_illegal_deserialization() {
         "white_stones": 1
     }"#;
 
-    let board = serde_json::from_str::<OthelloBoard>(&json);
+    let board = serde_json::from_str::<OthelloBoard>(json);
     assert!(board.is_err(), "The deserialization should not succeed");
 }

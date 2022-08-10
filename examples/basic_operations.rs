@@ -100,7 +100,7 @@ fn main() {
     let stone = Stone::Black;
     // In binary this is 32 set bits. It is then padded with 32 zeroes to
     // create an `u64`.
-    let pos = u32::MAX as u64;
+    let pos = u64::from(u32::MAX);
     // This method allows us to place as many stones as we please at once, as
     // long as no stones of opposite colors overlap. Here we fill half the
     // board with black stones.

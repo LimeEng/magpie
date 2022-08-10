@@ -4,7 +4,7 @@ use magpie::othello::{OthelloBoard, Stone};
 fn legal_move_check_one_valid() {
     let board = board_one_legal_move();
     let pos = 0x00_00_00_00_08_00_00_00;
-    assert_eq!(true, board.is_legal_move(Stone::Black, pos));
+    assert!(board.is_legal_move(Stone::Black, pos));
 }
 
 #[test]
@@ -12,21 +12,21 @@ fn legal_move_check_one_valid_one_invalid() {
     let board = board_one_legal_move();
     // Note the leading 8
     let pos = 0x80_00_00_00_08_00_00_00;
-    assert_eq!(false, board.is_legal_move(Stone::Black, pos));
+    assert!(!board.is_legal_move(Stone::Black, pos));
 }
 
 #[test]
 fn legal_move_check_two_valid() {
     let board = board_two_legal_moves();
     let pos = 0x80_00_00_00_00_00_00_01;
-    assert_eq!(false, board.is_legal_move(Stone::Black, pos));
+    assert!(!board.is_legal_move(Stone::Black, pos));
 }
 
 #[test]
 fn legal_move_check_none_valid() {
     let board = board_no_legal_moves();
     let pos = 0x00_00_00_00_08_00_00_00;
-    assert_eq!(false, board.is_legal_move(Stone::Black, pos));
+    assert!(!board.is_legal_move(Stone::Black, pos));
 }
 
 // Returns a board with only one legal move for black, that is, the following

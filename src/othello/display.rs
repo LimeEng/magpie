@@ -43,8 +43,8 @@ pub enum Format {
 }
 
 impl<'a> OthelloDisplay<'a> {
-    pub(crate) fn new(board: &OthelloBoard) -> OthelloDisplay {
-        OthelloDisplay {
+    pub(crate) fn new(board: &'a OthelloBoard) -> Self {
+        Self {
             board,
             display: Format::Standard,
             stone: None,
@@ -60,8 +60,8 @@ impl<'a> OthelloDisplay<'a> {
     /// let board = OthelloBoard::standard();
     /// println!("{}", board.display().with_stone(Stone::Black));
     /// ```
-    pub fn with_stone(&self, stone: Stone) -> OthelloDisplay {
-        OthelloDisplay {
+    pub fn with_stone(&self, stone: Stone) -> Self {
+        Self {
             board: self.board,
             display: self.display,
             stone: Some(stone),
@@ -77,8 +77,8 @@ impl<'a> OthelloDisplay<'a> {
     /// let board = OthelloBoard::standard();
     /// println!("{}", board.display().with_format(Format::Compact));
     /// ```
-    pub fn with_format(&self, display: Format) -> OthelloDisplay {
-        OthelloDisplay {
+    pub fn with_format(&self, display: Format) -> Self {
+        Self {
             board: self.board,
             display,
             stone: self.stone,
@@ -98,7 +98,7 @@ fn display(
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {
-    let legal_moves = stone.map(|stone| board.moves_for(stone)).unwrap_or(0);
+    let legal_moves = stone.map_or(0, |stone| board.moves_for(stone));
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];
         board
@@ -107,14 +107,14 @@ fn display(
                 Stone::White => "W",
                 Stone::Black => "B",
             })
-            .or_else(|| {
+            .or({
                 if legal_moves & pos > 0 {
                     Some("*")
                 } else {
                     None
                 }
             })
-            .unwrap_or_else(|| match display {
+            .unwrap_or(match display {
                 Format::Compact => ".",
                 Format::Standard => " ",
             })

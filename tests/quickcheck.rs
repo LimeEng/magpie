@@ -101,12 +101,12 @@ fn stone_at_consistency(board: ShadowOthelloBoard, rand_pos: u64) {
                 Stone::White => pos & white != 0,
             })
             .unwrap_or_else(|| {
-                if pos.count_ones() != 1 {
+                if pos.count_ones() == 1 {
+                    pos & empty != 0
+                } else {
                     // If the position has multiple bits set, stone_at should
                     // return None
                     true
-                } else {
-                    pos & empty != 0
                 }
             })
     });
@@ -140,7 +140,7 @@ struct ShadowOthelloBoard {
 }
 
 impl Arbitrary for ShadowOthelloBoard {
-    fn arbitrary(g: &mut Gen) -> ShadowOthelloBoard {
+    fn arbitrary(g: &mut Gen) -> Self {
         // Generate a random bitboard
         let bits = u64::arbitrary(g);
 

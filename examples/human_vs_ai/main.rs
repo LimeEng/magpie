@@ -70,19 +70,17 @@ enum ActiveAgent {
 }
 
 impl ActiveAgent {
-    pub fn next_agent(&self) -> ActiveAgent {
-        use ActiveAgent::*;
-        match &self {
-            AgentOne => AgentTwo,
-            AgentTwo => AgentOne,
+    pub fn next_agent(self) -> ActiveAgent {
+        match self {
+            ActiveAgent::AgentOne => ActiveAgent::AgentTwo,
+            ActiveAgent::AgentTwo => ActiveAgent::AgentOne,
         }
     }
 
-    pub fn stone(&self) -> Stone {
-        use ActiveAgent::*;
-        match &self {
-            AgentOne => Stone::Black,
-            AgentTwo => Stone::White,
+    pub fn stone(self) -> Stone {
+        match self {
+            ActiveAgent::AgentOne => Stone::Black,
+            ActiveAgent::AgentTwo => Stone::White,
         }
     }
 }

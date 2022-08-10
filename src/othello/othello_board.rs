@@ -71,8 +71,8 @@ impl OthelloBoard {
     /// let board = OthelloBoard::empty();
     /// assert_eq!(64, board.empty_squares().count_ones());
     /// ```
-    pub fn empty() -> OthelloBoard {
-        OthelloBoard {
+    pub fn empty() -> Self {
+        Self {
             black_stones: 0,
             white_stones: 0,
         }
@@ -102,8 +102,8 @@ impl OthelloBoard {
     /// let board = OthelloBoard::standard();
     /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
-    pub fn standard() -> OthelloBoard {
-        OthelloBoard {
+    pub fn standard() -> Self {
+        Self {
             black_stones: BLACK_START_POS,
             white_stones: WHITE_START_POS,
         }
@@ -433,7 +433,7 @@ impl Default for OthelloBoard {
     /// assert_eq!(OthelloBoard::standard(), OthelloBoard::default());
     /// ```
     fn default() -> Self {
-        OthelloBoard::standard()
+        Self::standard()
     }
 }
 
@@ -461,7 +461,7 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
         if black_stones & white_stones != 0 {
             return Err(OthelloError::PiecesOverlapping);
         }
-        let board = OthelloBoard {
+        let board = Self {
             black_stones,
             white_stones,
         };
@@ -522,7 +522,7 @@ pub trait StoneExt: Sized {
 }
 
 impl StoneExt for u64 {
-    type Iter = Box<dyn Iterator<Item = u64>>;
+    type Iter = Box<dyn Iterator<Item = Self>>;
     fn stones(&self) -> Self::Iter {
         let this = *self;
         let iter = MASKS.iter().map(move |m| m & this).filter(|m| *m != 0);
@@ -571,7 +571,7 @@ pub trait SquareExt: Sized {
 }
 
 impl SquareExt for u64 {
-    type Iter = Box<dyn Iterator<Item = u64>>;
+    type Iter = Box<dyn Iterator<Item = Self>>;
     fn squares(&self) -> Self::Iter {
         let this = *self;
         let iter = MASKS.iter().map(move |m| m & this);
