@@ -4,7 +4,7 @@ use crate::othello::{
         SHIFT_RAYS, WHITE_START_POS,
     },
     display::OthelloDisplay,
-    Stone,
+    Position, Stone,
 };
 
 #[cfg(feature = "serde")]
@@ -578,6 +578,10 @@ impl SquareExt for u64 {
 
         Box::new(iter)
     }
+}
+
+pub trait PositionExt {
+    fn to_position(&self) -> Position;
 }
 
 // https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift
