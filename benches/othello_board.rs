@@ -1,8 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use magpie::othello::{OthelloBoard, SquareExt, Stone, StoneExt};
+use magpie::othello::{Board, SquareExt, Stone, StoneExt};
 
 fn bench_clone(c: &mut Criterion) {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     c.bench_function("clone", |b| b.iter(|| board.clone()));
 }
 
@@ -21,7 +21,7 @@ fn bench_place_stone(c: &mut Criterion) {
             board
                 .clone()
                 .place_stone(black_box(Stone::Black), black_box(pos))
-                .unwrap()
+                .unwrap();
         });
     });
 }
@@ -61,16 +61,16 @@ criterion_group!(
 );
 criterion_main!(benches);
 
-fn board_for_place_stone() -> OthelloBoard {
+fn board_for_place_stone() -> Board {
     let black_pos = 0x88_01_00_00_81_00_00_49;
     let white_pos = 0x00_48_2a_1c_76_1c_2a_00;
 
-    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
+    Board::try_from((black_pos, white_pos)).unwrap()
 }
 
-fn board_for_legal_moves() -> OthelloBoard {
+fn board_for_legal_moves() -> Board {
     let black_pos = 0x00_11_66_0c_3c_2c_00_00;
     let white_pos = 0x00_66_00_52_40_52_56_00;
 
-    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
+    Board::try_from((black_pos, white_pos)).unwrap()
 }

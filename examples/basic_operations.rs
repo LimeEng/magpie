@@ -1,4 +1,4 @@
-use magpie::othello::{OthelloBoard, Stone, StoneExt};
+use magpie::othello::{Board, Stone, StoneExt};
 
 fn main() {
     // The board can be initialized in a few different ways.
@@ -10,7 +10,7 @@ fn main() {
     // which is distinctly different from Othello. Unfortunately, some
     // additional bookkeeping is required in this case since magpie does not
     // yet support Reversi.
-    let _board = OthelloBoard::empty();
+    let _board = Board::empty();
     // ========================================================================
     // These two constructors are equivalent. These boards are setup in the
     // default Othello opening, as can be seen in this graphic, where "B" and
@@ -26,8 +26,8 @@ fn main() {
     //   7 |........|
     //   8 |........|
     //     +--------+
-    let board_standard = OthelloBoard::standard();
-    let board_default = OthelloBoard::default();
+    let board_standard = Board::standard();
+    let board_default = Board::default();
     assert_eq!(board_standard, board_default);
     // To better visualize what is happening, this debug function is included
     // in this example. This is what the standard Othello opening looks like.
@@ -44,16 +44,16 @@ fn main() {
     // player overlap.
     let black_stones = 1; // In binary: ...0001
     let white_stones = 1; // In binary: ...0001
-    assert!(OthelloBoard::try_from((black_stones, white_stones)).is_err());
+    assert!(Board::try_from((black_stones, white_stones)).is_err());
 
     // However, this example will succeed since the stones do not overlap, even
     // if this particular example is unreachable during normal play.
     let black_stones = 1; // In binary: ...0001
     let white_stones = 4; // In binary: ...0100
-    assert!(OthelloBoard::try_from((black_stones, white_stones)).is_ok());
+    assert!(Board::try_from((black_stones, white_stones)).is_ok());
     // ========================================================================
     // The legal move generator and extractor is demonstrated next.
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let stone = Stone::Black;
     // Here, the legal moves for black is calculated from the starting
     // position. A bitboard is returned, represented as an `u64`, where each bit
@@ -70,7 +70,7 @@ fn main() {
     // ========================================================================
     // Naturally, the library would not be complete without a way of advancing
     // the state of the game.
-    let mut board = OthelloBoard::standard();
+    let mut board = Board::standard();
     let stone = Stone::Black;
     let any_move = board
         .moves_for(stone)
@@ -96,7 +96,7 @@ fn main() {
     // to both place and remove arbitrary stones without having to comply with
     // Othello's rules. Both methods will always leave the board in a playable
     // state. Reversi can be implemented using these two methods.
-    let mut board = OthelloBoard::empty();
+    let mut board = Board::empty();
     let stone = Stone::Black;
     // In binary this is 32 set bits. It is then padded with 32 zeroes to
     // create an `u64`.

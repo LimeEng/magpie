@@ -1,4 +1,4 @@
-use magpie::othello::{OthelloBoard, Stone};
+use magpie::othello::{Board, Stone};
 
 #[test]
 fn legal_move_check_one_valid() {
@@ -31,27 +31,27 @@ fn legal_move_check_none_valid() {
 
 // Returns a board with only one legal move for black, that is, the following
 // move represented as a bitboard: 0x00_00_00_00_08_00_00_00.
-fn board_one_legal_move() -> OthelloBoard {
+fn board_one_legal_move() -> Board {
     let black_pos = 0x88_01_00_00_81_00_00_49;
     let white_pos = 0x00_48_2a_1c_76_1c_2a_00;
 
-    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
+    Board::try_from((black_pos, white_pos)).unwrap()
 }
 
 // Returns a board with only two legal moves for black, that is, the following
 // moves represented as a bitboard: 0x80_00_00_00_00_00_00_01.
-fn board_two_legal_moves() -> OthelloBoard {
+fn board_two_legal_moves() -> Board {
     let black_pos = 0x01_00_00_00_00_00_00_00;
     let white_pos = 0x7e_01_01_01_01_01_01_00;
 
-    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
+    Board::try_from((black_pos, white_pos)).unwrap()
 }
 
-fn board_no_legal_moves() -> OthelloBoard {
+fn board_no_legal_moves() -> Board {
     let board = board_one_legal_move();
 
     let black_pos = 0;
     let white_pos = board.bits_for(Stone::White) | board.bits_for(Stone::Black);
 
-    OthelloBoard::try_from((black_pos, white_pos)).unwrap()
+    Board::try_from((black_pos, white_pos)).unwrap()
 }

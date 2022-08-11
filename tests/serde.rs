@@ -1,13 +1,13 @@
-use magpie::othello::OthelloBoard;
+use magpie::othello::Board;
 use serde_json::Result;
 
 #[test]
 fn serde_legal_deserialization() -> Result<()> {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let json = serde_json::to_string_pretty(&board)?;
-    let board: OthelloBoard = serde_json::from_str(&json)?;
+    let board: Board = serde_json::from_str(&json)?;
 
-    assert_eq!(OthelloBoard::standard(), board);
+    assert_eq!(Board::standard(), board);
 
     Ok(())
 }
@@ -20,6 +20,6 @@ fn serde_illegal_deserialization() {
         "white_stones": 1
     }"#;
 
-    let board = serde_json::from_str::<OthelloBoard>(json);
+    let board = serde_json::from_str::<Board>(json);
     assert!(board.is_err(), "The deserialization should not succeed");
 }

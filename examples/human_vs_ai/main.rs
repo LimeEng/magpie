@@ -2,7 +2,7 @@ use crate::{
     agent::{Action, Agent, HumanAgent, RandomAgent},
     coord::Coord,
 };
-use magpie::othello::{OthelloBoard, Stone};
+use magpie::othello::{Board, Stone};
 
 pub mod agent;
 pub mod coord;
@@ -16,7 +16,7 @@ fn play() {
     let mut agent2 = RandomAgent;
     let mut active_agent = ActiveAgent::AgentOne;
 
-    let mut board = OthelloBoard::standard();
+    let mut board = Board::standard();
     let mut passed_last_turn = false;
     while board.empty_squares().count_ones() > 0 {
         println!("{}", board.display().with_stone(active_agent.stone()));
