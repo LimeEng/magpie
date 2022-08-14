@@ -26,7 +26,7 @@ impl Agent for HumanAgent {
                 if board.is_legal_move(stone, action) {
                     break Action::Move(action);
                 }
-                println!("{} is not a valid move", input.to_lowercase());
+                println!("\"{}\" is not a valid move", input.to_lowercase());
             }
             println!("Please enter a valid move, or \"pass\" your turn");
             print_prompt();
@@ -37,5 +37,5 @@ impl Agent for HumanAgent {
 fn print_prompt() {
     print!("> ");
     // print!() does not flush, unlike println!(), so it needs to be done manually
-    io::stdout().flush().expect("Could not flush stdout");
+    io::stdout().flush().expect("Failed to flush stdout");
 }

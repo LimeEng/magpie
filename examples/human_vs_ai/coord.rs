@@ -48,7 +48,7 @@ impl Coord {
             7 => "h",
             _ => unreachable!(),
         };
-        return format!("{}{}", file, self.rank + 1);
+        format!("{}{}", file, self.rank + 1)
     }
 }
 
