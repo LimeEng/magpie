@@ -9,6 +9,8 @@ mod stone;
 
 mod position;
 
+mod bitboard;
+
 pub use display::{Format, OthelloDisplay};
 pub use othello_board::{OthelloBoard, OthelloError, SquareExt, StoneExt};
 pub use position::{Position, PositionError};

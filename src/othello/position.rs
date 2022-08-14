@@ -1,29 +1,60 @@
-use super::constants::{FILES, MASKS, POSITIONS_AS_NOTATION, RANKS};
+use crate::othello::{
+    bitboard::Bitboard,
+    constants::{FILES, MASKS, POSITIONS_AS_NOTATION, RANKS},
+};
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Position {
-    bitboard: u64,
+    bitboard: Bitboard,
 }
 
 impl Position {
-    fn new(bitboard: u64) -> Self {
+    fn new_unchecked(bitboard: Bitboard) -> Self {
         Self { bitboard }
     }
 
     pub fn rank(&self) -> u8 {
-        (self.bitboard.leading_zeros() / 8).try_into().unwrap()
+        (self.bitboard.raw().leading_zeros() / 8)
+            .try_into()
+            .unwrap()
     }
 
     pub fn file(&self) -> u8 {
-        (self.bitboard.leading_zeros() % 8).try_into().unwrap()
+        (self.bitboard.raw().leading_zeros() % 8)
+            .try_into()
+            .unwrap()
     }
 
     pub fn as_bitboard(&self) -> u64 {
-        self.bitboard
+        self.bitboard.raw()
     }
 
     pub fn to_notation(&self) -> String {
-        POSITIONS_AS_NOTATION[self.bitboard.leading_zeros() as usize].to_string()
+        POSITIONS_AS_NOTATION[self.bitboard.raw().leading_zeros() as usize].to_string()
+    }
+}
+
+impl From<Bitboard> for Position {
+    fn from(bitboard: Bitboard) -> Self {
+        Position::new_unchecked(bitboard)
+    }
+}
+
+impl From<Bitboard> for PositionSet {
+    fn from(bitboard: Bitboard) -> Self {
+        PositionSet { bitboard }
+    }
+}
+
+impl From<Position> for Bitboard {
+    fn from(position: Position) -> Self {
+        position.bitboard
+    }
+}
+
+impl From<PositionSet> for Bitboard {
+    fn from(set: PositionSet) -> Self {
+        set.bitboard
     }
 }
 
@@ -36,7 +67,7 @@ impl TryFrom<(u8, u8)> for Position {
             Err(PositionError::InvalidPosition)
         } else {
             let bitboard = RANKS[rank as usize] & FILES[file as usize];
-            Ok(Position::new(bitboard))
+            Ok(Position::new_unchecked(bitboard.into()))
         }
     }
 }
@@ -51,7 +82,7 @@ impl TryFrom<String> for Position {
             .position(|position| position == &text)
             .map(|index| MASKS[index])
             .ok_or(PositionError::InvalidPosition)?;
-        Ok(Position::new(bitboard))
+        Ok(Position::new_unchecked(bitboard.into()))
     }
 }
 
@@ -60,7 +91,7 @@ impl TryFrom<u64> for Position {
 
     fn try_from(bitboard: u64) -> Result<Self, Self::Error> {
         if bitboard.count_ones() == 1 {
-            Ok(Position::new(bitboard))
+            Ok(Position::new_unchecked(bitboard.into()))
         } else {
             Err(PositionError::MultipleBitsSet)
         }
@@ -71,4 +102,31 @@ impl TryFrom<u64> for Position {
 pub enum PositionError {
     MultipleBitsSet,
     InvalidPosition,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
+pub struct PositionSet {
+    bitboard: Bitboard,
+}
+
+impl ExactSizeIterator for PositionSet {
+    fn len(&self) -> usize {
+        self.bitboard.count_set() as usize
+    }
+}
+
+impl Iterator for PositionSet {
+    type Item = Position;
+
+    fn next(&mut self) -> Option<Position> {
+        if self.bitboard.is_empty() {
+            return None;
+        }
+
+        let position: u64 = 1 << self.bitboard.raw().trailing_zeros();
+        let position: Bitboard = position.into();
+        self.bitboard ^= position;
+
+        Some(Position::new_unchecked(position))
+    }
 }
