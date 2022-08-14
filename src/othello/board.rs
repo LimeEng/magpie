@@ -4,7 +4,7 @@ use crate::othello::{
         SHIFT_RAYS, WHITE_START_POS,
     },
     display::BoardDisplay,
-    Stone,
+    Bitboard, Position, Stone,
 };
 
 #[cfg(feature = "serde")]
@@ -52,8 +52,8 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", serde(try_from = "ShadowBoard"))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Board {
-    black_stones: u64,
-    white_stones: u64,
+    black_stones: Bitboard,
+    white_stones: Bitboard,
 }
 
 impl Board {
@@ -73,8 +73,8 @@ impl Board {
     /// ```
     pub fn empty() -> Self {
         Self {
-            black_stones: 0,
-            white_stones: 0,
+            black_stones: 0.into(),
+            white_stones: 0.into(),
         }
     }
 
@@ -104,8 +104,8 @@ impl Board {
     /// ```
     pub fn standard() -> Self {
         Self {
-            black_stones: BLACK_START_POS,
-            white_stones: WHITE_START_POS,
+            black_stones: BLACK_START_POS.into(),
+            white_stones: WHITE_START_POS.into(),
         }
     }
 
@@ -127,8 +127,12 @@ impl Board {
     /// let mut board = Board::empty();
     /// assert!(board.place_stone_unchecked(Stone::Black, 1_u64).is_ok());
     /// ```
-    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
-        if self.bits_for(stone.flip()) & pos != 0 {
+    pub fn place_stone_unchecked(
+        &mut self,
+        stone: Stone,
+        pos: Bitboard,
+    ) -> Result<(), OthelloError> {
+        if !(self.bits_for(stone.flip()) & pos).is_empty() {
             return Err(OthelloError::PiecesOverlapping);
         }
         match stone {
@@ -151,7 +155,7 @@ impl Board {
     /// board.remove_stone_unchecked(Stone::White, white_stones);
     /// assert_eq!(Board::empty(), board);
     /// ```
-    pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: u64) {
+    pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: Bitboard) {
         match stone {
             Stone::Black => self.black_stones &= !pos,
             Stone::White => self.white_stones &= !pos,
@@ -176,11 +180,7 @@ impl Board {
     ///     .unwrap();
     /// assert!(board.place_stone(Stone::Black, pos).is_ok());
     /// ```
-    pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
-        if pos.count_ones() != 1 {
-            return Err(OthelloError::MultipleMovesAttempted);
-        }
-
+    pub fn place_stone(&mut self, stone: Stone, pos: Position) -> Result<(), OthelloError> {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
@@ -241,7 +241,7 @@ impl Board {
     /// // The two bitboards do not intersect
     /// assert_eq!(0, black & white);
     /// ```
-    pub fn bits_for(&self, stone: Stone) -> u64 {
+    pub fn bits_for(&self, stone: Stone) -> Bitboard {
         match stone {
             Stone::Black => self.black_stones,
             Stone::White => self.white_stones,
@@ -260,7 +260,7 @@ impl Board {
     /// let board = Board::standard();
     /// assert!(!board.is_legal_move(Stone::Black, 1_u64));
     /// ```
-    pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
+    pub fn is_legal_move(&self, stone: Stone, pos: Bitboard) -> bool {
         if pos.count_ones() != 1 {
             return false;
         }
@@ -306,7 +306,7 @@ impl Board {
     /// let stone = Stone::Black;
     /// assert_eq!(4, board.moves_for(stone).count_ones());
     /// ```
-    pub fn moves_for(&self, stone: Stone) -> u64 {
+    pub fn moves_for(&self, stone: Stone) -> Bitboard {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
         let empty_squares = self.empty_squares();
@@ -349,7 +349,7 @@ impl Board {
     /// let board = Board::standard();
     /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
-    pub fn empty_squares(&self) -> u64 {
+    pub fn empty_squares(&self) -> Bitboard {
         !(self.black_stones | self.white_stones)
     }
 
@@ -366,7 +366,7 @@ impl Board {
     /// let pos = 0x8000000;
     /// assert_eq!(Some(Stone::White), board.stone_at(pos));
     ///  ```
-    pub fn stone_at(&self, pos: u64) -> Option<Stone> {
+    pub fn stone_at(&self, pos: Bitboard) -> Option<Stone> {
         if pos.count_ones() != 1 {
             None
         } else if self.black_stones & pos > 0 {
@@ -581,7 +581,7 @@ impl SquareExt for u64 {
 }
 
 // https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift
-fn dir_shift(x: u64, shift: i8) -> u64 {
+fn dir_shift(x: Bitboard, shift: i8) -> Bitboard {
     if shift > 0 {
         x >> shift
     } else {
