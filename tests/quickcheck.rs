@@ -1,11 +1,11 @@
-use magpie::othello::{OthelloBoard, OthelloError, SquareExt, Stone, StoneExt};
+use magpie::othello::{Board, OthelloError, SquareExt, Stone, StoneExt};
 use quickcheck::{Arbitrary, Gen};
 use quickcheck_macros::quickcheck;
 
 #[quickcheck]
-fn legal_moves_should_place(board: ShadowOthelloBoard) {
+fn legal_moves_should_place(board: ShadowBoard) {
     // Check so that all legal moves returned can actually be placed
-    let board = OthelloBoard::try_from(board).unwrap();
+    let board = Board::try_from(board).unwrap();
     let stone = Stone::Black;
 
     let result = board
@@ -17,10 +17,10 @@ fn legal_moves_should_place(board: ShadowOthelloBoard) {
 }
 
 #[quickcheck]
-fn illegal_moves_should_not_place(board: ShadowOthelloBoard) {
+fn illegal_moves_should_not_place(board: ShadowBoard) {
     // Check so that all moves not contained in the set of legal moves
     // cannot actually be placed
-    let board = OthelloBoard::try_from(board).unwrap();
+    let board = Board::try_from(board).unwrap();
     let stone = Stone::Black;
 
     let legal_positions = board.moves_for(stone);
@@ -35,9 +35,9 @@ fn illegal_moves_should_not_place(board: ShadowOthelloBoard) {
 }
 
 #[quickcheck]
-fn legal_moves_should_be_legal(board: ShadowOthelloBoard) {
+fn legal_moves_should_be_legal(board: ShadowBoard) {
     // Check so that all legal moves returned can be individually verified as legal
-    let board = OthelloBoard::try_from(board).unwrap();
+    let board = Board::try_from(board).unwrap();
     let stone = Stone::Black;
 
     let result = board
@@ -49,10 +49,10 @@ fn legal_moves_should_be_legal(board: ShadowOthelloBoard) {
 }
 
 #[quickcheck]
-fn illegal_moves_should_be_illegal(board: ShadowOthelloBoard) {
+fn illegal_moves_should_be_illegal(board: ShadowBoard) {
     // Check so that all moves not contained in the set of legal moves
     // actually is illegal
-    let board = OthelloBoard::try_from(board).unwrap();
+    let board = Board::try_from(board).unwrap();
     let stone = Stone::Black;
 
     let legal_positions = board.moves_for(stone);
@@ -67,10 +67,10 @@ fn illegal_moves_should_be_illegal(board: ShadowOthelloBoard) {
 }
 
 #[quickcheck]
-fn bits_should_be_consistent(board: ShadowOthelloBoard) {
+fn bits_should_be_consistent(board: ShadowBoard) {
     // Check that black and white stones do not overlap with each other or the
     // empty set
-    let board = OthelloBoard::try_from(board).unwrap();
+    let board = Board::try_from(board).unwrap();
 
     let black = board.bits_for(Stone::Black);
     let white = board.bits_for(Stone::White);
@@ -81,9 +81,9 @@ fn bits_should_be_consistent(board: ShadowOthelloBoard) {
 }
 
 #[quickcheck]
-fn stone_at_consistency(board: ShadowOthelloBoard, rand_pos: u64) {
+fn stone_at_consistency(board: ShadowBoard, rand_pos: u64) {
     // Check that stone_at returns the correct stones
-    let board = OthelloBoard::try_from(board).unwrap();
+    let board = Board::try_from(board).unwrap();
 
     let black = board.bits_for(Stone::Black);
     let white = board.bits_for(Stone::White);
@@ -134,12 +134,12 @@ fn stones_bit_count(rand_bitboard: u64) {
 }
 
 #[derive(Debug, Clone)]
-struct ShadowOthelloBoard {
+struct ShadowBoard {
     black_stones: u64,
     white_stones: u64,
 }
 
-impl Arbitrary for ShadowOthelloBoard {
+impl Arbitrary for ShadowBoard {
     fn arbitrary(g: &mut Gen) -> Self {
         // Generate a random bitboard
         let bits = u64::arbitrary(g);
@@ -159,11 +159,11 @@ impl Arbitrary for ShadowOthelloBoard {
                 white_stones |= next_bit << i;
             }
         }
-        ShadowOthelloBoard::try_from((black_stones, white_stones)).unwrap()
+        ShadowBoard::try_from((black_stones, white_stones)).unwrap()
     }
 }
 
-impl TryFrom<(u64, u64)> for ShadowOthelloBoard {
+impl TryFrom<(u64, u64)> for ShadowBoard {
     type Error = OthelloError;
 
     fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
@@ -171,7 +171,7 @@ impl TryFrom<(u64, u64)> for ShadowOthelloBoard {
         if black_stones & white_stones != 0 {
             return Err(OthelloError::PiecesOverlapping);
         }
-        let board = ShadowOthelloBoard {
+        let board = ShadowBoard {
             black_stones,
             white_stones,
         };
@@ -179,10 +179,10 @@ impl TryFrom<(u64, u64)> for ShadowOthelloBoard {
     }
 }
 
-impl TryFrom<ShadowOthelloBoard> for OthelloBoard {
+impl TryFrom<ShadowBoard> for Board {
     type Error = OthelloError;
 
-    fn try_from(board: ShadowOthelloBoard) -> Result<Self, Self::Error> {
-        OthelloBoard::try_from((board.black_stones, board.white_stones))
+    fn try_from(board: ShadowBoard) -> Result<Self, Self::Error> {
+        Board::try_from((board.black_stones, board.white_stones))
     }
 }

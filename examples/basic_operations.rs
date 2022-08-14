@@ -1,16 +1,15 @@
-use magpie::othello::{OthelloBoard, Stone, StoneExt};
+use magpie::othello::{Board, Stone, StoneExt};
 
 fn main() {
     // The board can be initialized in a few different ways.
 
     // ========================================================================
-    // This board is completely empty. It is not expected to be heavily used.
-    // However, this constructor combined with the method
-    // `place_stone_unchecked` can be leveraged to implement a game of Reversi,
-    // which is distinctly different from Othello. Unfortunately, some
+    // This board is completely empty. This constructor combined with the
+    // method `place_stone_unchecked` can be leveraged to implement a game of
+    // Reversi, which is distinctly different from Othello. Unfortunately, some
     // additional bookkeeping is required in this case since magpie does not
-    // yet support Reversi.
-    let _board = OthelloBoard::empty();
+    // support Reversi.
+    let _board = Board::empty();
     // ========================================================================
     // These two constructors are equivalent. These boards are setup in the
     // default Othello opening, as can be seen in this graphic, where "B" and
@@ -26,11 +25,12 @@ fn main() {
     //   7 |........|
     //   8 |........|
     //     +--------+
-    let board_standard = OthelloBoard::standard();
-    let board_default = OthelloBoard::default();
+    let board_standard = Board::standard();
+    let board_default = Board::default();
     assert_eq!(board_standard, board_default);
-    // To better visualize what is happening, this debug function is included
-    // in this example. This is what the standard Othello opening looks like.
+    // To better visualize what is happening, you can display the board in a
+    // human friendly way. This is what the standard Othello opening looks
+    // like.
     println!("Standard Othello opening");
     println!("{}", board_standard.display());
     // ========================================================================
@@ -44,16 +44,16 @@ fn main() {
     // player overlap.
     let black_stones = 1; // In binary: ...0001
     let white_stones = 1; // In binary: ...0001
-    assert!(OthelloBoard::try_from((black_stones, white_stones)).is_err());
+    assert!(Board::try_from((black_stones, white_stones)).is_err());
 
     // However, this example will succeed since the stones do not overlap, even
     // if this particular example is unreachable during normal play.
     let black_stones = 1; // In binary: ...0001
     let white_stones = 4; // In binary: ...0100
-    assert!(OthelloBoard::try_from((black_stones, white_stones)).is_ok());
+    assert!(Board::try_from((black_stones, white_stones)).is_ok());
     // ========================================================================
     // The legal move generator and extractor is demonstrated next.
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let stone = Stone::Black;
     // Here, the legal moves for black is calculated from the starting
     // position. A bitboard is returned, represented as an `u64`, where each bit
@@ -68,35 +68,31 @@ fn main() {
     // play.
     assert!(positions.all(|pos| board.is_legal_move(stone, pos)));
     // ========================================================================
-    // Naturally, the library would not be complete without a way of advancing
-    // the state of the game.
-    let mut board = OthelloBoard::standard();
+    // Naturally, the library provides a way to advance the state of the game.
+    let mut board = Board::standard();
     let stone = Stone::Black;
     let any_move = board
         .moves_for(stone)
         .stones()
         .next() // Get the first legal move we find
-        .unwrap(); // Errors should be handled in a real application
-                   // (I won't tell anyone though)
+        .unwrap();
 
-    //This is what the board looks like before any move is made.
+    // This is what the board looks like before any move is made.
     println!("Board before move");
     println!("{}", board.display());
-    // Errors are not handled in this example but should of course be checked
-    // in real applications. While it is guaranteed that this specific example
-    // will work as intended (knock on wood), the method will return an error
-    // if the move is not legal or if the move consists of multiple set bits.
+    // This function will return an error if the move is illegal or if the move
+    // consists of multiple set bits.
     board.place_stone(stone, any_move).unwrap();
     // Let's see how the board looks like after black made their move.
     println!("Board after move");
     println!("{}", board.display());
     // ========================================================================
     // Sometimes it is necessary to take complete control of the game. The two
-    // methods `place_stone_unchecked` and `remove_stone_unchecked` allow you
+    // methods `place_stone_unchecked` and `remove_stone_unchecked` allows you
     // to both place and remove arbitrary stones without having to comply with
     // Othello's rules. Both methods will always leave the board in a playable
     // state. Reversi can be implemented using these two methods.
-    let mut board = OthelloBoard::empty();
+    let mut board = Board::empty();
     let stone = Stone::Black;
     // In binary this is 32 set bits. It is then padded with 32 zeroes to
     // create an `u64`.

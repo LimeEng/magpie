@@ -3,8 +3,8 @@ use crate::othello::{
         BLACK_START_POS, FILE_A, FILE_H, MASKS, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS,
         SHIFT_RAYS, WHITE_START_POS,
     },
-    display::OthelloDisplay,
-    Position, Stone,
+    display::BoardDisplay,
+    Stone,
 };
 
 #[cfg(feature = "serde")]
@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 /// operations, like [`place_stone`] expects that the argument bitboard only
 /// has a single bit set and will return an error if that is false.
 ///
-/// [`place_stone`]: crate::othello::OthelloBoard::place_stone
+/// [`place_stone`]: crate::othello::Board::place_stone
 ///
 /// ```text
 ///     A    B    C    D    E    F    G    H
@@ -49,26 +49,26 @@ use serde::{Deserialize, Serialize};
 // Instead of writing a custom serde deserializer, a shadow type is created.
 // This shadow type can be deserialized and nothing else. Thanks to some Serde
 // magic it is possible to reuse the TryFrom trait and get proper validation.
-#[cfg_attr(feature = "serde", serde(try_from = "ShadowOthelloBoard"))]
+#[cfg_attr(feature = "serde", serde(try_from = "ShadowBoard"))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct OthelloBoard {
+pub struct Board {
     black_stones: u64,
     white_stones: u64,
 }
 
-impl OthelloBoard {
+impl Board {
     /// Returns a completely empty board.
     ///
     /// This can be useful for setting up specific scenarios but for most
     /// users, the [`standard`] constructor will be more useful.
     ///
-    /// [`standard`]: crate::othello::OthelloBoard::standard
+    /// [`standard`]: crate::othello::Board::standard
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
+    /// use magpie::othello::Board;
     ///
-    /// let board = OthelloBoard::empty();
+    /// let board = Board::empty();
     /// assert_eq!(64, board.empty_squares().count_ones());
     /// ```
     pub fn empty() -> Self {
@@ -97,9 +97,9 @@ impl OthelloBoard {
     /// ```
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
+    /// use magpie::othello::Board;
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
     pub fn standard() -> Self {
@@ -118,13 +118,13 @@ impl OthelloBoard {
     /// placed on top of a stone of the opposite color, and if so, returns an
     /// error leaving the board untouched.
     ///
-    ///  [`place_stone`]: crate::othello::OthelloBoard::place_stone
+    ///  [`place_stone`]: crate::othello::Board::place_stone
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let mut board = OthelloBoard::empty();
+    /// let mut board = Board::empty();
     /// assert!(board.place_stone_unchecked(Stone::Black, 1_u64).is_ok());
     /// ```
     pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
@@ -142,14 +142,14 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let mut board = OthelloBoard::standard();
+    /// let mut board = Board::standard();
     /// let black_stones = board.bits_for(Stone::Black);
     /// let white_stones = board.bits_for(Stone::White);
     /// board.remove_stone_unchecked(Stone::Black, black_stones);
     /// board.remove_stone_unchecked(Stone::White, white_stones);
-    /// assert_eq!(OthelloBoard::empty(), board);
+    /// assert_eq!(Board::empty(), board);
     /// ```
     pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: u64) {
         match stone {
@@ -165,9 +165,9 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, StoneExt, Stone};
+    /// use magpie::othello::{Board, StoneExt, Stone};
     ///
-    /// let mut board = OthelloBoard::standard();
+    /// let mut board = Board::standard();
     /// let player = Stone::Black;
     /// let pos = board
     ///     .moves_for(player)
@@ -227,15 +227,15 @@ impl OthelloBoard {
     /// Returns the bitboard representation of the specified player.
     ///
     /// The returned bitboard represents the Othello board. For a more detailed
-    /// description, refer to the documentation of the [`OthelloBoard struct`].
+    /// description, refer to the documentation of the [`Board struct`].
     ///
-    /// [`OthelloBoard struct`]: crate::othello::OthelloBoard
+    /// [`Board struct`]: crate::othello::Board
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// let black = board.bits_for(Stone::Black);
     /// let white = board.bits_for(Stone::White);
     /// // The two bitboards do not intersect
@@ -255,9 +255,9 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// assert!(!board.is_legal_move(Stone::Black, 1_u64));
     /// ```
     pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
@@ -294,15 +294,15 @@ impl OthelloBoard {
     /// Calculates and returns the set of all legal moves for the specified player.
     ///
     /// The returned bitboard represents the Othello board. For a more detailed
-    /// description, refer to the documentation of the [`OthelloBoard struct`].
+    /// description, refer to the documentation of the [`Board struct`].
     ///
-    /// [`OthelloBoard struct`]: crate::othello::OthelloBoard
+    /// [`Board struct`]: crate::othello::Board
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// let stone = Stone::Black;
     /// assert_eq!(4, board.moves_for(stone).count_ones());
     /// ```
@@ -338,15 +338,15 @@ impl OthelloBoard {
     /// Returns the set of all empty squares on the board.
     ///
     /// The returned bitboard represents the Othello board. For a more detailed
-    /// description, refer to the documentation of the [`OthelloBoard struct`]
+    /// description, refer to the documentation of the [`Board struct`]
     ///
-    /// [`OthelloBoard struct`]: crate::othello::OthelloBoard
+    /// [`Board struct`]: crate::othello::Board
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
+    /// use magpie::othello::Board;
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// assert_eq!(60, board.empty_squares().count_ones());
     /// ```
     pub fn empty_squares(&self) -> u64 {
@@ -360,9 +360,9 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// let pos = 0x8000000;
     /// assert_eq!(Some(Stone::White), board.stone_at(pos));
     ///  ```
@@ -387,30 +387,30 @@ impl OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// println!("{}", board.display());
     ///  ```
-    pub fn display(&self) -> OthelloDisplay {
-        OthelloDisplay::new(self)
+    pub fn display(&self) -> BoardDisplay {
+        BoardDisplay::new(self)
     }
 }
 
 #[cfg_attr(feature = "serde", derive(Deserialize))]
 #[cfg(feature = "serde")]
-struct ShadowOthelloBoard {
+struct ShadowBoard {
     black_stones: u64,
     white_stones: u64,
 }
 
 #[cfg(feature = "serde")]
-impl std::convert::TryFrom<ShadowOthelloBoard> for OthelloBoard {
+impl std::convert::TryFrom<ShadowBoard> for Board {
     type Error = &'static str;
 
-    fn try_from(unchecked: ShadowOthelloBoard) -> Result<Self, Self::Error> {
+    fn try_from(unchecked: ShadowBoard) -> Result<Self, Self::Error> {
         // Simply delegate to the main TryFrom trait implementation
-        OthelloBoard::try_from((unchecked.black_stones, unchecked.white_stones)).map_err(|_| {
+        Board::try_from((unchecked.black_stones, unchecked.white_stones)).map_err(|_| {
             // While it would be possible to simply implement fmt::Display on OthelloError,
             // this solution leaves that trait open for future uses.
             // Furthermore, in this case, no other error will be reasonably returned.
@@ -419,25 +419,25 @@ impl std::convert::TryFrom<ShadowOthelloBoard> for OthelloBoard {
     }
 }
 
-impl Default for OthelloBoard {
+impl Default for Board {
     /// Returns a board with the standard opening position configured.
     ///
     /// Simply delegates to the [`standard`] constructor.
     ///
-    /// [`standard`]: crate::othello::OthelloBoard::standard
+    /// [`standard`]: crate::othello::Board::standard
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::OthelloBoard;
+    /// use magpie::othello::Board;
     ///
-    /// assert_eq!(OthelloBoard::standard(), OthelloBoard::default());
+    /// assert_eq!(Board::standard(), Board::default());
     /// ```
     fn default() -> Self {
         Self::standard()
     }
 }
 
-impl TryFrom<(u64, u64)> for OthelloBoard {
+impl TryFrom<(u64, u64)> for Board {
     type Error = OthelloError;
 
     /// Returns a board built from the two specified bitboards.
@@ -446,15 +446,15 @@ impl TryFrom<(u64, u64)> for OthelloBoard {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// let black = board.bits_for(Stone::Black);
     /// let white = board.bits_for(Stone::White);
     ///
     /// // Quite a contrived example
-    /// let board = OthelloBoard::try_from((black, white));
-    /// assert_eq!(Ok(OthelloBoard::standard()), board);
+    /// let board = Board::try_from((black, white));
+    /// assert_eq!(Ok(Board::standard()), board);
     /// ```
     fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
         let (black_stones, white_stones) = stones;
@@ -506,9 +506,9 @@ pub trait StoneExt: Sized {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, StoneExt, Stone};
+    /// use magpie::othello::{Board, StoneExt, Stone};
     ///
-    /// let mut board = OthelloBoard::standard();
+    /// let mut board = Board::standard();
     /// let player = Stone::Black;
     /// let pos = board
     ///     .moves_for(player) // Returns bitboard
@@ -558,9 +558,9 @@ pub trait SquareExt: Sized {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, SquareExt};
+    /// use magpie::othello::{Board, SquareExt};
     ///
-    /// let mut board = OthelloBoard::standard();
+    /// let mut board = Board::standard();
     /// let pos = u64::MAX // Full bitboard (all bits set to 1)
     ///     .squares() // Convert that into multiple bitboards
     ///     .next()
@@ -578,10 +578,6 @@ impl SquareExt for u64 {
 
         Box::new(iter)
     }
-}
-
-pub trait PositionExt {
-    fn to_position(&self) -> Position;
 }
 
 // https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift

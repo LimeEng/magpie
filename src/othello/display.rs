@@ -1,6 +1,6 @@
 use crate::othello::{
     constants::{FILES, RANKS},
-    OthelloBoard, Stone,
+    Board, Stone,
 };
 
 /// Helper struct to customize the printing of Othello boards.
@@ -11,9 +11,9 @@ use crate::othello::{
 ///
 /// # Examples
 /// ```rust
-/// use magpie::othello::{Format, OthelloBoard, Stone};
+/// use magpie::othello::{Format, Board, Stone};
 ///
-/// let board = OthelloBoard::standard();
+/// let board = Board::standard();
 /// println!("{}", board.display());
 /// println!("{}", board.display().with_format(Format::Compact));
 /// println!("{}", board.display().with_stone(Stone::Black));
@@ -26,8 +26,8 @@ use crate::othello::{
 /// );
 /// ```
 #[derive(Clone)]
-pub struct OthelloDisplay<'a> {
-    board: &'a OthelloBoard,
+pub struct BoardDisplay<'a> {
+    board: &'a Board,
     display: Format,
     stone: Option<Stone>,
 }
@@ -42,8 +42,8 @@ pub enum Format {
     Standard,
 }
 
-impl<'a> OthelloDisplay<'a> {
-    pub(crate) fn new(board: &'a OthelloBoard) -> Self {
+impl<'a> BoardDisplay<'a> {
+    pub(crate) fn new(board: &'a Board) -> Self {
         Self {
             board,
             display: Format::Standard,
@@ -55,9 +55,9 @@ impl<'a> OthelloDisplay<'a> {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// println!("{}", board.display().with_stone(Stone::Black));
     /// ```
     pub fn with_stone(&self, stone: Stone) -> Self {
@@ -72,9 +72,9 @@ impl<'a> OthelloDisplay<'a> {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Format, OthelloBoard};
+    /// use magpie::othello::{Format, Board};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// println!("{}", board.display().with_format(Format::Compact));
     /// ```
     pub fn with_format(&self, display: Format) -> Self {
@@ -86,7 +86,7 @@ impl<'a> OthelloDisplay<'a> {
     }
 }
 
-impl std::fmt::Display for OthelloDisplay<'_> {
+impl std::fmt::Display for BoardDisplay<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         display(f, self.board, self.stone, self.display)
     }
@@ -94,7 +94,7 @@ impl std::fmt::Display for OthelloDisplay<'_> {
 
 fn display(
     f: &mut std::fmt::Formatter,
-    board: &OthelloBoard,
+    board: &Board,
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {

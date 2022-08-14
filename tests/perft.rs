@@ -1,4 +1,4 @@
-use magpie::othello::{OthelloBoard, Stone, StoneExt};
+use magpie::othello::{Board, Stone, StoneExt};
 
 macro_rules! perft_tests {
     ($($test_name:ident: $depth:expr,)*) => {
@@ -24,7 +24,7 @@ macro_rules! ignored_perft_tests {
 }
 
 fn test_perft(depth: u8) -> Result<(), PerftError> {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let stone = Stone::Black;
     let target = perft_key(depth)?;
     let nodes = perft(&board, stone, false, depth);
@@ -78,7 +78,7 @@ fn perft_key(depth: u8) -> Result<u64, PerftError> {
 }
 
 // https://web.archive.org/web/20120129063410/http://othello.dk/book/index.php/Aart_Bik
-fn perft(board: &OthelloBoard, stone: Stone, passed: bool, depth: u8) -> u64 {
+fn perft(board: &Board, stone: Stone, passed: bool, depth: u8) -> u64 {
     if depth == 0 {
         return 1;
     }
