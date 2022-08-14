@@ -44,33 +44,88 @@ impl Not for Bitboard {
     }
 }
 
-impl Shl for Bitboard {
-    type Output = Self;
+macro_rules! shl_impl {
+    ($t:ty) => {
+        impl Shl<$t> for Bitboard {
+            type Output = Self;
 
-    fn shl(self, rhs: Self) -> Self::Output {
-        Self(self.0 << rhs.0)
-    }
+            fn shl(self, other: $t) -> Self::Output {
+                Self(self.0 << other)
+            }
+        }
+
+        impl Shl<Bitboard> for $t {
+            type Output = $t;
+
+            fn shl(self, other: Bitboard) -> Self::Output {
+                self << other.0
+            }
+        }
+    };
 }
 
-impl ShlAssign for Bitboard {
-    fn shl_assign(&mut self, rhs: Self) {
-        self.0 <<= rhs.0;
-    }
+macro_rules! shl_assign_impl {
+    ($t:ty) => {
+        impl ShlAssign<$t> for Bitboard {
+            fn shl_assign(&mut self, rhs: $t) {
+                self.0 <<= rhs;
+            }
+        }
+
+        impl ShlAssign<Bitboard> for $t {
+            fn shl_assign(&mut self, rhs: Bitboard) {
+                *self <<= rhs.0;
+            }
+        }
+    };
 }
 
-impl Shr for Bitboard {
-    type Output = Self;
+macro_rules! shr_impl {
+    ($t:ty) => {
+        impl Shr<$t> for Bitboard {
+            type Output = Self;
 
-    fn shr(self, rhs: Self) -> Self::Output {
-        Self(self.0 >> rhs.0)
-    }
+            fn shr(self, other: $t) -> Self::Output {
+                Self(self.0 >> other)
+            }
+        }
+
+        impl Shr<Bitboard> for $t {
+            type Output = $t;
+
+            fn shr(self, other: Bitboard) -> Self::Output {
+                self >> other.0
+            }
+        }
+    };
 }
 
-impl ShrAssign for Bitboard {
-    fn shr_assign(&mut self, rhs: Self) {
-        self.0 >>= rhs.0;
-    }
+macro_rules! shr_assign_impl {
+    ($t:ty) => {
+        impl ShrAssign<$t> for Bitboard {
+            fn shr_assign(&mut self, rhs: $t) {
+                self.0 >>= rhs;
+            }
+        }
+
+        impl ShrAssign<Bitboard> for $t {
+            fn shr_assign(&mut self, rhs: Bitboard) {
+                *self >>= rhs.0;
+            }
+        }
+    };
 }
+
+macro_rules! bit_impl_all {
+    ($($t:ty)*) => ($(
+        shl_impl! { $t }
+        shl_assign_impl! { $t }
+        shr_impl! { $t }
+        shr_assign_impl! { $t }
+    )*)
+}
+
+bit_impl_all! {u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize}
 
 impl BitAnd for Bitboard {
     type Output = Self;
