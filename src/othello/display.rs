@@ -98,17 +98,17 @@ fn display(
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {
-    let legal_moves = stone.map_or(0.into(), |stone| board.moves_for(stone));
+    let legal_moves = stone.map_or(0, |stone| board.moves_for(stone));
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];
         board
-            .stone_at(pos.into())
+            .stone_at(pos)
             .map(|stone| match stone {
                 Stone::White => "W",
                 Stone::Black => "B",
             })
             .or({
-                if legal_moves & pos > 0.into() {
+                if legal_moves & pos > 0 {
                     Some("*")
                 } else {
                     None
