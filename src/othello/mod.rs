@@ -11,6 +11,8 @@ mod position;
 
 mod bitboard;
 
+mod bitboard_position_impl;
+
 pub use bitboard::Bitboard;
 pub use board::{Board, OthelloError, SquareExt, StoneExt};
 pub use display::{BoardDisplay, Format};
