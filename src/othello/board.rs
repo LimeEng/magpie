@@ -12,10 +12,10 @@ use serde::{Deserialize, Serialize};
 
 /// Represents an Othello board and provides convenient methods to safely manipulate it.
 ///
-/// The board is represented by two bitboards, one for black player and one for
-/// white player. Each bitboard is a 64-bit unsigned integer, where each bit
-/// encodes if a stone for that player exists on that space. As can be seen in
-/// the graphic below, MSB denotes A1 while LSB denotes H8.
+/// The board is represented by two bitboards, one for black and one for white.
+/// Each bitboard is a 64-bit unsigned integer, where each bit encodes if a
+/// stone for that player exists on that space. As can be seen in the graphic
+/// below, MSB denotes A1 while LSB denotes H8.
 ///
 /// Many operations on the Othello board either requires or returns `u64`, all
 /// of which are interpreted the same way as the graphic below. Some
@@ -118,7 +118,7 @@ impl Board {
     /// placed on top of a stone of the opposite color, and if so, returns an
     /// error leaving the board untouched.
     ///
-    ///  [`place_stone`]: crate::othello::Board::place_stone
+    /// [`place_stone`]: crate::othello::Board::place_stone
     ///
     /// # Examples
     /// ```rust
@@ -380,10 +380,10 @@ impl Board {
 
     /// Returns a struct that implements [`Display`] for customizing the display of Othello boards.
     ///
-    /// Formatting options can be found in the docs for [`OthelloDisplay`].
+    /// Formatting options can be found in the docs for [`BoardDisplay`].
     ///
     /// [`Display`]: std::fmt::Display
-    /// [`OthelloDisplay`]: crate::othello::OthelloDisplay
+    /// [`BoardDisplay`]: crate::othello::BoardDisplay
     ///
     /// # Examples
     /// ```rust
@@ -476,7 +476,7 @@ pub enum OthelloError {
     IllegalMove,
     /// Indicates that multiple moves were attempted at once.
     MultipleMovesAttempted,
-    /// Indicates that the operation would have resulted in one or more stones overlapping.
+    /// Indicates that the operation would have resulted in two or more stones overlapping.
     PiecesOverlapping,
 }
 
