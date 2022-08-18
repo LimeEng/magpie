@@ -1,13 +1,13 @@
 use crate::othello::{
-    bitboard::Bitboard,
     constants::{FILES, MASKS, POSITIONS_AS_NOTATION, RANKS},
+    Bitboard,
 };
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Position(pub u64);
 
 impl Position {
-    fn new_unchecked(bitboard: u64) -> Self {
+    pub(crate) fn new_unchecked(bitboard: u64) -> Self {
         Self(bitboard)
     }
 
@@ -25,12 +25,6 @@ impl Position {
 
     pub fn to_notation(&self) -> String {
         POSITIONS_AS_NOTATION[self.0.leading_zeros() as usize].to_string()
-    }
-}
-
-impl From<Bitboard> for Position {
-    fn from(bitboard: Bitboard) -> Self {
-        Position(bitboard.0)
     }
 }
 
@@ -74,6 +68,18 @@ impl TryFrom<u64> for Position {
     fn try_from(bitboard: u64) -> Result<Self, Self::Error> {
         if bitboard.count_ones() == 1 {
             Ok(Position::new_unchecked(bitboard))
+        } else {
+            Err(PositionError::MultipleBitsSet)
+        }
+    }
+}
+
+impl TryFrom<Bitboard> for Position {
+    type Error = PositionError;
+
+    fn try_from(bitboard: Bitboard) -> Result<Self, Self::Error> {
+        if bitboard.count_set() == 1 {
+            Ok(Position::new_unchecked(bitboard.0))
         } else {
             Err(PositionError::MultipleBitsSet)
         }

@@ -1,3 +1,5 @@
+use crate::othello::Position;
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Bitboard(pub u64);
 
@@ -17,6 +19,22 @@ impl Bitboard {
     pub fn count_empty(self) -> u8 {
         self.0.count_zeros().try_into().unwrap()
     }
+
+    pub fn squares(self) -> Bits {
+        Bits {
+            // TODO: Maybe just replace this with a constant?
+            // Feels silly to lookup the size of u64
+            remaining: std::mem::size_of::<u64>() * 8,
+            bitboard: self,
+        }
+    }
+
+    pub fn stones(self) -> Positions {
+        Positions {
+            remaining: self.count_set(),
+            bitboard: self,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -26,16 +44,17 @@ pub struct Bits {
 }
 
 impl Iterator for Bits {
-    type Item = u64;
+    type Item = Bitboard;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.remaining == 0 {
-            return None;
+        if self.remaining != 0 {
+            let mask = 1u64 << (self.remaining - 1);
+            let bit = self.bitboard & mask;
+            self.remaining -= 1;
+            Some(bit)
+        } else {
+            None
         }
-        let mask = 1u64 << (self.remaining - 1);
-        let bit = !(self.bitboard & mask);
-        self.remaining -= 1;
-        Some(bit.raw())
     }
 }
 
@@ -45,18 +64,31 @@ impl ExactSizeIterator for Bits {
     }
 }
 
-/// Iterate over the bits in row-major order.
-impl IntoIterator for Bitboard {
-    type Item = u64;
-    type IntoIter = Bits;
+#[derive(Clone, Copy, Debug)]
+pub struct Positions {
+    remaining: u8,
+    bitboard: Bitboard,
+}
 
-    fn into_iter(self) -> Self::IntoIter {
-        Bits {
-            // TODO: Maybe just replace this with a constant?
-            // Feels silly to lookup the size of u64
-            remaining: std::mem::size_of::<u64>() * 8,
-            bitboard: self,
+impl Iterator for Positions {
+    type Item = Position;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.bitboard.is_empty() {
+            None
+        } else {
+            self.remaining -= 1;
+            let position = 1 << (63 - self.bitboard.raw().leading_zeros());
+            self.bitboard ^= position;
+
+            Some(Position::new_unchecked(position.into()))
         }
+    }
+}
+
+impl ExactSizeIterator for Positions {
+    fn len(&self) -> usize {
+        self.remaining.into()
     }
 }
 
