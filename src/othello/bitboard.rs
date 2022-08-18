@@ -20,57 +20,95 @@ impl Bitboard {
         self.0.count_zeros().try_into().unwrap()
     }
 
-    pub fn squares(self) -> Bits {
-        Bits {
+    pub fn squares(self) -> BitsIntoIterator {
+        let bits = Bits {
             // TODO: Maybe just replace this with a constant?
             // Feels silly to lookup the size of u64
             remaining: std::mem::size_of::<u64>() * 8,
             bitboard: self,
-        }
+        };
+        bits.into_iter()
     }
 
-    pub fn stones(self) -> Positions {
-        Positions {
+    pub fn stones(self) -> PositionsIntoIterator {
+        let positions = Positions {
             remaining: self.count_set(),
             bitboard: self,
-        }
+        };
+        positions.into_iter()
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct Bits {
     remaining: usize,
     bitboard: Bitboard,
 }
 
-impl Iterator for Bits {
-    type Item = Bitboard;
+#[derive(Clone, Debug)]
+pub struct BitsIntoIterator {
+    remaining: usize,
+    bitboard: Bitboard,
+}
 
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.remaining != 0 {
-            let mask = 1u64 << (self.remaining - 1);
-            let bit = self.bitboard & mask;
-            self.remaining -= 1;
-            Some(bit)
-        } else {
-            None
+impl IntoIterator for Bits {
+    type Item = Bitboard;
+    type IntoIter = BitsIntoIterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BitsIntoIterator {
+            remaining: self.remaining,
+            bitboard: self.bitboard,
         }
     }
 }
 
-impl ExactSizeIterator for Bits {
+impl Iterator for BitsIntoIterator {
+    type Item = Bitboard;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.remaining == 0 {
+            None
+        } else {
+            let mask = 1u64 << (self.remaining - 1);
+            let bit = self.bitboard & mask;
+            self.remaining -= 1;
+            Some(bit)
+        }
+    }
+}
+
+impl ExactSizeIterator for BitsIntoIterator {
     fn len(&self) -> usize {
         self.remaining
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct Positions {
     remaining: u8,
     bitboard: Bitboard,
 }
 
-impl Iterator for Positions {
+#[derive(Clone, Debug)]
+pub struct PositionsIntoIterator {
+    remaining: u8,
+    bitboard: Bitboard,
+}
+
+impl IntoIterator for Positions {
+    type Item = Position;
+    type IntoIter = PositionsIntoIterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        PositionsIntoIterator {
+            remaining: self.remaining,
+            bitboard: self.bitboard,
+        }
+    }
+}
+
+impl Iterator for PositionsIntoIterator {
     type Item = Position;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -81,12 +119,12 @@ impl Iterator for Positions {
             let position = 1 << (63 - self.bitboard.raw().leading_zeros());
             self.bitboard ^= position;
 
-            Some(Position::new_unchecked(position.into()))
+            Some(Position::new_unchecked(position))
         }
     }
 }
 
-impl ExactSizeIterator for Positions {
+impl ExactSizeIterator for PositionsIntoIterator {
     fn len(&self) -> usize {
         self.remaining.into()
     }

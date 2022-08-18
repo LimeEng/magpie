@@ -246,7 +246,6 @@ macro_rules! bitwise_impl_all {
     () => {
         not_impl! {Bitboard}
         and_impl! {Bitboard}
-        and_impl! {Position}
         or_impl! {Bitboard}
         xor_impl! {Bitboard}
     };
@@ -322,3 +321,69 @@ macro_rules! compare_impl_all {
 bitshift_impl_all! {u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize}
 bitwise_impl_all! {}
 compare_impl_all! {}
+
+impl BitAnd<Bitboard> for Position {
+    type Output = Bitboard;
+
+    fn bitand(self, rhs: Bitboard) -> Self::Output {
+        Bitboard(self.0 & rhs.0)
+    }
+}
+
+impl BitAnd<Position> for Bitboard {
+    type Output = Bitboard;
+
+    fn bitand(self, rhs: Position) -> Self::Output {
+        Bitboard(self.0 & rhs.0)
+    }
+}
+
+impl BitAndAssign<Bitboard> for Position {
+    fn bitand_assign(&mut self, rhs: Bitboard) {
+        self.0 &= rhs.0;
+    }
+}
+
+impl BitOr<Bitboard> for Position {
+    type Output = Bitboard;
+
+    fn bitor(self, rhs: Bitboard) -> Self::Output {
+        Bitboard(self.0 | rhs.0)
+    }
+}
+
+impl BitOr<Position> for Bitboard {
+    type Output = Bitboard;
+
+    fn bitor(self, rhs: Position) -> Self::Output {
+        Bitboard(self.0 | rhs.0)
+    }
+}
+
+impl BitOrAssign<Position> for Bitboard {
+    fn bitor_assign(&mut self, rhs: Position) {
+        self.0 |= rhs.0;
+    }
+}
+
+impl BitXor<Bitboard> for Position {
+    type Output = Bitboard;
+
+    fn bitxor(self, rhs: Bitboard) -> Self::Output {
+        Bitboard(self.0 ^ rhs.0)
+    }
+}
+
+impl BitXor<Position> for Bitboard {
+    type Output = Bitboard;
+
+    fn bitxor(self, rhs: Position) -> Self::Output {
+        Bitboard(self.0 ^ rhs.0)
+    }
+}
+
+impl BitXorAssign<Position> for Bitboard {
+    fn bitxor_assign(&mut self, rhs: Position) {
+        self.0 ^= rhs.0;
+    }
+}

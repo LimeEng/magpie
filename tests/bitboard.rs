@@ -1,4 +1,4 @@
-use magpie::othello::{Bitboard, SquareExt, StoneExt};
+use magpie::othello::{Bitboard, Position, SquareExt, StoneExt};
 use quickcheck_macros::quickcheck;
 
 #[quickcheck]
@@ -32,11 +32,43 @@ fn bitboards_handles_bitwise(num1: u64, num2: u64) {
 #[quickcheck]
 fn new_stones_and_squares_match(num: u64) {
     let board = Bitboard::from(num);
-    let stones1: Vec<u64> = board.stones().map(|pos| pos.raw()).collect();
-    let squares1: Vec<u64> = board.squares().map(|board| board.raw()).collect();
+    let stones1: Vec<u64> = board.stones().map(Position::raw).collect();
+    let squares1: Vec<u64> = board.squares().map(Bitboard::raw).collect();
     let stones2: Vec<u64> = num.stones().collect();
     let squares2: Vec<u64> = num.squares().collect();
 
     assert_eq!(stones1, stones2);
     assert_eq!(squares1, squares2);
+}
+
+#[test]
+fn tmptmp() {
+    // let mut p1 = Position(1);
+    // let mut p2 = Position(2);
+    // let mut b1 = Bitboard(4);
+    // let mut b2 = Bitboard(8);
+
+    // let t: Bitboard = p1 & b1;
+    // let t: Bitboard = b1 & p1;
+    // let t: Bitboard = p1 | b1;
+    // let t: Bitboard = b1 | p1;
+    // let t: Bitboard = p1 ^ b1;
+    // let t: Bitboard = b1 ^ p1;
+    // b1 |= p1;
+    // b1 ^= p1;
+
+
+    // Should not work
+    // p1 |= b1;
+    // p1 ^= b1;
+    // let t: Position = p1 & p2;
+    // let t: Position = p1 | p2; // Should not work
+    // let t: Position = p1 ^ p2; // Should not work
+
+    // let t: Position = p1 & b1;
+    // let t: Position = b1 & p1;
+    // let t: Position = p1 | b1;
+    // let t: Position = b1 | p1;
+    // let t: Position = p1 ^ b1;
+    // let t: Position = b1 ^ p1;
 }
