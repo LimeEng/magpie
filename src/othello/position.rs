@@ -1,5 +1,5 @@
 use crate::othello::{
-    constants::{FILES, MASKS, POSITIONS_AS_NOTATION, RANKS},
+    constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
     Bitboard,
 };
 
@@ -56,7 +56,7 @@ impl TryFrom<String> for Position {
         let bitboard = POSITIONS_AS_NOTATION
             .iter()
             .position(|position| position == &text)
-            .map(|index| MASKS[index])
+            .map(|index| POSITIONS[index])
             .ok_or(PositionError::InvalidPosition)?;
         Ok(Position::new_unchecked(bitboard))
     }

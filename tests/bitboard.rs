@@ -2,6 +2,11 @@ use magpie::othello::{Bitboard, Position, SquareExt, StoneExt};
 use quickcheck_macros::quickcheck;
 
 #[quickcheck]
+fn bitboard_raw_matches(num: u64) {
+    assert_eq!(num, Bitboard::from(num).raw());
+}
+
+#[quickcheck]
 fn bitboards_handles_bitwise(num1: u64, num2: u64) {
     let board1 = Bitboard::from(num1);
     let board2 = Bitboard::from(num2);
@@ -10,23 +15,23 @@ fn bitboards_handles_bitwise(num1: u64, num2: u64) {
     assert_eq!(num1 | num2, (board1 | board2).raw());
     assert_eq!(num1 ^ num2, (board1 ^ board2).raw());
 
-    let mut bitboard1_copy = num1;
+    let mut num1_copy = num1;
     let mut board1_copy = board1;
-    bitboard1_copy &= num2;
+    num1_copy &= num2;
     board1_copy &= board2;
-    assert_eq!(bitboard1_copy, board1_copy.raw());
+    assert_eq!(num1_copy, board1_copy.raw());
 
-    let mut bitboard1_copy = num1;
+    let mut num1_copy = num1;
     let mut board1_copy = board1;
-    bitboard1_copy |= num2;
+    num1_copy |= num2;
     board1_copy |= board2;
-    assert_eq!(bitboard1_copy, board1_copy.raw());
+    assert_eq!(num1_copy, board1_copy.raw());
 
-    let mut bitboard1_copy = num1;
+    let mut num1_copy = num1;
     let mut board1_copy = board1;
-    bitboard1_copy ^= num2;
+    num1_copy ^= num2;
     board1_copy ^= board2;
-    assert_eq!(bitboard1_copy, board1_copy.raw());
+    assert_eq!(num1_copy, board1_copy.raw());
 }
 
 #[quickcheck]
@@ -56,7 +61,6 @@ fn tmptmp() {
     // let t: Bitboard = b1 ^ p1;
     // b1 |= p1;
     // b1 ^= p1;
-
 
     // Should not work
     // p1 |= b1;

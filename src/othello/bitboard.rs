@@ -20,6 +20,12 @@ impl Bitboard {
         self.0.count_zeros().try_into().unwrap()
     }
 
+    pub fn is_power_of_two(self) -> bool {
+        (self.0 & (self.0 - 1)) == 0
+        // TODO: Might be faster to just use count_set() == 1
+        // self.count_set() == 1
+    }
+
     pub fn squares(self) -> BitsIntoIterator {
         let bits = Bits {
             // TODO: Maybe just replace this with a constant?
