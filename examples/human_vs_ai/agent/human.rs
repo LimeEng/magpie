@@ -2,7 +2,7 @@ use crate::{
     agent::{Action, Agent},
     coord::Coord,
 };
-use magpie::othello::{OthelloBoard, Stone};
+use magpie::othello::{Board, Stone};
 use std::io;
 use std::io::Write;
 
@@ -11,7 +11,7 @@ use std::io::Write;
 pub struct HumanAgent;
 
 impl Agent for HumanAgent {
-    fn play(&mut self, stone: Stone, board: &OthelloBoard) -> Action {
+    fn play(&mut self, stone: Stone, board: &Board) -> Action {
         print_prompt();
         loop {
             let mut input = String::new();
@@ -26,7 +26,7 @@ impl Agent for HumanAgent {
                 if board.is_legal_move(stone, action) {
                     break Action::Move(action);
                 }
-                println!("{} is not a valid move", input.to_lowercase());
+                println!("\"{}\" is not a valid move", input.to_lowercase());
             }
             println!("Please enter a valid move, or \"pass\" your turn");
             print_prompt();
@@ -37,5 +37,5 @@ impl Agent for HumanAgent {
 fn print_prompt() {
     print!("> ");
     // print!() does not flush, unlike println!(), so it needs to be done manually
-    io::stdout().flush().expect("Could not flush stdout");
+    io::stdout().flush().expect("Failed to flush stdout");
 }

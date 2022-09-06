@@ -46,9 +46,9 @@ impl Coord {
             5 => "f",
             6 => "g",
             7 => "h",
-            _ => panic!(),
+            _ => unreachable!(),
         };
-        return format!("{}{}", file, self.rank + 1);
+        format!("{}{}", file, self.rank + 1)
     }
 }
 

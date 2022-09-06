@@ -1,6 +1,6 @@
 use crate::othello::{
     constants::{FILES, RANKS},
-    OthelloBoard, Stone,
+    Board, Stone,
 };
 
 /// Helper struct to customize the printing of Othello boards.
@@ -11,9 +11,9 @@ use crate::othello::{
 ///
 /// # Examples
 /// ```rust
-/// use magpie::othello::{Format, OthelloBoard, Stone};
+/// use magpie::othello::{Format, Board, Stone};
 ///
-/// let board = OthelloBoard::standard();
+/// let board = Board::standard();
 /// println!("{}", board.display());
 /// println!("{}", board.display().with_format(Format::Compact));
 /// println!("{}", board.display().with_stone(Stone::Black));
@@ -26,8 +26,8 @@ use crate::othello::{
 /// );
 /// ```
 #[derive(Clone)]
-pub struct OthelloDisplay<'a> {
-    board: &'a OthelloBoard,
+pub struct BoardDisplay<'a> {
+    board: &'a Board,
     display: Format,
     stone: Option<Stone>,
 }
@@ -42,9 +42,9 @@ pub enum Format {
     Standard,
 }
 
-impl<'a> OthelloDisplay<'a> {
-    pub(crate) fn new(board: &OthelloBoard) -> OthelloDisplay {
-        OthelloDisplay {
+impl<'a> BoardDisplay<'a> {
+    pub(crate) fn new(board: &'a Board) -> Self {
+        Self {
             board,
             display: Format::Standard,
             stone: None,
@@ -55,13 +55,13 @@ impl<'a> OthelloDisplay<'a> {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{OthelloBoard, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// println!("{}", board.display().with_stone(Stone::Black));
     /// ```
-    pub fn with_stone(&self, stone: Stone) -> OthelloDisplay {
-        OthelloDisplay {
+    pub fn with_stone(&self, stone: Stone) -> Self {
+        Self {
             board: self.board,
             display: self.display,
             stone: Some(stone),
@@ -72,13 +72,13 @@ impl<'a> OthelloDisplay<'a> {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Format, OthelloBoard};
+    /// use magpie::othello::{Format, Board};
     ///
-    /// let board = OthelloBoard::standard();
+    /// let board = Board::standard();
     /// println!("{}", board.display().with_format(Format::Compact));
     /// ```
-    pub fn with_format(&self, display: Format) -> OthelloDisplay {
-        OthelloDisplay {
+    pub fn with_format(&self, display: Format) -> Self {
+        Self {
             board: self.board,
             display,
             stone: self.stone,
@@ -86,7 +86,7 @@ impl<'a> OthelloDisplay<'a> {
     }
 }
 
-impl std::fmt::Display for OthelloDisplay<'_> {
+impl std::fmt::Display for BoardDisplay<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         display(f, self.board, self.stone, self.display)
     }
@@ -94,11 +94,11 @@ impl std::fmt::Display for OthelloDisplay<'_> {
 
 fn display(
     f: &mut std::fmt::Formatter,
-    board: &OthelloBoard,
+    board: &Board,
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {
-    let legal_moves = stone.map(|stone| board.moves_for(stone)).unwrap_or(0);
+    let legal_moves = stone.map_or(0, |stone| board.moves_for(stone));
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];
         board
@@ -107,14 +107,14 @@ fn display(
                 Stone::White => "W",
                 Stone::Black => "B",
             })
-            .or_else(|| {
+            .or({
                 if legal_moves & pos > 0 {
                     Some("*")
                 } else {
                     None
                 }
             })
-            .unwrap_or_else(|| match display {
+            .unwrap_or(match display {
                 Format::Compact => ".",
                 Format::Standard => " ",
             })

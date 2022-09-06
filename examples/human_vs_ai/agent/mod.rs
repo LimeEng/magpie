@@ -1,10 +1,10 @@
-use magpie::othello::{OthelloBoard, Stone};
+use magpie::othello::{Board, Stone};
 
-pub mod human_agent;
-pub mod random_agent;
+pub mod human;
+pub mod random;
 
-pub use human_agent::HumanAgent;
-pub use random_agent::RandomAgent;
+pub use human::HumanAgent;
+pub use random::RandomAgent;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Action {
@@ -16,5 +16,5 @@ pub enum Action {
 /// stone, which represents the color of the agent, it needs to provide an
 /// action.
 pub trait Agent {
-    fn play(&mut self, stone: Stone, board: &OthelloBoard) -> Action;
+    fn play(&mut self, stone: Stone, board: &Board) -> Action;
 }
