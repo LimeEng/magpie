@@ -1,5 +1,9 @@
 use crate::othello::Position;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Bitboard(pub u64);
 

@@ -1,5 +1,5 @@
 use crate::agent::{Action, Agent};
-use magpie::othello::{Board, Stone, StoneExt};
+use magpie::othello::{Board, Stone};
 use rand::seq::IteratorRandom;
 
 /// Plays completely randomly. If no legal moves are available, passes their

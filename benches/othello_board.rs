@@ -1,5 +1,7 @@
+use std::convert::TryInto;
+
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use magpie::othello::{Board, SquareExt, Stone, StoneExt};
+use magpie::othello::{Bitboard, Board, Position, Stone};
 
 fn bench_clone(c: &mut Criterion) {
     let board = Board::standard();
@@ -15,7 +17,7 @@ fn bench_legal_moves(c: &mut Criterion) {
 
 fn bench_place_stone(c: &mut Criterion) {
     let board = board_for_place_stone();
-    let pos = 0x00_00_00_00_08_00_00_00;
+    let pos: Position = (0x00_00_00_00_08_00_00_00).try_into().unwrap();
     c.bench_function("place_stone", |b| {
         b.iter(|| {
             board
@@ -28,7 +30,7 @@ fn bench_place_stone(c: &mut Criterion) {
 
 fn bench_legal_move_check(c: &mut Criterion) {
     let board = board_for_place_stone();
-    let pos = 0x00_00_00_00_08_00_00_00;
+    let pos: Position = (0x00_00_00_00_08_00_00_00).try_into().unwrap();
     c.bench_function("legal_move_check", |b| {
         b.iter(|| board.is_legal_move(black_box(Stone::Black), black_box(pos)));
     });
@@ -38,7 +40,7 @@ fn bench_legal_moves_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
     c.bench_function("legal_moves_extraction", |b| {
-        b.iter(|| moves.stones().collect::<Vec<u64>>());
+        b.iter(|| moves.stones().collect::<Vec<Position>>());
     });
 }
 
@@ -46,7 +48,7 @@ fn bench_square_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
     c.bench_function("square_extraction", |b| {
-        b.iter(|| moves.squares().collect::<Vec<u64>>());
+        b.iter(|| moves.squares().collect::<Vec<Bitboard>>());
     });
 }
 

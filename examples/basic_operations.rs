@@ -1,4 +1,4 @@
-use magpie::othello::{Board, Stone, StoneExt};
+use magpie::othello::{Bitboard, Board, Stone};
 
 fn main() {
     // The board can be initialized in a few different ways.
@@ -58,7 +58,7 @@ fn main() {
     // Here, the legal moves for black is calculated from the starting
     // position. A bitboard is returned, represented as an `u64`, where each bit
     // with value 1 is a legal move.
-    let legal_moves: u64 = board.moves_for(stone);
+    let legal_moves: Bitboard = board.moves_for(stone);
     // Since the bitboard might be difficult to work with, magpie defines an
     // extension trait called `StoneExt`. It extracts all individual bits
     // that are set to 1 and returns an iterator, yielding these bits as if
@@ -96,7 +96,7 @@ fn main() {
     let stone = Stone::Black;
     // In binary this is 32 set bits. It is then padded with 32 zeroes to
     // create an `u64`.
-    let pos = u64::from(u32::MAX);
+    let pos: Bitboard = (u64::from(u32::MAX)).into();
     // This method allows us to place as many stones as we please at once, as
     // long as no stones of opposite colors overlap. Here we fill half the
     // board with black stones.

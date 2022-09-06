@@ -3,6 +3,10 @@ use crate::othello::{
     Bitboard,
 };
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Position(pub u64);
 
@@ -52,6 +56,14 @@ impl TryFrom<String> for Position {
     type Error = PositionError;
 
     fn try_from(text: String) -> Result<Self, Self::Error> {
+        Position::try_from(text.as_ref())
+    }
+}
+
+impl TryFrom<&str> for Position {
+    type Error = PositionError;
+
+    fn try_from(text: &str) -> Result<Self, Self::Error> {
         let text = text.to_lowercase();
         let bitboard = POSITIONS_AS_NOTATION
             .iter()

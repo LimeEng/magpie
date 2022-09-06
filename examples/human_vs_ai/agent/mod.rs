@@ -1,4 +1,4 @@
-use magpie::othello::{Board, Stone};
+use magpie::othello::{Board, Position, Stone};
 
 pub mod human;
 pub mod random;
@@ -8,7 +8,7 @@ pub use random::RandomAgent;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Action {
-    Move(u64),
+    Move(Position),
     Pass,
 }
 

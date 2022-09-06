@@ -1,8 +1,5 @@
-use crate::{
-    agent::{Action, Agent},
-    coord::Coord,
-};
-use magpie::othello::{Board, Stone};
+use crate::agent::{Action, Agent};
+use magpie::othello::{Board, Position, Stone};
 use std::io;
 use std::io::Write;
 
@@ -21,10 +18,9 @@ impl Agent for HumanAgent {
             let input = input.trim();
             if input.to_lowercase() == "pass" {
                 break Action::Pass;
-            } else if let Ok(coord) = input.parse::<Coord>() {
-                let action = coord.as_bitboard();
-                if board.is_legal_move(stone, action) {
-                    break Action::Move(action);
+            } else if let Ok(pos) = Position::try_from(input) {
+                if board.is_legal_move(stone, pos) {
+                    break Action::Move(pos);
                 }
                 println!("\"{}\" is not a valid move", input.to_lowercase());
             }

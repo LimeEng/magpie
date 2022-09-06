@@ -1,4 +1,4 @@
-use magpie::othello::{Bitboard, Position, SquareExt, StoneExt};
+use magpie::othello::Bitboard;
 use quickcheck_macros::quickcheck;
 
 #[quickcheck]
@@ -34,17 +34,17 @@ fn bitboards_handles_bitwise(num1: u64, num2: u64) {
     assert_eq!(num1_copy, board1_copy.raw());
 }
 
-#[quickcheck]
-fn new_stones_and_squares_match(num: u64) {
-    let board = Bitboard::from(num);
-    let stones1: Vec<u64> = board.stones().map(Position::raw).collect();
-    let squares1: Vec<u64> = board.squares().map(Bitboard::raw).collect();
-    let stones2: Vec<u64> = num.stones().collect();
-    let squares2: Vec<u64> = num.squares().collect();
+// #[quickcheck]
+// fn new_stones_and_squares_match(num: u64) {
+//     let board = Bitboard::from(num);
+//     let stones1: Vec<u64> = board.stones().map(Position::raw).collect();
+//     let squares1: Vec<u64> = board.squares().map(Bitboard::raw).collect();
+//     let stones2: Vec<u64> = num.stones().collect();
+//     let squares2: Vec<u64> = num.squares().collect();
 
-    assert_eq!(stones1, stones2);
-    assert_eq!(squares1, squares2);
-}
+//     assert_eq!(stones1, stones2);
+//     assert_eq!(squares1, squares2);
+// }
 
 #[test]
 fn tmptmp() {

@@ -1,4 +1,4 @@
-use magpie::othello::{Board, Stone, StoneExt};
+use magpie::othello::{Board, Stone};
 
 macro_rules! perft_tests {
     ($($test_name:ident: $depth:expr,)*) => {

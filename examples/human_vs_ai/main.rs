@@ -1,11 +1,7 @@
-use crate::{
-    agent::{Action, Agent, HumanAgent, RandomAgent},
-    coord::Coord,
-};
+use crate::agent::{Action, Agent, HumanAgent, RandomAgent};
 use magpie::othello::{Board, Stone};
 
 pub mod agent;
-pub mod coord;
 
 fn main() {
     play();
@@ -44,8 +40,8 @@ fn play() {
                         });
                     // It is safe to unwrap since the previous "place_stone"
                     // succeeded.
-                    let played_pos = Coord::try_from(next_move).unwrap().as_notation();
-                    println!("{:?} played {}", current_stone, played_pos);
+                    // let played_pos = Coord::try_from(next_move).unwrap().as_notation();
+                    // println!("{:?} played {}", current_stone, played_pos);
                 }
                 Action::Pass => {
                     passed_last_turn = true;
@@ -57,8 +53,8 @@ fn play() {
     }
     println!("Final board");
     println!("{}", board.display());
-    let black = board.bits_for(Stone::Black).count_ones();
-    let white = board.bits_for(Stone::White).count_ones();
+    let black = board.bits_for(Stone::Black).count_set();
+    let white = board.bits_for(Stone::White).count_set();
     println!("Game finished with {} - {} (black - white)", black, white);
 }
 
