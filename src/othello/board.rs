@@ -1,6 +1,6 @@
 use crate::othello::{
     constants::{
-        BLACK_START_POS, FILE_A, FILE_H, MASKS, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS,
+        BLACK_START_POS, FILE_A, FILE_H, POSITIONS, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS,
         SHIFT_RAYS, WHITE_START_POS,
     },
     display::BoardDisplay,
@@ -525,7 +525,7 @@ impl StoneExt for u64 {
     type Iter = Box<dyn Iterator<Item = Self>>;
     fn stones(&self) -> Self::Iter {
         let this = *self;
-        let iter = MASKS.iter().map(move |m| m & this).filter(|m| *m != 0);
+        let iter = POSITIONS.iter().map(move |m| m & this).filter(|m| *m != 0);
 
         Box::new(iter)
     }
@@ -574,7 +574,7 @@ impl SquareExt for u64 {
     type Iter = Box<dyn Iterator<Item = Self>>;
     fn squares(&self) -> Self::Iter {
         let this = *self;
-        let iter = MASKS.iter().map(move |m| m & this);
+        let iter = POSITIONS.iter().map(move |m| m & this);
 
         Box::new(iter)
     }

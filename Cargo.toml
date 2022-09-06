@@ -8,6 +8,7 @@ repository = "https://github.com/LimeEng/magpie/"
 license = "MIT"
 keywords = ["othello", "reversi", "bitboard"]
 categories = ["algorithms", "game-engines"]
+build = "build/build.rs"
 
 exclude = [
     ".github/**"
