@@ -16,16 +16,16 @@ exclude = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0", optional = true, features = ["derive"] }
+serde = { version = "1", optional = true, features = ["derive"] }
 
 [dev-dependencies]
-criterion = "0.3.3"
-rand = "0.8.0"
-unicode-segmentation = "1.7.1"
-serde_json = "1.0.60"
-quickcheck = "1.0.2"
-quickcheck_macros = "1.0.0"
-indoc = "1.0.3"
+criterion = "0.3"
+rand = "0.8"
+unicode-segmentation = "1.7"
+serde_json = "1.0"
+quickcheck = "1.0"
+quickcheck_macros = "1.0"
+indoc = "1.0"
 
 [[example]]
 name = "serde"
