@@ -14,7 +14,7 @@ fn legal_moves_should_place(board: ShadowBoard) {
 
     let result = board
         .moves_for(stone)
-        .stones()
+        .hot_bits()
         .map(|pos| board.clone().place_stone(stone, pos))
         .all(|result| result.is_ok());
     assert!(result);
@@ -30,7 +30,7 @@ fn illegal_moves_should_not_place(board: ShadowBoard) {
     let legal_positions = board.moves_for(stone);
 
     let failed = Bitboard::from(u64::MAX)
-        .squares()
+        .bits()
         .filter(|pos| *pos & legal_positions == 0)
         .filter_map(|pos| Position::try_from(pos).ok())
         .map(|pos| board.clone().place_stone(stone, pos))
@@ -47,7 +47,7 @@ fn legal_moves_should_be_legal(board: ShadowBoard) {
 
     let result = board
         .moves_for(stone)
-        .stones()
+        .hot_bits()
         .map(|pos| board.is_legal_move(stone, pos))
         .all(|result| result);
     assert!(result);
@@ -63,7 +63,7 @@ fn illegal_moves_should_be_illegal(board: ShadowBoard) {
     let legal_positions = board.moves_for(stone);
 
     let failed = Bitboard::from(u64::MAX)
-        .squares()
+        .bits()
         .filter(|pos| *pos & legal_positions == 0)
         .filter_map(|pos| Position::try_from(pos).ok())
         .map(|pos| board.is_legal_move(stone, pos))
@@ -96,7 +96,7 @@ fn stone_at_consistency(board: ShadowBoard) {
     let empty = board.empty_squares();
 
     let success = Bitboard::from(u64::MAX)
-        .squares()
+        .bits()
         .filter_map(|pos| Position::try_from(pos).ok())
         .all(|pos| {
             board
@@ -116,7 +116,7 @@ fn squares_bit_count(rand_bitboard: ShadowBitboard) {
     let rand_bitboard = Bitboard::from(rand_bitboard);
     let bit_at = |index: usize| rand_bitboard & (1 << index);
     let success = rand_bitboard
-        .squares()
+        .bits()
         .enumerate()
         .all(|(index, pos)| bit_at(63 - index) == pos);
 
@@ -127,7 +127,7 @@ fn squares_bit_count(rand_bitboard: ShadowBitboard) {
 fn stones_bit_count(rand_bitboard: ShadowBitboard) {
     let rand_bitboard = Bitboard::from(rand_bitboard);
     let expected = rand_bitboard.count_set();
-    let result = rand_bitboard.stones().filter(|pos| *pos != 0).count();
+    let result = rand_bitboard.hot_bits().filter(|pos| *pos != 0).count();
 
     assert_eq!(expected as usize, result);
 }

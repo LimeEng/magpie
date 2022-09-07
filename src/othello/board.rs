@@ -178,7 +178,7 @@ impl Board {
     /// let player = Stone::Black;
     /// let pos = board
     ///     .moves_for(player)
-    ///     .stones()
+    ///     .hot_bits()
     ///     .next()
     ///     .unwrap();
     /// assert!(board.place_stone(Stone::Black, pos).is_ok());

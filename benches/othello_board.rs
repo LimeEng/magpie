@@ -40,7 +40,7 @@ fn bench_legal_moves_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
     c.bench_function("legal_moves_extraction", |b| {
-        b.iter(|| moves.stones().collect::<Vec<Position>>());
+        b.iter(|| moves.hot_bits().collect::<Vec<Position>>());
     });
 }
 
@@ -48,7 +48,7 @@ fn bench_square_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
     c.bench_function("square_extraction", |b| {
-        b.iter(|| moves.squares().collect::<Vec<Bitboard>>());
+        b.iter(|| moves.bits().collect::<Vec<Bitboard>>());
     });
 }
 

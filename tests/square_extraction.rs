@@ -1,9 +1,9 @@
 use magpie::othello::{Bitboard, Position};
 
 #[test]
-fn full_bitboard_positions_equal_stones() {
-    let v1: Vec<Bitboard> = Bitboard::from(u64::MAX).squares().collect();
-    let v2: Vec<Position> = Bitboard::from(u64::MAX).stones().collect();
+fn full_bitboard_bits_equal_hot_bits() {
+    let v1: Vec<Bitboard> = Bitboard::from(u64::MAX).bits().collect();
+    let v2: Vec<Position> = Bitboard::from(u64::MAX).hot_bits().collect();
 
     assert_eq!(v1.len(), v2.len());
 

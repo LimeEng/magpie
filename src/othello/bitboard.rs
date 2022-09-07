@@ -30,7 +30,7 @@ impl Bitboard {
         // self.count_set() == 1
     }
 
-    pub fn squares(self) -> BitsIntoIterator {
+    pub fn bits(self) -> BitsIntoIterator {
         let bits = Bits {
             // TODO: Maybe just replace this with a constant?
             // Feels silly to lookup the size of u64
@@ -40,8 +40,8 @@ impl Bitboard {
         bits.into_iter()
     }
 
-    pub fn stones(self) -> PositionsIntoIterator {
-        let positions = Positions {
+    pub fn hot_bits(self) -> HotBitsIntoIterator {
+        let positions = HotBits {
             remaining: self.count_set(),
             bitboard: self,
         };
@@ -95,30 +95,30 @@ impl ExactSizeIterator for BitsIntoIterator {
 }
 
 #[derive(Clone, Debug)]
-pub struct Positions {
+pub struct HotBits {
     remaining: u8,
     bitboard: Bitboard,
 }
 
 #[derive(Clone, Debug)]
-pub struct PositionsIntoIterator {
+pub struct HotBitsIntoIterator {
     remaining: u8,
     bitboard: Bitboard,
 }
 
-impl IntoIterator for Positions {
+impl IntoIterator for HotBits {
     type Item = Position;
-    type IntoIter = PositionsIntoIterator;
+    type IntoIter = HotBitsIntoIterator;
 
     fn into_iter(self) -> Self::IntoIter {
-        PositionsIntoIterator {
+        HotBitsIntoIterator {
             remaining: self.remaining,
             bitboard: self.bitboard,
         }
     }
 }
 
-impl Iterator for PositionsIntoIterator {
+impl Iterator for HotBitsIntoIterator {
     type Item = Position;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -134,7 +134,7 @@ impl Iterator for PositionsIntoIterator {
     }
 }
 
-impl ExactSizeIterator for PositionsIntoIterator {
+impl ExactSizeIterator for HotBitsIntoIterator {
     fn len(&self) -> usize {
         self.remaining.into()
     }

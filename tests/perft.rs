@@ -92,7 +92,7 @@ fn perft(board: &Board, stone: Stone, passed: bool, depth: u8) -> u64 {
         }
     } else {
         moves
-            .stones()
+            .hot_bits()
             .map(|pos| {
                 let mut new_board = board.clone();
                 new_board.place_stone(stone, pos).unwrap();

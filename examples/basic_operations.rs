@@ -63,7 +63,7 @@ fn main() {
     // extension trait called `StoneExt`. It extracts all individual bits
     // that are set to 1 and returns an iterator, yielding these bits as if
     // they were independent bitboards (i.e with only one bit set).
-    let mut positions = legal_moves.stones();
+    let mut positions = legal_moves.hot_bits();
     // Here it is verified that all legal moves extracted are indeed legal to
     // play.
     assert!(positions.all(|pos| board.is_legal_move(stone, pos)));
@@ -73,7 +73,7 @@ fn main() {
     let stone = Stone::Black;
     let any_move = board
         .moves_for(stone)
-        .stones()
+        .hot_bits()
         .next() // Get the first legal move we find
         .unwrap();
 

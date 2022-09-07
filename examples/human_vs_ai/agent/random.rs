@@ -10,7 +10,7 @@ impl Agent for RandomAgent {
     fn play(&mut self, stone: Stone, board: &Board) -> Action {
         board
             .moves_for(stone)
-            .stones()
+            .hot_bits()
             .choose(&mut rand::thread_rng())
             .map(Action::Move)
             .unwrap_or(Action::Pass)
