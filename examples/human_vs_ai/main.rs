@@ -38,10 +38,7 @@ fn play() {
                         .unwrap_or_else(|_| {
                             panic!("{:?} tried to make an illegal move", current_stone)
                         });
-                    // It is safe to unwrap since the previous "place_stone"
-                    // succeeded.
-                    // let played_pos = Coord::try_from(next_move).unwrap().as_notation();
-                    // println!("{:?} played {}", current_stone, played_pos);
+                    println!("{:?} played {}", current_stone, next_move.to_notation());
                 }
                 Action::Pass => {
                     passed_last_turn = true;
