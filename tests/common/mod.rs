@@ -13,7 +13,7 @@ impl Arbitrary for ShadowBitboard {
 
 impl From<ShadowBitboard> for Bitboard {
     fn from(bitboard: ShadowBitboard) -> Self {
-        Bitboard(bitboard.0)
+        Bitboard::from(bitboard.0)
     }
 }
 

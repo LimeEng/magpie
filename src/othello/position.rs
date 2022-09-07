@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Copy, Debug, Default)]
-pub struct Position(pub u64);
+pub struct Position(pub(crate) u64);
 
 impl Position {
     pub(crate) fn new_unchecked(bitboard: u64) -> Self {
@@ -96,7 +96,7 @@ impl TryFrom<Bitboard> for Position {
     type Error = PositionError;
 
     fn try_from(bitboard: Bitboard) -> Result<Self, Self::Error> {
-        if bitboard.count_set() == 1 {
+        if bitboard.is_power_of_two() {
             Ok(Position::new_unchecked(bitboard.0))
         } else {
             Err(PositionError::MultipleBitsSet)

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Copy, Debug, Default)]
-pub struct Bitboard(pub u64);
+pub struct Bitboard(pub(crate) u64);
 
 impl Bitboard {
     pub fn raw(self) -> u64 {
