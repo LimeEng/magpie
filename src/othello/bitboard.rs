@@ -25,16 +25,12 @@ impl Bitboard {
     }
 
     pub fn is_power_of_two(self) -> bool {
-        (self.0 & (self.0 - 1)) == 0
-        // TODO: Might be faster to just use count_set() == 1
-        // self.count_set() == 1
+        self.count_set() == 1
     }
 
     pub fn bits(self) -> BitsIntoIterator {
         let bits = Bits {
-            // TODO: Maybe just replace this with a constant?
-            // Feels silly to lookup the size of u64
-            remaining: std::mem::size_of::<u64>() * 8,
+            remaining: 64,
             bitboard: self,
         };
         bits.into_iter()
