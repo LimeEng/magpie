@@ -11,6 +11,21 @@ fn bitboards_handles_bitwise(num1: u64, num2: u64) {
     let board1 = Bitboard::from(num1);
     let board2 = Bitboard::from(num2);
 
+    // let t = board1 << board2;
+    // let t1 = board1 >> board2;
+    // let t2 = board1 >>= board2;
+    // let t3 = board1 <<= board2;
+
+    // let t = num1 == board1;
+    // let t2 = board1 == num2;
+
+    // let pos = Position(5);
+
+    // let t3 = pos == board1;
+    // let t4 = board1 == pos;
+    // let t5 = pos == num1;
+    // let t6 = num1 == pos;
+
     assert_eq!(num1 & num2, (board1 & board2).raw());
     assert_eq!(num1 | num2, (board1 | board2).raw());
     assert_eq!(num1 ^ num2, (board1 ^ board2).raw());

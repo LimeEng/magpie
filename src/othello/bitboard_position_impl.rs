@@ -7,383 +7,210 @@ use std::{
         ShrAssign,
     },
 };
-macro_rules! shl_impl {
-    ($wrapped:ty, $num:ty) => {
-        impl Shl<$num> for $wrapped {
-            type Output = $wrapped;
 
-            fn shl(self, other: $num) -> Self::Output {
-                Self(self.raw() << other)
-            }
-        }
+macro_rules! newtype_transform {
+    (impl $trait: ident <$other_type: ident> for $self_type: ident { fn $method: ident -> $return_type: ident }) => {
+        impl $trait<$other_type> for $self_type {
+            type Output = $return_type;
 
-        impl Shl<$wrapped> for $num {
-            type Output = $num;
-
-            fn shl(self, other: $wrapped) -> Self::Output {
-                self << other.raw()
+            fn $method(self, $other_type(b): $other_type) -> Self::Output {
+                let $self_type(a) = self;
+                $return_type(a.$method(&b))
             }
         }
     };
 }
 
-macro_rules! shr_impl {
-    ($wrapped:ty, $num:ty) => {
-        impl Shr<$num> for $wrapped {
-            type Output = $wrapped;
-
-            fn shr(self, other: $num) -> Self::Output {
-                Self(self.raw() >> other)
-            }
-        }
-
-        impl Shr<$wrapped> for $num {
-            type Output = $num;
-
-            fn shr(self, other: $wrapped) -> Self::Output {
-                self >> other.raw()
+macro_rules! newtype_mutate {
+    (impl $trait: ident <$other_type: ident> for $self_type: ident { fn $method: ident }) => {
+        impl $trait<$other_type> for $self_type {
+            fn $method(&mut self, $other_type(b): $other_type) {
+                self.0.$method(&b)
             }
         }
     };
 }
 
-macro_rules! shl_assign_impl {
-    ($wrapped:ty, $num:ty) => {
-        impl ShlAssign<$num> for $wrapped {
-            fn shl_assign(&mut self, rhs: $num) {
-                self.0 <<= rhs;
-            }
-        }
+macro_rules! newtype_transform_with_number {
+    (impl $trait: ident <$num_type: ident> for $self_type: ident { fn $method: ident }) => {
+        impl $trait<$num_type> for $self_type {
+            type Output = $self_type;
 
-        impl ShlAssign<$wrapped> for $num {
-            fn shl_assign(&mut self, rhs: $wrapped) {
-                *self <<= rhs.0;
+            fn $method(self, b: $num_type) -> Self::Output {
+                let $self_type(a) = self;
+                $self_type(a.$method(&b))
             }
         }
     };
 }
 
-macro_rules! shr_assign_impl {
-    ($wrapped:ty, $num:ty) => {
-        impl ShrAssign<$num> for $wrapped {
-            fn shr_assign(&mut self, rhs: $num) {
-                self.0 >>= rhs;
-            }
-        }
-
-        impl ShrAssign<$wrapped> for $num {
-            fn shr_assign(&mut self, rhs: $wrapped) {
-                *self >>= rhs.0;
+macro_rules! newtype_mutate_with_number {
+    (impl $trait: ident <$num_type: ident> for $self_type: ident { fn $method: ident }) => {
+        impl $trait<$num_type> for $self_type {
+            fn $method(&mut self, b: $num_type) {
+                self.0.$method(&b)
             }
         }
     };
 }
 
-macro_rules! bitshift_impl_all {
-    ($($t:ty)*) => ($(
-        shl_impl! { Bitboard, $t }
-        shl_assign_impl! { Bitboard, $t }
-        shr_impl! { Bitboard, $t }
-        shr_assign_impl! { Bitboard, $t }
-        shl_impl! { Position, $t }
-        shl_assign_impl! { Position, $t }
-        shr_impl! { Position, $t }
-        shr_assign_impl! { Position, $t }
+macro_rules! newtype_bitshift {
+    ($($t:ident)*) => ($(
+        newtype_transform_with_number! {impl Shl<$t> for Bitboard { fn shl }}
+        newtype_transform_with_number! {impl Shr<$t> for Bitboard { fn shr }}
+
+        newtype_mutate_with_number! {impl ShlAssign<$t> for Bitboard { fn shl_assign }}
+        newtype_mutate_with_number! {impl ShrAssign<$t> for Bitboard { fn shr_assign }}
+
+        newtype_transform_with_number! {impl Shl<$t> for Position { fn shl }}
+        newtype_transform_with_number! {impl Shr<$t> for Position { fn shr }}
+
+        newtype_mutate_with_number! {impl ShlAssign<$t> for Position { fn shl_assign }}
+        newtype_mutate_with_number! {impl ShrAssign<$t> for Position { fn shr_assign }}
     )*)
 }
 
-macro_rules! not_impl {
-    ($wrapped:ty) => {
-        impl Not for $wrapped {
-            type Output = Self;
+macro_rules! number_transform_with_newtype {
+    (impl $trait: ident <$new_type: ident> for $num_type: ident { fn $method: ident }) => {
+        impl $trait<$new_type> for $num_type {
+            type Output = $num_type;
 
-            fn not(self) -> Self::Output {
-                Self(!self.0)
+            fn $method(self, $new_type(b): $new_type) -> Self::Output {
+                self.$method(&b)
             }
         }
     };
 }
 
-macro_rules! and_impl {
-    ($wrapped:ty) => {
-        impl BitAnd<u64> for $wrapped {
-            type Output = Self;
-
-            fn bitand(self, rhs: u64) -> Self::Output {
-                Self(self.0 & rhs)
-            }
-        }
-
-        impl BitAndAssign<u64> for $wrapped {
-            fn bitand_assign(&mut self, rhs: u64) {
-                self.0 &= rhs;
-            }
-        }
-
-        impl BitAnd<$wrapped> for u64 {
-            type Output = Self;
-
-            fn bitand(self, rhs: $wrapped) -> Self::Output {
-                self & rhs.0
-            }
-        }
-
-        impl BitAndAssign<$wrapped> for u64 {
-            fn bitand_assign(&mut self, rhs: $wrapped) {
-                *self &= rhs.0;
-            }
-        }
-
-        impl BitAnd for $wrapped {
-            type Output = Self;
-
-            fn bitand(self, rhs: $wrapped) -> Self::Output {
-                Self(self.0 & rhs.0)
-            }
-        }
-
-        impl BitAndAssign for $wrapped {
-            fn bitand_assign(&mut self, rhs: $wrapped) {
-                self.0 &= rhs.0;
+macro_rules! number_mutate_with_newtype {
+    (impl $trait: ident <$new_type: ident> for $num_type: ident { fn $method: ident }) => {
+        impl $trait<$new_type> for $num_type {
+            fn $method(&mut self, $new_type(b): $new_type) {
+                self.$method(&b)
             }
         }
     };
 }
 
-macro_rules! or_impl {
-    ($wrapped:ty) => {
-        impl BitOr<u64> for $wrapped {
-            type Output = Self;
+macro_rules! number_operation_with_newtype {
+    ($($t:ident)*) => ($(
+        number_transform_with_newtype! {impl BitAnd<$t> for u64 { fn bitand }}
+        number_transform_with_newtype! {impl BitOr<$t> for u64 { fn bitor }}
+        number_transform_with_newtype! {impl BitXor<$t> for u64 { fn bitxor }}
 
-            fn bitor(self, rhs: u64) -> Self::Output {
-                Self(self.0 | rhs)
-            }
-        }
+        number_mutate_with_newtype! {impl BitAndAssign<$t> for u64 { fn bitand_assign }}
+        number_mutate_with_newtype! {impl BitOrAssign<$t> for u64 { fn bitor_assign }}
+        number_mutate_with_newtype! {impl BitXorAssign<$t> for u64 { fn bitxor_assign }}
+    )*)
+}
 
-        impl BitOrAssign<u64> for $wrapped {
-            fn bitor_assign(&mut self, rhs: u64) {
-                self.0 |= rhs;
-            }
-        }
-
-        impl BitOr<$wrapped> for u64 {
-            type Output = Self;
-
-            fn bitor(self, rhs: $wrapped) -> Self::Output {
-                self | rhs.0
-            }
-        }
-
-        impl BitOrAssign<$wrapped> for u64 {
-            fn bitor_assign(&mut self, rhs: $wrapped) {
-                *self |= rhs.0;
-            }
-        }
-
-        impl BitOr for $wrapped {
-            type Output = Self;
-
-            fn bitor(self, rhs: Self) -> Self::Output {
-                Self(self.0 | rhs.0)
-            }
-        }
-
-        impl BitOrAssign for $wrapped {
-            fn bitor_assign(&mut self, rhs: Self) {
-                self.0 |= rhs.0;
+macro_rules! partial_for_newtype {
+    (impl $trait: ident <$other_type: ident> for $self_type: ident { fn $method: ident -> $return_type: ty }) => {
+        impl $trait<$other_type> for $self_type {
+            fn $method(&self, b: &$other_type) -> $return_type {
+                self.0.$method(&b.0)
             }
         }
     };
 }
 
-macro_rules! xor_impl {
-    ($wrapped:ty) => {
-        impl BitXor<u64> for $wrapped {
-            type Output = Self;
-
-            fn bitxor(self, rhs: u64) -> Self::Output {
-                Self(self.0 ^ rhs)
-            }
-        }
-
-        impl BitXorAssign<u64> for $wrapped {
-            fn bitxor_assign(&mut self, rhs: u64) {
-                self.0 ^= rhs;
-            }
-        }
-
-        impl BitXor<$wrapped> for u64 {
-            type Output = Self;
-
-            fn bitxor(self, rhs: $wrapped) -> Self::Output {
-                self ^ rhs.0
-            }
-        }
-
-        impl BitXorAssign<$wrapped> for u64 {
-            fn bitxor_assign(&mut self, rhs: $wrapped) {
-                *self ^= rhs.0;
-            }
-        }
-
-        impl BitXor for $wrapped {
-            type Output = Self;
-
-            fn bitxor(self, rhs: Self) -> Self::Output {
-                Self(self.0 ^ rhs.0)
-            }
-        }
-
-        impl BitXorAssign for $wrapped {
-            fn bitxor_assign(&mut self, rhs: Self) {
-                self.0 ^= rhs.0;
+macro_rules! partial_for_newtype_with_number {
+    (impl $trait: ident <$num_type: ident> for $self_type: ident { fn $method: ident -> $return_type: ty }) => {
+        impl $trait<$num_type> for $self_type {
+            fn $method(&self, b: &$num_type) -> $return_type {
+                self.0.$method(b)
             }
         }
     };
 }
 
-macro_rules! bitwise_impl_all {
-    () => {
-        not_impl! {Bitboard}
-        and_impl! {Bitboard}
-        or_impl! {Bitboard}
-        xor_impl! {Bitboard}
+macro_rules! partial_for_number_with_newtype {
+    (impl $trait: ident <$other_type: ident> for $num_type: ident { fn $method: ident -> $return_type: ty }) => {
+        impl $trait<$other_type> for $num_type {
+            fn $method(&self, b: &$other_type) -> $return_type {
+                self.$method(&b.0)
+            }
+        }
     };
 }
 
-macro_rules! eq_hash_impl {
-    ($wrapped:ty) => {
-        impl Eq for $wrapped {}
+macro_rules! newtype_ord_and_eq {
+    ($($t:ident)*) => ($(
+        impl Eq for $t {}
 
-        impl Hash for $wrapped {
+        impl Hash for $t {
             fn hash<H: Hasher>(&self, state: &mut H) {
                 self.0.hash(state);
             }
         }
 
-        impl PartialEq for $wrapped {
-            fn eq(&self, other: &Self) -> bool {
-                self.0 == other.0
-            }
-        }
-
-        impl PartialEq<u64> for $wrapped {
-            fn eq(&self, other: &u64) -> bool {
-                self.0 == *other
-            }
-        }
-
-        impl PartialEq<$wrapped> for u64 {
-            fn eq(&self, other: &$wrapped) -> bool {
-                *self == other.0
-            }
-        }
-    };
-}
-
-macro_rules! ord_impl {
-    ($wrapped:ty) => {
-        impl Ord for $wrapped {
+        impl Ord for $t {
             fn cmp(&self, other: &Self) -> Ordering {
                 self.0.cmp(&other.0)
             }
         }
 
-        impl PartialOrd for $wrapped {
-            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-                self.0.partial_cmp(&other.0)
-            }
-        }
+        partial_for_newtype!{impl PartialEq<$t> for $t {fn eq -> bool}}
+        partial_for_newtype_with_number!{impl PartialEq<u64> for $t {fn eq -> bool}}
+        partial_for_number_with_newtype!{impl PartialEq<$t> for u64 {fn eq -> bool}}
 
-        impl PartialOrd<u64> for $wrapped {
-            fn partial_cmp(&self, other: &u64) -> Option<Ordering> {
-                self.0.partial_cmp(other)
-            }
-        }
-
-        impl PartialOrd<$wrapped> for u64 {
-            fn partial_cmp(&self, other: &$wrapped) -> Option<Ordering> {
-                self.partial_cmp(&other.0)
-            }
-        }
-    };
+        partial_for_newtype!{impl PartialOrd<$t> for $t {fn partial_cmp -> Option<Ordering>}}
+        partial_for_newtype_with_number!{impl PartialOrd<u64> for $t {fn partial_cmp -> Option<Ordering>}}
+        partial_for_number_with_newtype!{impl PartialOrd<$t> for u64 {fn partial_cmp -> Option<Ordering>}}
+    )*)
 }
 
-macro_rules! compare_impl_all {
-    () => {
-        eq_hash_impl! {Bitboard}
-        ord_impl! {Bitboard}
-        eq_hash_impl! {Position}
-        ord_impl! {Position}
-    };
-}
+newtype_ord_and_eq! {Bitboard Position}
+partial_for_newtype! {impl PartialEq<Position> for Bitboard {fn eq -> bool}}
+partial_for_newtype! {impl PartialEq<Bitboard> for Position {fn eq -> bool}}
+partial_for_newtype! {impl PartialOrd<Position> for Bitboard {fn partial_cmp -> Option<Ordering>}}
+partial_for_newtype! {impl PartialOrd<Bitboard> for Position {fn partial_cmp -> Option<Ordering>}}
 
-bitshift_impl_all! {u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize}
-bitwise_impl_all! {}
-compare_impl_all! {}
+// Bitboard operations
+newtype_transform! { impl BitAnd<Bitboard> for Bitboard { fn bitand -> Bitboard } }
+newtype_transform! { impl BitOr<Bitboard> for Bitboard { fn bitor -> Bitboard } }
+newtype_transform! { impl BitXor<Bitboard> for Bitboard { fn bitxor -> Bitboard } }
 
-impl BitAnd<Bitboard> for Position {
-    type Output = Bitboard;
+newtype_mutate! { impl BitAndAssign<Bitboard> for Bitboard { fn bitand_assign } }
+newtype_mutate! { impl BitOrAssign<Bitboard> for Bitboard { fn bitor_assign } }
+newtype_mutate! { impl BitXorAssign<Bitboard> for Bitboard { fn bitxor_assign } }
 
-    fn bitand(self, rhs: Bitboard) -> Self::Output {
-        Bitboard(self.0 & rhs.0)
-    }
-}
+// Position operations
+newtype_transform! { impl BitAnd<Position> for Position { fn bitand -> Position } }
 
-impl BitAnd<Position> for Bitboard {
-    type Output = Bitboard;
+// Bitboard and Position operations
+newtype_transform! { impl BitAnd<Bitboard> for Position { fn bitand -> Bitboard } }
+newtype_transform! { impl BitAnd<Position> for Bitboard { fn bitand -> Bitboard } }
 
-    fn bitand(self, rhs: Position) -> Self::Output {
-        Bitboard(self.0 & rhs.0)
-    }
-}
+newtype_transform! { impl BitOr<Bitboard> for Position { fn bitor -> Bitboard } }
+newtype_transform! { impl BitOr<Position> for Bitboard { fn bitor -> Bitboard } }
 
-impl BitAndAssign<Bitboard> for Position {
-    fn bitand_assign(&mut self, rhs: Bitboard) {
-        self.0 &= rhs.0;
-    }
-}
+newtype_transform! { impl BitXor<Bitboard> for Position { fn bitxor -> Bitboard } }
+newtype_transform! { impl BitXor<Position> for Bitboard { fn bitxor -> Bitboard } }
 
-impl BitOr<Bitboard> for Position {
-    type Output = Bitboard;
+newtype_mutate! { impl BitAndAssign<Bitboard> for Position { fn bitand_assign } }
+newtype_mutate! { impl BitAndAssign<Position> for Bitboard { fn bitand_assign } }
 
-    fn bitor(self, rhs: Bitboard) -> Self::Output {
-        Bitboard(self.0 | rhs.0)
-    }
-}
+newtype_mutate! { impl BitOrAssign<Position> for Bitboard { fn bitor_assign } }
+newtype_mutate! { impl BitXorAssign<Position> for Bitboard { fn bitxor_assign } }
 
-impl BitOr<Position> for Bitboard {
-    type Output = Bitboard;
+number_operation_with_newtype! {Bitboard Position}
 
-    fn bitor(self, rhs: Position) -> Self::Output {
-        Bitboard(self.0 | rhs.0)
-    }
-}
+// Bitboard and Position with numbers
+newtype_bitshift! {u8 u16 u32 u64 u128 usize i8 i16 i32 i64 i128 isize}
 
-impl BitOrAssign<Position> for Bitboard {
-    fn bitor_assign(&mut self, rhs: Position) {
-        self.0 |= rhs.0;
-    }
-}
+// Bitboard and u64
+newtype_transform_with_number! {impl BitAnd<u64> for Bitboard { fn bitand }}
+newtype_transform_with_number! {impl BitOr<u64> for Bitboard { fn bitor }}
+newtype_transform_with_number! {impl BitXor<u64> for Bitboard { fn bitxor }}
 
-impl BitXor<Bitboard> for Position {
-    type Output = Bitboard;
+newtype_mutate_with_number! {impl BitAndAssign<u64> for Bitboard { fn bitand_assign }}
+newtype_mutate_with_number! {impl BitOrAssign<u64> for Bitboard { fn bitor_assign }}
+newtype_mutate_with_number! {impl BitXorAssign<u64> for Bitboard { fn bitxor_assign }}
 
-    fn bitxor(self, rhs: Bitboard) -> Self::Output {
-        Bitboard(self.0 ^ rhs.0)
-    }
-}
-
-impl BitXor<Position> for Bitboard {
-    type Output = Bitboard;
-
-    fn bitxor(self, rhs: Position) -> Self::Output {
-        Bitboard(self.0 ^ rhs.0)
-    }
-}
-
-impl BitXorAssign<Position> for Bitboard {
-    fn bitxor_assign(&mut self, rhs: Position) {
-        self.0 ^= rhs.0;
+impl Not for Bitboard {
+    type Output = Self;
+    fn not(self) -> Self::Output {
+        Self(!self.0)
     }
 }

@@ -38,6 +38,12 @@ impl From<Position> for Bitboard {
     }
 }
 
+impl From<Position> for u64 {
+    fn from(position: Position) -> Self {
+        position.0
+    }
+}
+
 impl TryFrom<(u8, u8)> for Position {
     type Error = PositionError;
 
