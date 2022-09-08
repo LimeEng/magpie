@@ -23,7 +23,7 @@ pub fn generate() -> String {
             }
             pos_result.push(moves);
         }
-        result.push(pos_result)
+        result.push(pos_result);
     }
 
     let formatted_numbers: Vec<String> = result

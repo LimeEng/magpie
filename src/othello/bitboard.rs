@@ -3,31 +3,94 @@ use crate::othello::Position;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+/// Represents a 8x8 board as a `u64`.
+///
+/// There are no restrictions placed on the bits represented, unlike the
+/// similar [`Position`] where only a single bit may be set.
+///
+/// [`Position`]: crate::othello::Position
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Bitboard(pub(crate) u64);
 
 impl Bitboard {
+    /// Retrieves the underlying u64.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// let b: Bitboard = 0.into();
+    /// assert_eq!(b.raw(), 0);
+    /// ```
     pub fn raw(self) -> u64 {
         self.0
     }
 
+    /// Returns true if and only if no bits are set.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// let b: Bitboard = 0.into();
+    /// assert!(b.is_empty());
+    /// ```
     pub fn is_empty(self) -> bool {
         self.0 == 0
     }
 
+    /// Counts the number of set bits.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// let b: Bitboard = u64::MAX.into();
+    /// assert_eq!(b.count_set(), 64);
+    /// ```
     pub fn count_set(self) -> u8 {
         self.0.count_ones().try_into().unwrap()
     }
 
+    /// Counts the number of bits that are set to zero.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// let b: Bitboard = u64::MAX.into();
+    /// assert_eq!(b.count_empty(), 0);
+    /// ```
     pub fn count_empty(self) -> u8 {
         self.0.count_zeros().try_into().unwrap()
     }
 
-    pub fn is_power_of_two(self) -> bool {
-        self.count_set() == 1
-    }
-
+    /// Extracts each bit as its own bitboard.
+    ///
+    /// For example, given the following (tiny) bitboard:
+    /// ```text
+    /// 111
+    /// 000
+    /// 111
+    /// ```
+    ///
+    /// The iterator will break up that bitboard and yield the following
+    /// bitboards:
+    /// ```text
+    /// 100    010    001    000    000    000    000    000    000
+    /// 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000
+    /// 000    000    000    000    000    000    100    010    001
+    /// ```
+    /// The iterator always return 64 bitboards.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// let b: Bitboard = 0.into();
+    /// assert_eq!(b.bits().len(), 64);
+    ///  ```
     pub fn bits(self) -> BitsIntoIterator {
         let bits = Bits {
             remaining: 64,
@@ -36,6 +99,30 @@ impl Bitboard {
         bits.into_iter()
     }
 
+    /// Extracts each bit set to one as its own bitboard.
+    ///
+    /// For example, given the following (tiny) bitboard:
+    /// ```text
+    /// 100
+    /// 000
+    /// 001
+    /// ```
+    ///
+    /// The iterator will break up that bitboard and yield the following
+    /// bitboards:
+    /// ```text
+    /// 100    000
+    /// 000 => 000
+    /// 000    001
+    /// ```
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// let b: Bitboard = u64::from(u32::MAX).into();
+    /// assert_eq!(b.hot_bits().len(), 32);
+    ///  ```
     pub fn hot_bits(self) -> HotBitsIntoIterator {
         let positions = HotBits {
             remaining: self.count_set(),
@@ -46,7 +133,7 @@ impl Bitboard {
 }
 
 #[derive(Clone, Debug)]
-pub struct Bits {
+struct Bits {
     remaining: usize,
     bitboard: Bitboard,
 }
@@ -91,7 +178,7 @@ impl ExactSizeIterator for BitsIntoIterator {
 }
 
 #[derive(Clone, Debug)]
-pub struct HotBits {
+struct HotBits {
     remaining: u8,
     bitboard: Bitboard,
 }
