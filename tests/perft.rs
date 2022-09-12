@@ -65,7 +65,7 @@ fn perft(board: &Board, stone: Stone, passed: bool, depth: u8) -> u64 {
             perft(board, stone.flip(), true, depth - 1)
         }
     } else if depth == 1 {
-        moves.count_ones().into()
+        moves.count_set().into()
     } else {
         moves
             .hot_bits()
