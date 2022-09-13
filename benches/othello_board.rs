@@ -36,18 +36,18 @@ fn bench_legal_move_check(c: &mut Criterion) {
     });
 }
 
-fn bench_legal_moves_extraction(c: &mut Criterion) {
+fn bench_bits_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
-    c.bench_function("legal_moves_extraction", |b| {
+    c.bench_function("bits_extraction", |b| {
         b.iter(|| moves.hot_bits().collect::<Vec<Position>>());
     });
 }
 
-fn bench_square_extraction(c: &mut Criterion) {
+fn bench_hot_bits_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
-    c.bench_function("square_extraction", |b| {
+    c.bench_function("hot_bits_extraction", |b| {
         b.iter(|| moves.bits().collect::<Vec<Bitboard>>());
     });
 }
@@ -58,8 +58,8 @@ criterion_group!(
     bench_legal_moves,
     bench_place_stone,
     bench_legal_move_check,
-    bench_legal_moves_extraction,
-    bench_square_extraction
+    bench_bits_extraction,
+    bench_hot_bits_extraction,
 );
 criterion_main!(benches);
 
