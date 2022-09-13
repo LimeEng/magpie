@@ -1,4 +1,4 @@
-use crate::othello::Position;
+use crate::othello::{constants::POSITIONS, Position};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -91,12 +91,8 @@ impl Bitboard {
     /// let b: Bitboard = 0.into();
     /// assert_eq!(b.bits().len(), 64);
     ///  ```
-    pub fn bits(self) -> BitsIntoIterator {
-        let bits = Bits {
-            remaining: 64,
-            bitboard: self,
-        };
-        bits.into_iter()
+    pub fn bits(self) -> impl ExactSizeIterator<Item = Bitboard> {
+        POSITIONS.iter().map(move |m| self & *m)
     }
 
     /// Extracts each bit set to one as its own bitboard.
@@ -129,51 +125,6 @@ impl Bitboard {
             bitboard: self,
         };
         positions.into_iter()
-    }
-}
-
-#[derive(Clone, Debug)]
-struct Bits {
-    remaining: usize,
-    bitboard: Bitboard,
-}
-
-#[derive(Clone, Debug)]
-pub struct BitsIntoIterator {
-    remaining: usize,
-    bitboard: Bitboard,
-}
-
-impl IntoIterator for Bits {
-    type Item = Bitboard;
-    type IntoIter = BitsIntoIterator;
-
-    fn into_iter(self) -> Self::IntoIter {
-        BitsIntoIterator {
-            remaining: self.remaining,
-            bitboard: self.bitboard,
-        }
-    }
-}
-
-impl Iterator for BitsIntoIterator {
-    type Item = Bitboard;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.remaining == 0 {
-            None
-        } else {
-            let mask = 1u64 << (self.remaining - 1);
-            let bit = self.bitboard & mask;
-            self.remaining -= 1;
-            Some(bit)
-        }
-    }
-}
-
-impl ExactSizeIterator for BitsIntoIterator {
-    fn len(&self) -> usize {
-        self.remaining
     }
 }
 
