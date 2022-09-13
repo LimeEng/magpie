@@ -23,6 +23,7 @@ impl Bitboard {
     /// let b: Bitboard = 0.into();
     /// assert_eq!(b.raw(), 0);
     /// ```
+    #[must_use]
     pub fn raw(self) -> u64 {
         self.0
     }
@@ -36,6 +37,7 @@ impl Bitboard {
     /// let b: Bitboard = 0.into();
     /// assert!(b.is_empty());
     /// ```
+    #[must_use]
     pub fn is_empty(self) -> bool {
         self.0 == 0
     }
@@ -49,6 +51,7 @@ impl Bitboard {
     /// let b: Bitboard = u64::MAX.into();
     /// assert_eq!(b.count_set(), 64);
     /// ```
+    #[must_use]
     pub fn count_set(self) -> u8 {
         self.0.count_ones().try_into().unwrap()
     }
@@ -62,6 +65,7 @@ impl Bitboard {
     /// let b: Bitboard = u64::MAX.into();
     /// assert_eq!(b.count_empty(), 0);
     /// ```
+    #[must_use]
     pub fn count_empty(self) -> u8 {
         self.0.count_zeros().try_into().unwrap()
     }
@@ -91,6 +95,7 @@ impl Bitboard {
     /// let b: Bitboard = 0.into();
     /// assert_eq!(b.bits().len(), 64);
     ///  ```
+    #[must_use]
     pub fn bits(self) -> impl ExactSizeIterator<Item = Bitboard> {
         POSITIONS.iter().map(move |m| self & *m)
     }
@@ -119,6 +124,7 @@ impl Bitboard {
     /// let b: Bitboard = u64::from(u32::MAX).into();
     /// assert_eq!(b.hot_bits().len(), 32);
     ///  ```
+    #[must_use]
     pub fn hot_bits(self) -> impl ExactSizeIterator<Item = Position> {
         let positions = HotBits {
             remaining: self.count_set(),

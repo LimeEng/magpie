@@ -73,6 +73,7 @@ impl Board {
     /// let board = Board::empty();
     /// assert_eq!(64, board.empty_squares().count_set());
     /// ```
+    #[must_use]
     pub fn empty() -> Self {
         Self {
             black_stones: 0.into(),
@@ -104,6 +105,7 @@ impl Board {
     /// let board = Board::standard();
     /// assert_eq!(60, board.empty_squares().count_set());
     /// ```
+    #[must_use]
     pub fn standard() -> Self {
         Self {
             black_stones: BLACK_START_POS.into(),
@@ -245,6 +247,7 @@ impl Board {
     /// // The two bitboards do not intersect
     /// assert_eq!(0, black & white);
     /// ```
+    #[must_use]
     pub fn bits_for(&self, stone: Stone) -> Bitboard {
         match stone {
             Stone::Black => self.black_stones,
@@ -265,6 +268,7 @@ impl Board {
     /// let pos = 1_u64.try_into().unwrap();
     /// assert!(!board.is_legal_move(Stone::Black, pos));
     /// ```
+    #[must_use]
     pub fn is_legal_move(&self, stone: Stone, pos: Position) -> bool {
         let pos = Bitboard::from(pos);
         let current_bits = self.bits_for(stone);
@@ -309,6 +313,7 @@ impl Board {
     /// let stone = Stone::Black;
     /// assert_eq!(4, board.moves_for(stone).count_set());
     /// ```
+    #[must_use]
     pub fn moves_for(&self, stone: Stone) -> Bitboard {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
@@ -352,6 +357,7 @@ impl Board {
     /// let board = Board::standard();
     /// assert_eq!(60, board.empty_squares().count_set());
     /// ```
+    #[must_use]
     pub fn empty_squares(&self) -> Bitboard {
         !(self.black_stones | self.white_stones)
     }
@@ -369,6 +375,7 @@ impl Board {
     /// let pos = 0x8000000.try_into().unwrap();
     /// assert_eq!(Some(Stone::White), board.stone_at(pos));
     ///  ```
+    #[must_use]
     pub fn stone_at(&self, pos: Position) -> Option<Stone> {
         if self.black_stones & pos > 0 {
             Some(Stone::Black)
@@ -393,6 +400,7 @@ impl Board {
     /// let board = Board::standard();
     /// println!("{}", board.display());
     ///  ```
+    #[must_use]
     pub fn display(&self) -> BoardDisplay {
         BoardDisplay::new(self)
     }
