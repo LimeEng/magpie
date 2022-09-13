@@ -5,7 +5,7 @@ fn main() {
 
     // ========================================================================
     // This board is completely empty. This constructor combined with the
-    // method `place_stone_unchecked` can be leveraged to implement a game of
+    // function `place_stone_unchecked` can be leveraged to implement a game of
     // Reversi, which is distinctly different from Othello. Unfortunately, some
     // additional bookkeeping is required in this case since magpie does not
     // support Reversi.
@@ -28,9 +28,8 @@ fn main() {
     let board_standard = Board::standard();
     let board_default = Board::default();
     assert_eq!(board_standard, board_default);
-    // To better visualize what is happening, you can display the board in a
-    // human friendly way. This is what the standard Othello opening looks
-    // like.
+    // To better visualize what is happening, the board can be displayed in a
+    // human friendly way.
     println!("Standard Othello opening");
     println!("{}", board_standard.display());
     // ========================================================================
@@ -56,13 +55,16 @@ fn main() {
     let board = Board::standard();
     let stone = Stone::Black;
     // Here, the legal moves for black is calculated from the starting
-    // position. A bitboard is returned, represented as an `u64`, where each bit
-    // with value 1 is a legal move.
+    // position. A bitboard is returned, represented as an `u64`, where each
+    // bit with value 1 is a legal move.
     let legal_moves: Bitboard = board.moves_for(stone);
-    // Since the bitboard might be difficult to work with, magpie defines an
-    // extension trait called `StoneExt`. It extracts all individual bits
-    // that are set to 1 and returns an iterator, yielding these bits as if
-    // they were independent bitboards (i.e with only one bit set).
+    // The bitboard is a pretty generic container for an `u64`. The
+    // `.hot_bits()` function may be of particular interest, as it iterates
+    // through all hot bits contained in the `Bitboard`. These bits are yielded
+    // as if they were independent bitboards, and to conserve this invariant in
+    // the type system, they are returned as `Position`. `Position` is similar
+    // to `Bitboard` but they are guaranteed to always contain exactly one set
+    // bit. Here, `.hot_bits()` is used to extract all legal moves.
     let mut positions = legal_moves.hot_bits();
     // Here it is verified that all legal moves extracted are indeed legal to
     // play.
@@ -74,7 +76,7 @@ fn main() {
     let any_move = board
         .moves_for(stone)
         .hot_bits()
-        .next() // Get the first legal move we find
+        .next() // Get the first legal move found.
         .unwrap();
 
     // This is what the board looks like before any move is made.
@@ -88,16 +90,16 @@ fn main() {
     println!("{}", board.display());
     // ========================================================================
     // Sometimes it is necessary to take complete control of the game. The two
-    // methods `place_stone_unchecked` and `remove_stone_unchecked` allows you
-    // to both place and remove arbitrary stones without having to comply with
-    // Othello's rules. Both methods will always leave the board in a playable
-    // state. Reversi can be implemented using these two methods.
+    // functions `place_stone_unchecked` and `remove_stone_unchecked` allows
+    // you to both place and remove arbitrary stones without having to comply
+    // with Othello's rules. Both functions will always leave the board in a
+    // playable state. Reversi can be implemented using these two functions.
     let mut board = Board::empty();
     let stone = Stone::Black;
     // In binary this is 32 set bits. It is then padded with 32 zeroes to
     // create an `u64`.
     let pos: Bitboard = (u64::from(u32::MAX)).into();
-    // This method allows us to place as many stones as we please at once, as
+    // This function allows us to place as many stones as we please at once, as
     // long as no stones of opposite colors overlap. Here we fill half the
     // board with black stones.
     board.place_stone_unchecked(stone, pos).unwrap();
