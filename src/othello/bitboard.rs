@@ -119,7 +119,7 @@ impl Bitboard {
     /// let b: Bitboard = u64::from(u32::MAX).into();
     /// assert_eq!(b.hot_bits().len(), 32);
     ///  ```
-    pub fn hot_bits(self) -> HotBitsIntoIterator {
+    pub fn hot_bits(self) -> impl ExactSizeIterator<Item = Position> {
         let positions = HotBits {
             remaining: self.count_set(),
             bitboard: self,
@@ -135,7 +135,7 @@ struct HotBits {
 }
 
 #[derive(Clone, Debug)]
-pub struct HotBitsIntoIterator {
+struct HotBitsIntoIterator {
     remaining: u8,
     bitboard: Bitboard,
 }
