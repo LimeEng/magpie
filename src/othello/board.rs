@@ -1,10 +1,12 @@
+use std::convert::TryFrom;
+
 use crate::othello::{
     constants::{
-        BLACK_START_POS, FILE_A, FILE_H, POSITIONS, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS,
-        SHIFT_RAYS, WHITE_START_POS,
+        BLACK_START_POS, FILE_A, FILE_H, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS, SHIFT_RAYS,
+        WHITE_START_POS,
     },
     display::BoardDisplay,
-    Stone,
+    Bitboard, Position, Stone,
 };
 
 #[cfg(feature = "serde")]
@@ -52,8 +54,8 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", serde(try_from = "ShadowBoard"))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Board {
-    black_stones: u64,
-    white_stones: u64,
+    black_stones: Bitboard,
+    white_stones: Bitboard,
 }
 
 impl Board {
@@ -69,12 +71,12 @@ impl Board {
     /// use magpie::othello::Board;
     ///
     /// let board = Board::empty();
-    /// assert_eq!(64, board.empty_squares().count_ones());
+    /// assert_eq!(64, board.empty_squares().count_set());
     /// ```
     pub fn empty() -> Self {
         Self {
-            black_stones: 0,
-            white_stones: 0,
+            black_stones: 0.into(),
+            white_stones: 0.into(),
         }
     }
 
@@ -100,12 +102,12 @@ impl Board {
     /// use magpie::othello::Board;
     ///
     /// let board = Board::standard();
-    /// assert_eq!(60, board.empty_squares().count_ones());
+    /// assert_eq!(60, board.empty_squares().count_set());
     /// ```
     pub fn standard() -> Self {
         Self {
-            black_stones: BLACK_START_POS,
-            white_stones: WHITE_START_POS,
+            black_stones: BLACK_START_POS.into(),
+            white_stones: WHITE_START_POS.into(),
         }
     }
 
@@ -125,9 +127,14 @@ impl Board {
     /// use magpie::othello::{Board, Stone};
     ///
     /// let mut board = Board::empty();
-    /// assert!(board.place_stone_unchecked(Stone::Black, 1_u64).is_ok());
+    /// let pos = 1_u64.try_into().unwrap();
+    /// assert!(board.place_stone_unchecked(Stone::Black, pos).is_ok());
     /// ```
-    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
+    pub fn place_stone_unchecked(
+        &mut self,
+        stone: Stone,
+        pos: Bitboard,
+    ) -> Result<(), OthelloError> {
         if self.bits_for(stone.flip()) & pos != 0 {
             return Err(OthelloError::PiecesOverlapping);
         }
@@ -151,7 +158,7 @@ impl Board {
     /// board.remove_stone_unchecked(Stone::White, white_stones);
     /// assert_eq!(Board::empty(), board);
     /// ```
-    pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: u64) {
+    pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: Bitboard) {
         match stone {
             Stone::Black => self.black_stones &= !pos,
             Stone::White => self.white_stones &= !pos,
@@ -165,22 +172,19 @@ impl Board {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Board, StoneExt, Stone};
+    /// use magpie::othello::{Board, Stone};
     ///
     /// let mut board = Board::standard();
     /// let player = Stone::Black;
     /// let pos = board
     ///     .moves_for(player)
-    ///     .stones()
+    ///     .hot_bits()
     ///     .next()
     ///     .unwrap();
     /// assert!(board.place_stone(Stone::Black, pos).is_ok());
     /// ```
-    pub fn place_stone(&mut self, stone: Stone, pos: u64) -> Result<(), OthelloError> {
-        if pos.count_ones() != 1 {
-            return Err(OthelloError::MultipleMovesAttempted);
-        }
-
+    pub fn place_stone(&mut self, stone: Stone, pos: Position) -> Result<(), OthelloError> {
+        let pos = Bitboard::from(pos);
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
@@ -192,7 +196,7 @@ impl Board {
         let mut mask = 0;
         for (i, shift) in SHIFT_DIRS.iter().enumerate() {
             let mut dir_mask = 0;
-            let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.leading_zeros() as usize][i];
+            let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.raw().leading_zeros() as usize][i];
             let opponent_bits = opponent_bits & shift_mask;
 
             let mut current = pos;
@@ -241,7 +245,7 @@ impl Board {
     /// // The two bitboards do not intersect
     /// assert_eq!(0, black & white);
     /// ```
-    pub fn bits_for(&self, stone: Stone) -> u64 {
+    pub fn bits_for(&self, stone: Stone) -> Bitboard {
         match stone {
             Stone::Black => self.black_stones,
             Stone::White => self.white_stones,
@@ -258,12 +262,11 @@ impl Board {
     /// use magpie::othello::{Board, Stone};
     ///
     /// let board = Board::standard();
-    /// assert!(!board.is_legal_move(Stone::Black, 1_u64));
+    /// let pos = 1_u64.try_into().unwrap();
+    /// assert!(!board.is_legal_move(Stone::Black, pos));
     /// ```
-    pub fn is_legal_move(&self, stone: Stone, pos: u64) -> bool {
-        if pos.count_ones() != 1 {
-            return false;
-        }
+    pub fn is_legal_move(&self, stone: Stone, pos: Position) -> bool {
+        let pos = Bitboard::from(pos);
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
 
@@ -274,7 +277,7 @@ impl Board {
 
         for (i, shift) in SHIFT_DIRS.iter().enumerate() {
             let mut dir_mask = 0;
-            let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.leading_zeros() as usize][i];
+            let shift_mask = SHIFT_MASKS[i] & SHIFT_RAYS[pos.raw().leading_zeros() as usize][i];
             let opponent_bits = opponent_bits & shift_mask;
 
             let mut current = pos;
@@ -304,16 +307,16 @@ impl Board {
     ///
     /// let board = Board::standard();
     /// let stone = Stone::Black;
-    /// assert_eq!(4, board.moves_for(stone).count_ones());
+    /// assert_eq!(4, board.moves_for(stone).count_set());
     /// ```
-    pub fn moves_for(&self, stone: Stone) -> u64 {
+    pub fn moves_for(&self, stone: Stone) -> Bitboard {
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
         let empty_squares = self.empty_squares();
 
         let move_in_dir = |mask: u64, shift: i8| {
-            let excluded: u64 = opponent_bits & mask;
-            let mut m: u64 = dir_shift(current_bits, shift) & excluded;
+            let excluded: Bitboard = opponent_bits & mask;
+            let mut m: Bitboard = dir_shift(current_bits, shift) & excluded;
             m |= dir_shift(m, shift) & excluded;
             m |= dir_shift(m, shift) & excluded;
             m |= dir_shift(m, shift) & excluded;
@@ -347,9 +350,9 @@ impl Board {
     /// use magpie::othello::Board;
     ///
     /// let board = Board::standard();
-    /// assert_eq!(60, board.empty_squares().count_ones());
+    /// assert_eq!(60, board.empty_squares().count_set());
     /// ```
-    pub fn empty_squares(&self) -> u64 {
+    pub fn empty_squares(&self) -> Bitboard {
         !(self.black_stones | self.white_stones)
     }
 
@@ -363,13 +366,11 @@ impl Board {
     /// use magpie::othello::{Board, Stone};
     ///
     /// let board = Board::standard();
-    /// let pos = 0x8000000;
+    /// let pos = 0x8000000.try_into().unwrap();
     /// assert_eq!(Some(Stone::White), board.stone_at(pos));
     ///  ```
-    pub fn stone_at(&self, pos: u64) -> Option<Stone> {
-        if pos.count_ones() != 1 {
-            None
-        } else if self.black_stones & pos > 0 {
+    pub fn stone_at(&self, pos: Position) -> Option<Stone> {
+        if self.black_stones & pos > 0 {
             Some(Stone::Black)
         } else if self.white_stones & pos > 0 {
             Some(Stone::White)
@@ -462,10 +463,35 @@ impl TryFrom<(u64, u64)> for Board {
             return Err(OthelloError::PiecesOverlapping);
         }
         let board = Self {
-            black_stones,
-            white_stones,
+            black_stones: black_stones.into(),
+            white_stones: white_stones.into(),
         };
         Ok(board)
+    }
+}
+
+impl TryFrom<(Bitboard, Bitboard)> for Board {
+    type Error = OthelloError;
+
+    /// Returns a board built from the two specified bitboards.
+    ///
+    /// Returns an error if the two bitboards intersect.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::{Board, Stone};
+    ///
+    /// let board = Board::standard();
+    /// let black = board.bits_for(Stone::Black);
+    /// let white = board.bits_for(Stone::White);
+    ///
+    /// // Quite a contrived example
+    /// let board = Board::try_from((black, white));
+    /// assert_eq!(Ok(Board::standard()), board);
+    /// ```
+    fn try_from(stones: (Bitboard, Bitboard)) -> Result<Self, Self::Error> {
+        let (black_stones, white_stones) = stones;
+        Board::try_from((black_stones.raw(), white_stones.raw()))
     }
 }
 
@@ -480,108 +506,8 @@ pub enum OthelloError {
     PiecesOverlapping,
 }
 
-/// Extension trait that extracts all set bits from a bitboard.
-pub trait StoneExt: Sized {
-    type Iter: Iterator<Item = Self>;
-    /// Given a bitboard, extracts each bit set to one as its own bitboard.
-    ///
-    /// For example, given the following (tiny) bitboard:
-    /// ```text
-    /// 100
-    /// 000
-    /// 001
-    /// ```
-    ///
-    /// The iterator will break up that bitboard and yield the following
-    /// bitboards:
-    /// ```text
-    /// 100    000
-    /// 000 => 000
-    /// 000    001
-    /// ```
-    ///
-    /// [`SquareExt`] is a similar extension trait which may be of use as well.
-    ///
-    /// [`SquareExt`]: crate::othello::SquareExt
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::{Board, StoneExt, Stone};
-    ///
-    /// let mut board = Board::standard();
-    /// let player = Stone::Black;
-    /// let pos = board
-    ///     .moves_for(player) // Returns bitboard
-    ///     .stones() // Convert that into multiple bitboards
-    ///     .next()
-    ///     .unwrap(); // The standard Othello opening is guaranteed to have at
-    ///                // least one valid move
-    /// assert!(board.place_stone(player, pos).is_ok());
-    ///  ```
-    fn stones(&self) -> Self::Iter;
-}
-
-impl StoneExt for u64 {
-    type Iter = Box<dyn Iterator<Item = Self>>;
-    fn stones(&self) -> Self::Iter {
-        let this = *self;
-        let iter = POSITIONS.iter().map(move |m| m & this).filter(|m| *m != 0);
-
-        Box::new(iter)
-    }
-}
-
-/// Extension trait that extracts all bits from a bitboard.
-pub trait SquareExt: Sized {
-    type Iter: Iterator<Item = Self>;
-    /// Given a bitboard, extracts each bit as its own bitboard.
-    ///
-    /// For example, given the following (tiny) bitboard:
-    /// ```text
-    /// 111
-    /// 000
-    /// 111
-    /// ```
-    ///
-    /// The iterator will break up that bitboard and yield the following
-    /// bitboards:
-    /// ```text
-    /// 100    010    001    000    000    000    000    000    000
-    /// 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000 => 000
-    /// 000    000    000    000    000    000    100    010    001
-    /// ```
-    /// The iterator always return 64 bitboards since Othello has 64 positions.
-    ///
-    /// [`StoneExt`] is a similar extension trait which may be of use as well.
-    ///
-    /// [`StoneExt`]: crate::othello::StoneExt
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::{Board, SquareExt};
-    ///
-    /// let mut board = Board::standard();
-    /// let pos = u64::MAX // Full bitboard (all bits set to 1)
-    ///     .squares() // Convert that into multiple bitboards
-    ///     .next()
-    ///     .unwrap(); // This iterator will always return 64 bitboards
-    /// assert_eq!(2_u64.pow(63), pos);
-    ///  ```
-    fn squares(&self) -> Self::Iter;
-}
-
-impl SquareExt for u64 {
-    type Iter = Box<dyn Iterator<Item = Self>>;
-    fn squares(&self) -> Self::Iter {
-        let this = *self;
-        let iter = POSITIONS.iter().map(move |m| m & this);
-
-        Box::new(iter)
-    }
-}
-
 // https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift
-fn dir_shift(x: u64, shift: i8) -> u64 {
+fn dir_shift(x: Bitboard, shift: i8) -> Bitboard {
     if shift > 0 {
         x >> shift
     } else {
