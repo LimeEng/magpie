@@ -1,32 +1,18 @@
 use magpie::othello::{Board, Stone};
+use std::convert::TryInto;
 
 #[test]
 fn legal_move_check_one_valid() {
     let board = board_one_legal_move();
     let pos = 0x00_00_00_00_08_00_00_00;
-    assert!(board.is_legal_move(Stone::Black, pos));
-}
-
-#[test]
-fn legal_move_check_one_valid_one_invalid() {
-    let board = board_one_legal_move();
-    // Note the leading 8
-    let pos = 0x80_00_00_00_08_00_00_00;
-    assert!(!board.is_legal_move(Stone::Black, pos));
-}
-
-#[test]
-fn legal_move_check_two_valid() {
-    let board = board_two_legal_moves();
-    let pos = 0x80_00_00_00_00_00_00_01;
-    assert!(!board.is_legal_move(Stone::Black, pos));
+    assert!(board.is_legal_move(Stone::Black, pos.try_into().unwrap()));
 }
 
 #[test]
 fn legal_move_check_none_valid() {
     let board = board_no_legal_moves();
     let pos = 0x00_00_00_00_08_00_00_00;
-    assert!(!board.is_legal_move(Stone::Black, pos));
+    assert!(!board.is_legal_move(Stone::Black, pos.try_into().unwrap()));
 }
 
 // Returns a board with only one legal move for black, that is, the following
@@ -35,23 +21,14 @@ fn board_one_legal_move() -> Board {
     let black_pos = 0x88_01_00_00_81_00_00_49;
     let white_pos = 0x00_48_2a_1c_76_1c_2a_00;
 
-    Board::try_from((black_pos, white_pos)).unwrap()
-}
-
-// Returns a board with only two legal moves for black, that is, the following
-// moves represented as a bitboard: 0x80_00_00_00_00_00_00_01.
-fn board_two_legal_moves() -> Board {
-    let black_pos = 0x01_00_00_00_00_00_00_00;
-    let white_pos = 0x7e_01_01_01_01_01_01_00;
-
-    Board::try_from((black_pos, white_pos)).unwrap()
+    (black_pos, white_pos).try_into().unwrap()
 }
 
 fn board_no_legal_moves() -> Board {
     let board = board_one_legal_move();
 
     let black_pos = 0;
-    let white_pos = board.bits_for(Stone::White) | board.bits_for(Stone::Black);
+    let white_pos = (board.bits_for(Stone::White) | board.bits_for(Stone::Black)).into();
 
-    Board::try_from((black_pos, white_pos)).unwrap()
+    (black_pos, white_pos).try_into().unwrap()
 }

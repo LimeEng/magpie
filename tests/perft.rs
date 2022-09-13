@@ -1,4 +1,4 @@
-use magpie::othello::{Board, Stone, StoneExt};
+use magpie::othello::{Board, Stone};
 
 macro_rules! perft_test {
     ($($depth:literal)*) => {
@@ -65,10 +65,10 @@ fn perft(board: &Board, stone: Stone, passed: bool, depth: u8) -> u64 {
             perft(board, stone.flip(), true, depth - 1)
         }
     } else if depth == 1 {
-        moves.count_ones().into()
+        moves.count_set().into()
     } else {
         moves
-            .stones()
+            .hot_bits()
             .map(|pos| {
                 let mut new_board = board.clone();
                 new_board.place_stone(stone, pos).unwrap();

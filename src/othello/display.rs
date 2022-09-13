@@ -1,6 +1,6 @@
 use crate::othello::{
     constants::{FILES, RANKS},
-    Board, Stone,
+    Board, Position, Stone,
 };
 
 /// Helper struct to customize the printing of Othello boards.
@@ -98,9 +98,10 @@ fn display(
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {
-    let legal_moves = stone.map_or(0, |stone| board.moves_for(stone));
+    let legal_moves = stone.map_or(0.into(), |stone| board.moves_for(stone));
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];
+        let pos = Position::new_unchecked(pos);
         board
             .stone_at(pos)
             .map(|stone| match stone {
