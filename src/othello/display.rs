@@ -60,6 +60,7 @@ impl<'a> BoardDisplay<'a> {
     /// let board = Board::standard();
     /// println!("{}", board.display().with_stone(Stone::Black));
     /// ```
+    #[must_use]
     pub fn with_stone(&self, stone: Stone) -> Self {
         Self {
             board: self.board,
@@ -77,6 +78,7 @@ impl<'a> BoardDisplay<'a> {
     /// let board = Board::standard();
     /// println!("{}", board.display().with_format(Format::Compact));
     /// ```
+    #[must_use]
     pub fn with_format(&self, display: Format) -> Self {
         Self {
             board: self.board,

@@ -68,6 +68,7 @@ impl Position {
     /// let p: Position = (1 << 32).try_into().unwrap();
     /// assert_eq!(p.raw(), (1 << 32));
     /// ```
+    #[must_use]
     pub fn raw(self) -> u64 {
         self.0
     }
@@ -88,6 +89,7 @@ impl Position {
     /// ```
     ///
     /// [`Position`]: crate::othello::Position
+    #[must_use]
     pub fn rank(self) -> u8 {
         (self.0.leading_zeros() / 8).try_into().unwrap()
     }
@@ -108,6 +110,7 @@ impl Position {
     /// ```
     ///
     /// [`Position`]: crate::othello::Position
+    #[must_use]
     pub fn file(self) -> u8 {
         (self.0.leading_zeros() % 8).try_into().unwrap()
     }
@@ -127,6 +130,7 @@ impl Position {
     /// ```
     ///
     /// [`Position`]: crate::othello::Position
+    #[must_use]
     pub fn to_notation(self) -> String {
         POSITIONS_AS_NOTATION[self.0.leading_zeros() as usize].to_string()
     }

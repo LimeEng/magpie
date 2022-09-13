@@ -18,6 +18,7 @@ impl Stone {
     ///
     /// assert_eq!(Stone::White, Stone::Black.flip());
     /// ```
+    #[must_use]
     pub fn flip(&self) -> Self {
         match &self {
             Self::Black => Self::White,
