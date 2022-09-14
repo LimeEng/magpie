@@ -1,13 +1,18 @@
 # Changelog
 
 ## [Indev]
+### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+
 ---
 ## [0.9.1]
 ### Added
 - Updated crate to Rust Edition 2021.
-- Added a logo.
-### Changed
-- Improved the workflow responsible for publishing to crates.io. 
 ---
 ## [0.9.0]
 ### Changed
@@ -30,8 +35,6 @@
 - Renamed `PositionExt` to `StoneExt`.
 ---
 ## [0.6.0]
-### Added
-- Added quickcheck tests that generate test cases by themselves.
 ### Fixed
 - Fixed a bug in `OthelloBoard::is_legal_move(...)`. The position must be on an empty tile to be considered legal.
 ---
@@ -44,8 +47,6 @@
 - Added a link to the benchmarks in the README.
 - Added a description of the benchmarks.
 - Added some example code walking through the most common operations.
-### Changed
-- Simplified tests.
 ---
 ## [0.5.0]
 ### Added
@@ -70,16 +71,14 @@
 ---
 ## [0.3.0]
 ### Added
-- Example code was added, featuring a demonstration of how to use `serde` and a fully playable game where you are pit against an opponent who only makes random moves. In conjunction with this, the example code from the README was removed and a link to this new example code was added.
+- Example code was added, featuring a demonstration of how to use `serde` and a fully playable game where you are pit against an opponent who only makes random moves. As a result, the example code from the README was removed and a link to this new example was added.
 - Implemented `TryFrom` and `Default` traits for `OthelloBoard`.
-- Added basic tests for common `serde`-usage.
 
 ### Removed
 - Removed `OthelloBoard::from_state(...)`. Replaced by `TryFrom` trait.
 
 ### Fixed
-- An unsound deserialization bug was fixed, outlined in [PR#16].
-- The CI workflow now also runs tests with the optional `serde`-dependency enabled.
+- An unsound deserialization bug was fixed, outlined in [#16].
 - Documentation links have been updated to a better format, introduced in Rust 1.48.
 ---
 ## [0.2.0]
@@ -92,10 +91,8 @@
   - `OthelloBoard::from_state(...)` creates a new board from the supplied positions. It returns an error if any of the positions overlap.
 - An optional dependency on `serde` has been added.
 - Significantly expanded the README.
-- Benchmarks are now included to help guide development.
-- Documented more functions.
-- Added more tests, including inline documentation tests.
-- The documentation now includes a high level outline of the project.
+- Included benchmarks.
+- Expanded documentation.
 ### Changed
 - Renamed function `OthelloBoard::free_spaces()` to `OthelloBoard::empty_cells()`.
 - `OthelloBoard::place_stone(...)` now differentiates between two types of user error.
@@ -120,4 +117,4 @@
 [0.2.0]: https://github.com/LimeEng/magpie/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LimeEng/magpie/releases/tag/v0.1.0
 
-[PR#16]: https://github.com/LimeEng/magpie/pull/16
+[#16]: https://github.com/LimeEng/magpie/pull/16
