@@ -5,11 +5,9 @@
 
 <img src="https://limeeng.github.io/cdn/repo/magpie/logo.svg" width="200" align="right">
 
-Magpie is a simple Othello library written in Rust. [Othello](https://en.wikipedia.org/wiki/Reversi) is a perfect information, zero-sum game for two players. Do note that Reversi is a very similar game but with slightly different rules, currently not implemented in this library. However, magpie is flexible enough that it is possible to play Reversi as well, if the user is willing to do some additional bookkeeping.
+Magpie is a simple Othello library written in Rust. [Othello](https://en.wikipedia.org/wiki/Reversi) is a perfect information, zero-sum game for two players. It is important to note that there is no explicit support for Reversi, a similar game. However, magpie is flexible enough that it is possible to implement Reversi as well, in exchange for some additional bookkeeping.
 
-Magpie is intentionally minimalistic and delegates some basic functionality to the user. For example, keeping track of the next player to play is handled by the user. The library is responsible for both calculating legal moves and updating the state of the board when one is applied. It does this reasonably efficiently by using bitboards to store the state of the board.
-
-The library is intended to be consumed behind another abstraction which may keep track of the next player to play or cache various calculations.
+Magpie is built with bitboards which allows for extremely fast updates and queries. The library is intentionally minimalistic and requires the user to keep track of various aspects of the game, such as the next player to move. Magpie is used for calculating legal moves and applying them while still giving the user enough access to the internals to satisfy a wide array of applications in a safe way.
 
 ## Table of Contents
 - [Documentation](#documentation)
@@ -24,7 +22,13 @@ Documentation is hosted on [docs.rs](https://docs.rs/magpie/)
 
 ## Usage
 
-Add this to your `Cargo.toml`:
+Simply run:
+
+```
+cargo add magpie
+```
+
+Alternatively, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -54,6 +58,6 @@ cargo run --example human_vs_ai
 
 Benchmarks are [found here](/benches)
 
-Performance is important, although is should be noted that it is not the most prioritized feature. These benchmarks are here to guide improvements of the current algorithms as well as the implementation of new features.
+These benchmarks are here to guide improvements of the current algorithms as well as the implementation of new features.
 
 Simply run `cargo bench` to run all benchmarks.

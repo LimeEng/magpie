@@ -1,9 +1,9 @@
 use indoc::indoc;
-use magpie::othello::{Format, OthelloBoard, Stone};
+use magpie::othello::{Board, Format, Stone};
 
 #[test]
 fn display_opening_with_stone_format_standard() {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let result = board
         .display()
         .with_format(Format::Standard)
@@ -34,7 +34,7 @@ fn display_opening_with_stone_format_standard() {
 
 #[test]
 fn display_opening_with_stone_format_compact() {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let result = board
         .display()
         .with_format(Format::Compact)
@@ -58,7 +58,7 @@ fn display_opening_with_stone_format_compact() {
 
 #[test]
 fn display_opening_format_standard() {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let result = board.display().with_format(Format::Standard).to_string();
     let expected = indoc! {"
           A   B   C   D   E   F   G   H
@@ -85,7 +85,7 @@ fn display_opening_format_standard() {
 
 #[test]
 fn display_opening_format_compact() {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     let result = board.display().with_format(Format::Compact).to_string();
     let expected = indoc! {"
          ABCDEFGH

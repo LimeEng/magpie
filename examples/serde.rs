@@ -1,16 +1,15 @@
-use magpie::othello::{OthelloBoard, Stone};
-#[cfg(feature = "serde")]
+use magpie::othello::{Board, Stone};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Game {
-    board: OthelloBoard,
+    board: Board,
     next_player: Stone,
 }
 
 fn main() -> Result<()> {
-    let board = OthelloBoard::standard();
+    let board = Board::standard();
     // In Othello, black moves first
     let next_player = Stone::Black;
 
