@@ -2,13 +2,23 @@
 
 ## [Indev]
 ### Added
+- Added `Bitboard` and `Position` as abstractions around `u64`.
+  Additionally, the extension traits `SquareExt` and `StoneExt` has been replaced by functions on `Bitboard`, `Bitboard::bits()` and `Bitboard::hot_bits()` respectively.
+- Added `#[must_use]` annotations to several functions to prevent simple logic errors.
 
 ### Changed
-
-### Removed
-
-### Fixed
-
+- Some structs were renamed to avoid repetitive stutter.
+  Before:
+  ```rust
+  magpie::othello::OthelloBoard;
+  magpie::othello::OthelloDisplay;
+  ```
+  After:
+  ```rust
+  magpie::othello::Board;
+  magpie::othello::BoardDisplay;
+  ```
+- Polished documentation and examples.
 ---
 ## [0.9.1]
 ### Added
