@@ -1,5 +1,4 @@
 use magpie::othello::{Board, Stone};
-#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
