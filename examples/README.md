@@ -6,15 +6,15 @@
 cargo run --example human_vs_ai
 ```
 
-This example is by far the most complicated. It allows you to play Othello against a random AI and as a result, a lot of the logic is actually not focused on the library. Magpie is intentionally minimalistic which allows it to give the user complete control over the game. The tradeoff is that the user must do some bookkeeping to set up a fully featured game.
+This example allows you to play Othello against an AI that plays random legal moves. It demonstrates a possible use for the higher-level `Game`-struct.
 
-## Basic operations
+## Board operations
 
 ```
-cargo run --example basic_operations
+cargo run --example board_operations
 ```
 
-This goes through some basic operations that are useful when using the library. It is quite heavily commented and serves as an excellent starting point in exploring the library.
+Usage of the lower-level `Board`-struct is demonstrated here, suitable for use with engines.
 
 ## Serde
 

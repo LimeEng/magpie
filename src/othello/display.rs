@@ -140,16 +140,16 @@ fn display(
             let top_row = "    A   B   C   D   E   F   G   H";
             let horizontal = format!("  +{}", "---+".repeat(8));
 
-            writeln!(f, "{}", top_row)?;
+            writeln!(f, "{top_row}")?;
             for rank in 0..8 {
-                writeln!(f, "{}", horizontal)?;
+                writeln!(f, "{horizontal}")?;
                 write!(f, "{} |", rank + 1)?;
                 for file in 0..8 {
                     write!(f, " {} |", char_at(rank, file))?;
                 }
                 writeln!(f)?;
             }
-            writeln!(f, "{}", horizontal)
+            writeln!(f, "{horizontal}")
         }
     }
 }

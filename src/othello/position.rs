@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// Represents a single position on a 8x8 board as a `u64`.
 ///
 /// Unlike the similar [`Bitboard`] which places no restrictions on the bits it
-/// represents, this struct represents only a single set bit.
+/// represents, this struct represents exactly a single set bit.
 ///
 /// Bitboard representations are quite inconvenient in some contexts which is
 /// why some convenience functions are provided to convert between different
@@ -75,7 +75,7 @@ impl Position {
 
     /// Calculates the zero-indexed rank the position is referring to.
     ///
-    /// How ranks and files are represented can be seen in the top-level
+    /// How ranks and files are represented can be found in the top-level
     /// documentation for [`Position`].
     ///
     /// # Examples
@@ -96,7 +96,7 @@ impl Position {
 
     /// Calculates the zero-indexed file the position is referring to.
     ///
-    /// How ranks and files are represented can be seen in the top-level
+    /// How ranks and files are represented can be found in the top-level
     /// documentation for [`Position`].
     ///
     /// # Examples
@@ -117,7 +117,7 @@ impl Position {
 
     /// Calculates a human-readable board position.
     ///
-    /// How board positions are represented can be seen in the top-level
+    /// How board positions are represented can be found in the top-level
     /// documentation for [`Position`].
     ///
     /// # Examples
@@ -156,7 +156,7 @@ impl TryFrom<(u8, u8)> for Position {
     /// Returns an error if either the rank or file does not fit
     /// into a 8x8 board.
     ///
-    /// How ranks and files are represented can be seen in the top-level
+    /// How ranks and files are represented can be found in the top-level
     /// documentation for [`Position`].
     ///
     /// # Examples
@@ -190,7 +190,7 @@ impl TryFrom<String> for Position {
     ///
     /// The conversion is case-insensitive.
     ///
-    /// How board positions are represented can be seen in the top-level
+    /// How board positions are represented can be found in the top-level
     /// documentation for [`Position`].
     ///
     /// # Examples
@@ -217,7 +217,7 @@ impl TryFrom<&str> for Position {
     ///
     /// The conversion is case-insensitive.
     ///
-    /// How board positions are represented can be seen in the top-level
+    /// How board positions are represented can be found in the top-level
     /// documentation for [`Position`].
     ///
     /// # Examples

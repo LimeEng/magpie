@@ -1,4 +1,4 @@
-use magpie::othello::{Bitboard, Board, OthelloError, Position, PositionError};
+use magpie::othello::{Bitboard, Board, Game, OthelloError, Position, PositionError, Stone};
 use quickcheck::{Arbitrary, Gen};
 use std::convert::TryFrom;
 
@@ -86,5 +86,41 @@ impl TryFrom<ShadowBoard> for Board {
 
     fn try_from(board: ShadowBoard) -> Result<Self, Self::Error> {
         Board::try_from((board.black_stones, board.white_stones))
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ShadowGame {
+    board: Board,
+    next_player: Stone,
+    passed_last_turn: bool,
+}
+
+impl Arbitrary for ShadowGame {
+    fn arbitrary(g: &mut Gen) -> Self {
+        let board = ShadowBoard::arbitrary(g);
+        let player_black = bool::arbitrary(g);
+        let passed_last_turn = bool::arbitrary(g);
+
+        let board = Board::try_from(board).unwrap();
+        let next_player = if player_black {
+            Stone::Black
+        } else {
+            Stone::White
+        };
+
+        ShadowGame {
+            board,
+            next_player,
+            passed_last_turn,
+        }
+    }
+}
+
+impl TryFrom<ShadowGame> for Game {
+    type Error = OthelloError;
+
+    fn try_from(game: ShadowGame) -> Result<Self, Self::Error> {
+        Game::from_state(game.board, game.next_player, game.passed_last_turn)
     }
 }

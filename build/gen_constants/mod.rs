@@ -10,9 +10,9 @@ pub fn generate_constants() -> std::io::Result<()> {
 
     let out_dir = env::var("OUT_DIR").unwrap();
     let path = Path::new(&out_dir).join("gen.rs");
-    let mut output = File::create(&path).unwrap();
+    let mut output = File::create(path).unwrap();
 
-    writeln!(&mut output, "{}", common)?;
-    writeln!(&mut output, "{}", shift_rays)?;
+    writeln!(&mut output, "{common}")?;
+    writeln!(&mut output, "{shift_rays}")?;
     Ok(())
 }

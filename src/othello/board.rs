@@ -12,19 +12,12 @@ use crate::othello::{
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-/// Represents an Othello board and provides convenient methods to safely manipulate it.
+/// Represents an Othello board and provides convenient functions to manipulate it.
 ///
 /// The board is represented by two bitboards, one for black and one for white.
 /// Each bitboard is a 64-bit unsigned integer, where each bit encodes if a
 /// stone for that player exists on that space. As can be seen in the graphic
 /// below, MSB denotes A1 while LSB denotes H8.
-///
-/// Many operations on the Othello board either requires or returns `u64`, all
-/// of which are interpreted the same way as the graphic below. Some
-/// operations, like [`place_stone`] expects that the argument bitboard only
-/// has a single bit set and will return an error if that is false.
-///
-/// [`place_stone`]: crate::othello::Board::place_stone
 ///
 /// ```text
 ///     A    B    C    D    E    F    G    H
@@ -113,16 +106,42 @@ impl Board {
         }
     }
 
+    /// Evaluates if the board is in a consistent state
+    ///
+    /// Consistency is defined as whether or not multiple stones occupy
+    /// the same square.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::{Board, Stone};
+    ///
+    /// let mut board = Board::empty();
+    /// // The board should be valid
+    /// assert!(board.is_valid());
+    ///
+    /// // Here multiple stones are placed on the same
+    /// // squares, which is not valid
+    /// board.place_stone_unchecked(Stone::Black, u64::MAX.into());
+    /// board.place_stone_unchecked(Stone::White, u64::MAX.into());
+    /// assert!(!board.is_valid());
+    /// ```
+    #[must_use]
+    pub fn is_valid(&self) -> bool {
+        self.black_stones & self.white_stones == 0
+    }
+
     /// Places stones in the specified positions.
     ///
-    /// Unlike the similar [`place_stone`] function, this function places no
-    /// restrictions on the `pos` argument. Multiple stones may be placed at
+    /// Multiple stones may be placed at
     /// once, but no other stones will be flipped as during normal play.
-    /// The only check is regarding whether or not any of the stones would be
-    /// placed on top of a stone of the opposite color, and if so, returns an
-    /// error leaving the board untouched.
+    /// No restrictions are placed on the number or position of the pieces
+    /// which may result in an invalid board where multiple stones occupy the
+    /// same square. It is the responsibility of the caller to ensure that the
+    /// board remains consistent.
     ///
-    /// [`place_stone`]: crate::othello::Board::place_stone
+    /// [`remove_stone_unchecked`] may be of use as well.
+    ///
+    /// [`remove_stone_unchecked`]: crate::othello::Board::remove_stone_unchecked
     ///
     /// # Examples
     /// ```rust
@@ -130,24 +149,23 @@ impl Board {
     ///
     /// let mut board = Board::empty();
     /// let pos = 1_u64.try_into().unwrap();
-    /// assert!(board.place_stone_unchecked(Stone::Black, pos).is_ok());
+    /// board.place_stone_unchecked(Stone::Black, pos);
+    /// assert_ne!(board, Board::empty());
     /// ```
-    pub fn place_stone_unchecked(
-        &mut self,
-        stone: Stone,
-        pos: Bitboard,
-    ) -> Result<(), OthelloError> {
-        if self.bits_for(stone.flip()) & pos != 0 {
-            return Err(OthelloError::PiecesOverlapping);
-        }
+    pub fn place_stone_unchecked(&mut self, stone: Stone, pos: Bitboard) {
         match stone {
             Stone::Black => self.black_stones |= pos,
             Stone::White => self.white_stones |= pos,
         }
-        Ok(())
     }
 
     /// Removes stones in the specified positions.
+    ///
+    /// Multiple stones may be removed at once.
+    ///
+    /// [`place_stone_unchecked`] may be of use as well.
+    ///
+    /// [`place_stone_unchecked`]: crate::othello::Board::place_stone_unchecked
     ///
     /// # Examples
     /// ```rust
@@ -158,7 +176,7 @@ impl Board {
     /// let white_stones = board.bits_for(Stone::White);
     /// board.remove_stone_unchecked(Stone::Black, black_stones);
     /// board.remove_stone_unchecked(Stone::White, white_stones);
-    /// assert_eq!(Board::empty(), board);
+    /// assert_eq!(board, Board::empty());
     /// ```
     pub fn remove_stone_unchecked(&mut self, stone: Stone, pos: Bitboard) {
         match stone {
@@ -169,8 +187,8 @@ impl Board {
 
     /// Places a stone in the specified position and updates the board accordingly.
     ///
-    /// If the argument `pos` does not have exactly one bit set or the move is
-    /// not legal, an error will be returned, leaving the board untouched.
+    /// It is the responsibility of the caller to ensure that the move is legal.
+    /// Playing an illegal move will result in undefined behavior.
     ///
     /// # Examples
     /// ```rust
@@ -183,17 +201,13 @@ impl Board {
     ///     .hot_bits()
     ///     .next()
     ///     .unwrap();
-    /// assert!(board.place_stone(Stone::Black, pos).is_ok());
+    /// board.play(Stone::Black, pos);
+    /// assert_ne!(board, Board::standard());
     /// ```
-    pub fn place_stone(&mut self, stone: Stone, pos: Position) -> Result<(), OthelloError> {
-        let pos = Bitboard::from(pos);
+    pub fn play(&mut self, stone: Stone, pos: Position) {
+        let pos: Bitboard = pos.into();
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());
-
-        // Pos must be on an empty square to be legal
-        if pos & (current_bits | opponent_bits) != 0 {
-            return Err(OthelloError::IllegalMove);
-        }
 
         let mut mask = 0;
         for (i, shift) in SHIFT_DIRS.iter().enumerate() {
@@ -213,10 +227,6 @@ impl Board {
             }
         }
 
-        if mask == 0 {
-            return Err(OthelloError::IllegalMove);
-        }
-
         match stone {
             Stone::Black => {
                 self.black_stones |= mask | pos;
@@ -227,15 +237,9 @@ impl Board {
                 self.black_stones ^= mask;
             }
         }
-        Ok(())
     }
 
     /// Returns the bitboard representation of the specified player.
-    ///
-    /// The returned bitboard represents the Othello board. For a more detailed
-    /// description, refer to the documentation of the [`Board struct`].
-    ///
-    /// [`Board struct`]: crate::othello::Board
     ///
     /// # Examples
     /// ```rust
@@ -246,6 +250,8 @@ impl Board {
     /// let white = board.bits_for(Stone::White);
     /// // The two bitboards do not intersect
     /// assert_eq!(0, black & white);
+    /// // They do contain the same number of stones
+    /// assert_eq!(black.count_set(), white.count_set());
     /// ```
     #[must_use]
     pub fn bits_for(&self, stone: Stone) -> Bitboard {
@@ -256,9 +262,6 @@ impl Board {
     }
 
     /// Checks whether or not a move is valid for the specified player.
-    ///
-    /// The specified bitboard must have one and only one bit set. If this is
-    /// not true, the function will always return false.
     ///
     /// # Examples
     /// ```rust
@@ -300,11 +303,6 @@ impl Board {
 
     /// Calculates and returns the set of all legal moves for the specified player.
     ///
-    /// The returned bitboard represents the Othello board. For a more detailed
-    /// description, refer to the documentation of the [`Board struct`].
-    ///
-    /// [`Board struct`]: crate::othello::Board
-    ///
     /// # Examples
     /// ```rust
     /// use magpie::othello::{Board, Stone};
@@ -345,11 +343,6 @@ impl Board {
 
     /// Returns the set of all empty squares on the board.
     ///
-    /// The returned bitboard represents the Othello board. For a more detailed
-    /// description, refer to the documentation of the [`Board struct`]
-    ///
-    /// [`Board struct`]: crate::othello::Board
-    ///
     /// # Examples
     /// ```rust
     /// use magpie::othello::Board;
@@ -362,10 +355,7 @@ impl Board {
         !(self.black_stones | self.white_stones)
     }
 
-    /// Queries the board in the specified position after a stone.
-    ///
-    /// If the argument `pos` does not have exactly one bit set, the function
-    /// will evaluate to None.
+    /// Queries the board at the specified position for the presence of a stone.
     ///
     /// # Examples
     /// ```rust
@@ -388,10 +378,7 @@ impl Board {
 
     /// Returns a struct that implements [`Display`] for customizing the display of Othello boards.
     ///
-    /// Formatting options can be found in the docs for [`BoardDisplay`].
-    ///
     /// [`Display`]: std::fmt::Display
-    /// [`BoardDisplay`]: crate::othello::BoardDisplay
     ///
     /// # Examples
     /// ```rust
@@ -423,7 +410,7 @@ impl std::convert::TryFrom<ShadowBoard> for Board {
             // While it would be possible to simply implement fmt::Display on OthelloError,
             // this solution leaves that trait open for future uses.
             // Furthermore, in this case, no other error will be reasonably returned.
-            "Overlapping pieces detected"
+            "Overlapping stones detected"
         })
     }
 }
@@ -508,8 +495,6 @@ impl TryFrom<(Bitboard, Bitboard)> for Board {
 pub enum OthelloError {
     /// Indicates that an illegal move was attempted.
     IllegalMove,
-    /// Indicates that multiple moves were attempted at once.
-    MultipleMovesAttempted,
     /// Indicates that the operation would have resulted in two or more stones overlapping.
     PiecesOverlapping,
 }

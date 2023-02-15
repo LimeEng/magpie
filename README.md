@@ -5,9 +5,11 @@
 
 <img src="https://limeeng.github.io/cdn/repo/magpie/logo.svg" width="200" align="right">
 
-Magpie is a simple Othello library written in Rust. [Othello](https://en.wikipedia.org/wiki/Reversi) is a perfect information, zero-sum game for two players. It is important to note that there is no explicit support for Reversi, a similar game. However, magpie is flexible enough that it is possible to implement Reversi as well, in exchange for some additional bookkeeping.
+Magpie is a simple [Othello](https://en.wikipedia.org/wiki/Reversi) library written in Rust. Othello is a perfect information, zero-sum game for two players.
 
-Magpie is built with bitboards which allows for extremely fast updates and queries. The library is intentionally minimalistic and requires the user to keep track of various aspects of the game, such as the next player to move. Magpie is used for calculating legal moves and applying them while still giving the user enough access to the internals to satisfy a wide array of applications in a safe way.
+Magpie is built with bitboards which allows for extremely fast updates and queries. Two abstraction levels are available, the higher level [`Game`] and lower-level [`Board`]. The [`Game`]-struct guarantees that only legal moves will be made and that the board will be kept consistent. The drawback is that it is not as flexible as the alternative, or as performant. The [`Board`]-struct does not keep track of whose turn it is, whether a player passed their turn, or validates inputs, which makes it better suited for engines.
+
+Magpie is built with bitboards which allows for extremely fast updates and queries. Two abstraction levels are available. The higher abstraction level guarantees that only legal moves will be made and that the board will be kept consistent. The drawback is that it is not as flexible or performant as the alternative. The lower abstraction level does not keep track of whose turn it is, whether a player passed their turn, or validates inputs, which makes it better suited for engines.
 
 ## Table of Contents
 - [Documentation](#documentation)
@@ -32,7 +34,7 @@ Alternatively, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-magpie = "0.10"
+magpie = "0.11"
 ```
 
 ## Crate features
@@ -41,7 +43,7 @@ Serialization with [Serde](https://serde.rs/) is not supported by default. If yo
 
 ```toml
 [dependencies]
-magpie = {version = "0.10", features = ["serde"]}
+magpie = {version = "0.11", features = ["serde"]}
 ```
 
 ## Examples

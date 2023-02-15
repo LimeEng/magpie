@@ -82,9 +82,7 @@ fn main() {
     // This is what the board looks like before any move is made.
     println!("Board before move");
     println!("{}", board.display());
-    // This function will return an error if the move is illegal or if the move
-    // consists of multiple set bits.
-    board.place_stone(stone, any_move).unwrap();
+    board.play(stone, any_move);
     // Let's see how the board looks like after black made their move.
     println!("Board after move");
     println!("{}", board.display());
@@ -92,17 +90,19 @@ fn main() {
     // Sometimes it is necessary to take complete control of the game. The two
     // functions `place_stone_unchecked` and `remove_stone_unchecked` allows
     // you to both place and remove arbitrary stones without having to comply
-    // with Othello's rules. Both functions will always leave the board in a
-    // playable state. Reversi can be implemented using these two functions.
+    // with Othello's rules. Reversi can be implemented using these two
+    // functions.
     let mut board = Board::empty();
     let stone = Stone::Black;
     // In binary this is 32 set bits. It is then padded with 32 zeroes to
     // create an `u64`.
     let pos: Bitboard = (u64::from(u32::MAX)).into();
-    // This function allows us to place as many stones as we please at once, as
-    // long as no stones of opposite colors overlap. Here we fill half the
-    // board with black stones.
-    board.place_stone_unchecked(stone, pos).unwrap();
+    // This function allows us to place as many stones as we please at once.
+    // Here we fill half the board with black stones.
+    // Keep in mind that it is the callers responsibility to prevent multiple
+    // stones to occupy the same square. Failing to do so may cause undefined
+    // behavior.
+    board.place_stone_unchecked(stone, pos);
     println!("After placing stones unchecked");
     println!("{}", board.display());
     // Now we can remove those same stones we placed earlier, leaving a
