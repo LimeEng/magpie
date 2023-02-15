@@ -34,7 +34,7 @@ Alternatively, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-magpie = "0.10"
+magpie = "0.11"
 ```
 
 ## Crate features
@@ -43,7 +43,7 @@ Serialization with [Serde](https://serde.rs/) is not supported by default. If yo
 
 ```toml
 [dependencies]
-magpie = {version = "0.10", features = ["serde"]}
+magpie = {version = "0.11", features = ["serde"]}
 ```
 
 ## Examples

@@ -21,7 +21,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! magpie = {version = "0.10", features = ["serde"]}
+//! magpie = {version = "0.11", features = ["serde"]}
 //! ```
 //!
 //! [`Serde`]: https://serde.rs
