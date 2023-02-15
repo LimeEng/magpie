@@ -1,9 +1,5 @@
 # Benchmarks
 
-This document describes the benchmarks currently implemented.
-
-Performance is important, although is should be noted that it is not the most prioritized feature. These benchmarks are here to guide improvements of the current algorithms as well as the implementation of new features.
-
 Simply run `cargo bench` to run all benchmarks.
 
 - [Clone](#clone)
@@ -35,9 +31,9 @@ Measures the performance when calculating all legal moves for black given the fo
 
 Black has an impressive 34 legal moves to make from this position. The board configuration was discovered by [Dmitry Kamenetsky](https://puzzling.stackexchange.com/a/102017).
 
-## Place stone
+## Play
 
-Measures the performance when making the move E5 as black given the following board:
+Measures the performance when playing the move E5 as black given the following board:
 
 ```
 place stone
@@ -58,7 +54,7 @@ Playing E5 as black will flip 19 white stones.
 
 ## Legal move check
 
-Measures the performance of checking if playing E5 as black is legal given the same board configuration as used in the [place stone benchmark](#place-stone).
+Measures the performance of checking if playing E5 as black is legal given the same board configuration as used in the [play benchmark](#play).
 
 ## Legal moves extraction
 
