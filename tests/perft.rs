@@ -71,7 +71,7 @@ fn perft(board: &Board, stone: Stone, passed: bool, depth: u8) -> u64 {
             .hot_bits()
             .map(|pos| {
                 let mut new_board = board.clone();
-                new_board.place_stone(stone, pos).unwrap();
+                new_board.play(stone, pos).unwrap();
                 perft(&new_board, stone.flip(), false, depth - 1)
             })
             .sum()

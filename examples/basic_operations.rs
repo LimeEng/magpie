@@ -84,7 +84,7 @@ fn main() {
     println!("{}", board.display());
     // This function will return an error if the move is illegal or if the move
     // consists of multiple set bits.
-    board.place_stone(stone, any_move).unwrap();
+    board.play(stone, any_move).unwrap();
     // Let's see how the board looks like after black made their move.
     println!("Board after move");
     println!("{}", board.display());

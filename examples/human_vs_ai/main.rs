@@ -34,7 +34,7 @@ fn play() {
             match action {
                 Action::Move(next_move) => {
                     board
-                        .place_stone(current_stone, next_move)
+                        .play(current_stone, next_move)
                         .unwrap_or_else(|_| {
                             panic!("{:?} tried to make an illegal move", current_stone)
                         });

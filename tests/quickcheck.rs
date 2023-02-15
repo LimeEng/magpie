@@ -15,7 +15,7 @@ fn legal_moves_should_place(board: ShadowBoard) {
     let result = board
         .moves_for(stone)
         .hot_bits()
-        .map(|pos| board.clone().place_stone(stone, pos))
+        .map(|pos| board.clone().play(stone, pos))
         .all(|result| result.is_ok());
     assert!(result);
 }
@@ -33,7 +33,7 @@ fn illegal_moves_should_not_place(board: ShadowBoard) {
         .bits()
         .filter(|pos| *pos & legal_positions == 0)
         .filter_map(|pos| Position::try_from(pos).ok())
-        .map(|pos| board.clone().place_stone(stone, pos))
+        .map(|pos| board.clone().play(stone, pos))
         .any(|result| result.is_ok());
 
     assert!(!failed);

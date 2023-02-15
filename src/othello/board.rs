@@ -113,6 +113,30 @@ impl Board {
         }
     }
 
+    /// Evaluates if the board is in a consistent state
+    ///
+    /// Consistency is defined as whether or not multiple stones occupy
+    /// the same square.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::{Board, Stone};
+    ///
+    /// let mut board = Board::empty();
+    /// // The board should be valid
+    /// assert!(board.is_valid());
+    ///
+    /// // Here multiple stones are placed on the same
+    /// // squares, which is not valid
+    /// board.place_stone_unchecked(Stone::Black, u64::MAX.into());
+    /// board.place_stone_unchecked(Stone::White, u64::MAX.into());
+    /// assert!(!board.is_valid());
+    /// ```
+    #[must_use]
+    pub fn is_valid(&self) -> bool {
+        self.black_stones & self.white_stones == 0
+    }
+
     /// Places stones in the specified positions.
     ///
     /// Unlike the similar [`place_stone`] function, this function places no
@@ -185,7 +209,7 @@ impl Board {
     ///     .unwrap();
     /// assert!(board.place_stone(Stone::Black, pos).is_ok());
     /// ```
-    pub fn place_stone(&mut self, stone: Stone, pos: Position) -> Result<(), OthelloError> {
+    pub fn play(&mut self, stone: Stone, pos: Position) -> Result<(), OthelloError> {
         let pos = Bitboard::from(pos);
         let current_bits = self.bits_for(stone);
         let opponent_bits = self.bits_for(stone.flip());

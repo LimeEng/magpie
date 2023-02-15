@@ -22,7 +22,7 @@ fn bench_place_stone(c: &mut Criterion) {
         b.iter(|| {
             board
                 .clone()
-                .place_stone(black_box(Stone::Black), black_box(pos))
+                .play(black_box(Stone::Black), black_box(pos))
                 .unwrap();
         });
     });
