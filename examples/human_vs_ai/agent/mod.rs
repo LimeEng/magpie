@@ -16,5 +16,5 @@ pub enum Action {
 /// stone, which represents the color of the agent, it needs to provide an
 /// action.
 pub trait Agent {
-    fn play(&mut self, stone: Stone, board: &Board) -> Action;
+    fn play(&mut self, stone: Stone, board: Board) -> Action;
 }

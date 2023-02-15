@@ -8,7 +8,7 @@ use std::io::Write;
 pub struct HumanAgent;
 
 impl Agent for HumanAgent {
-    fn play(&mut self, stone: Stone, board: &Board) -> Action {
+    fn play(&mut self, stone: Stone, board: Board) -> Action {
         print_prompt();
         loop {
             let mut input = String::new();

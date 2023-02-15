@@ -7,7 +7,7 @@ use rand::seq::IteratorRandom;
 pub struct RandomAgent;
 
 impl Agent for RandomAgent {
-    fn play(&mut self, stone: Stone, board: &Board) -> Action {
+    fn play(&mut self, stone: Stone, board: Board) -> Action {
         board
             .moves_for(stone)
             .hot_bits()
