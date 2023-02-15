@@ -19,7 +19,7 @@ pub struct Game {
 
 /// This enum represents all states the game can be in.
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub enum GameStatus {
+pub enum Status {
     /// Indicates that the game has concluded with the specified winner.
     Win(Stone),
     /// Indicates that the game has concluded in a draw.
@@ -127,25 +127,25 @@ impl Game {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Game, GameStatus, Stone};
+    /// use magpie::othello::{Game, Status, Stone};
     ///
     /// let mut game = Game::new();
-    /// assert!(game.status() == GameStatus::Progressing);
+    /// assert!(game.status() == Status::Progressing);
     /// ```
     #[must_use]
-    pub fn status(&self) -> GameStatus {
+    pub fn status(&self) -> Status {
         let finished = self.passed_last_turn && self.board.moves_for(self.next_player).is_empty();
         if finished {
             let black_stones = self.board.bits_for(Stone::Black).count_set();
             let white_stones = self.board.bits_for(Stone::White).count_set();
 
             match black_stones.cmp(&white_stones) {
-                Ordering::Greater => GameStatus::Win(Stone::Black),
-                Ordering::Less => GameStatus::Win(Stone::White),
-                Ordering::Equal => GameStatus::Draw,
+                Ordering::Greater => Status::Win(Stone::Black),
+                Ordering::Less => Status::Win(Stone::White),
+                Ordering::Equal => Status::Draw,
             }
         } else {
-            GameStatus::Progressing
+            Status::Progressing
         }
     }
 

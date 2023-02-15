@@ -17,11 +17,11 @@ fn main() -> Result<()> {
 
     // Serialize to JSON
     let json = serde_json::to_string_pretty(&game)?;
-    println!("{}", json);
+    println!("{json}");
 
     // Deserialize from JSON
     let game: Game = serde_json::from_str(&json)?;
-    println!("{:?}", game);
+    println!("{game:?}");
 
     Ok(())
 }

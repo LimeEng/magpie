@@ -52,7 +52,7 @@ pub fn generate() -> String {
 
     let comment = comment_lines
         .iter()
-        .map(|line| format!("// {}", line))
+        .map(|line| format!("// {line}"))
         .collect::<Vec<String>>()
         .join("\n");
 
@@ -64,7 +64,7 @@ pub fn generate() -> String {
 }
 
 fn to_hex(num: u64) -> String {
-    let mut hex = format!("{:#018x}", num);
+    let mut hex = format!("{num:#018x}");
     for i in (4..23).step_by(3) {
         hex.insert(i, '_');
     }

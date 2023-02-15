@@ -1,5 +1,5 @@
 use crate::agent::{Action, Agent, HumanAgent, RandomAgent};
-use magpie::othello::{Game, GameStatus, Stone};
+use magpie::othello::{Game, Status, Stone};
 
 pub mod agent;
 
@@ -13,7 +13,7 @@ fn play() {
 
     let mut game = Game::new();
 
-    while let GameStatus::Progressing = game.status() {
+    while let Status::Progressing = game.status() {
         let current_turn = game.current_turn();
         println!("{}", game.display().with_stone(current_turn));
         let action = match current_turn {
