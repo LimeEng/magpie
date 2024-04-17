@@ -1,15 +1,13 @@
-![CI status](https://github.com/LimeEng/magpie/workflows/CI/badge.svg)
+[![CI status](https://github.com/LimeEng/magpie/actions/workflows/ci.yml/badge.svg)](https://github.com/LimeEng/magpie/actions/workflows/ci.yml)
 [![Latest version](https://img.shields.io/crates/v/magpie.svg)](https://crates.io/crates/magpie)
 
 # Magpie
 
-<img src="https://limeeng.github.io/cdn/repo/magpie/logo.svg" width="200" align="right">
+<img src="https://cdn.github.emileng.se/repo/magpie/logo.svg" width="200" align="right">
 
-Magpie is a simple [Othello](https://en.wikipedia.org/wiki/Reversi) library written in Rust. Othello is a perfect information, zero-sum game for two players.
+Magpie is a simple [Othello](https://en.wikipedia.org/wiki/Reversi) library. Othello is a perfect information, zero-sum game for two players.
 
 Magpie is built with bitboards which allows for extremely fast updates and queries. Two abstraction levels are available, the higher level [`Game`] and lower-level [`Board`]. The [`Game`]-struct guarantees that only legal moves will be made and that the board will be kept consistent. The drawback is that it is not as flexible as the alternative, or as performant. The [`Board`]-struct does not keep track of whose turn it is, whether a player passed their turn, or validates inputs, which makes it better suited for engines.
-
-Magpie is built with bitboards which allows for extremely fast updates and queries. Two abstraction levels are available. The higher abstraction level guarantees that only legal moves will be made and that the board will be kept consistent. The drawback is that it is not as flexible or performant as the alternative. The lower abstraction level does not keep track of whose turn it is, whether a player passed their turn, or validates inputs, which makes it better suited for engines.
 
 ## Table of Contents
 - [Documentation](#documentation)
@@ -27,7 +25,7 @@ Documentation is hosted on [docs.rs](https://docs.rs/magpie/)
 Simply run:
 
 ```
-cargo add magpie
+$ cargo add magpie
 ```
 
 Alternatively, add this to your `Cargo.toml`:
@@ -53,7 +51,7 @@ Examples are [found here](/examples).
 Included as an example is a functional game which allows you to play Othello against a random AI. To start the game, run the following command:
 
 ```
-cargo run --example human_vs_ai
+$ cargo run --example human_vs_ai
 ```
 
 ## Benchmarks
