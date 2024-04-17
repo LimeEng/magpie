@@ -1,4 +1,4 @@
-#![doc(html_logo_url = "https://limeeng.github.io/cdn/repo/magpie/logo.svg")]
+#![doc(html_logo_url = "https://cdn.github.emileng.se/repo/magpie/logo.svg")]
 
 //! Magpie is a reasonably efficient Othello library.
 //!
