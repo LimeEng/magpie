@@ -1,6 +1,4 @@
-use std::convert::TryInto;
-
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use magpie::othello::{Bitboard, Board, Position, Stone};
 
 fn bench_clone(c: &mut Criterion) {

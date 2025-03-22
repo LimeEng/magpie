@@ -1,6 +1,5 @@
 use magpie::othello::{Bitboard, Position};
 use quickcheck_macros::quickcheck;
-use std::convert::TryFrom;
 
 mod common;
 

@@ -1,6 +1,5 @@
 use magpie::othello::{Bitboard, Board, Position, Stone};
 use quickcheck_macros::quickcheck;
-use std::convert::TryInto;
 
 mod common;
 

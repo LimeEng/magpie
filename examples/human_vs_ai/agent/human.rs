@@ -1,7 +1,6 @@
 use crate::agent::{Action, Agent};
 use magpie::othello::{Board, Position, Stone};
-use std::io;
-use std::io::Write;
+use std::io::{self, Write};
 
 /// Queries the user to provide a valid move to play. The user can also pass
 /// their turn.

@@ -36,7 +36,6 @@ Black has an impressive 34 legal moves to make from this position. The board con
 Measures the performance when playing the move E5 as black given the following board:
 
 ```
-place stone
    ABCDEFGH
   +--------+
 1 |B...B...|

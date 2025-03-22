@@ -1,8 +1,6 @@
-use std::convert::TryFrom;
-
 use crate::othello::{
-    constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
     Bitboard,
+    constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
 };
 
 #[cfg(feature = "serde")]
@@ -257,7 +255,10 @@ impl TryFrom<u64> for Position {
     /// assert_eq!(p.raw(), num);
     /// ```
     fn try_from(bitboard: u64) -> Result<Self, Self::Error> {
-        if bitboard.count_ones() == 1 {
+        // Equivalent to bitboard.count_ones() == 1
+        // Suggested improvement from Clippy that might
+        // lead to negligible performance gains ¯\_(ツ)_/¯
+        if bitboard.is_power_of_two() {
             Ok(Position::new_unchecked(bitboard))
         } else {
             Err(PositionError::NotOneHotBitboard)

@@ -1,6 +1,6 @@
 use crate::othello::{
-    constants::{FILES, RANKS},
     Board, Position, Stone,
+    constants::{FILES, RANKS},
 };
 
 /// Helper struct to customize the printing of Othello boards.

@@ -1,12 +1,10 @@
-use std::convert::TryFrom;
-
 use crate::othello::{
+    Bitboard, Position, Stone,
     constants::{
         BLACK_START_POS, FILE_A, FILE_H, RANK_1, RANK_8, SHIFT_DIRS, SHIFT_MASKS, SHIFT_RAYS,
         WHITE_START_POS,
     },
     display::BoardDisplay,
-    Bitboard, Position, Stone,
 };
 
 #[cfg(feature = "serde")]
@@ -501,9 +499,5 @@ pub enum OthelloError {
 
 // https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift
 fn dir_shift(x: Bitboard, shift: i8) -> Bitboard {
-    if shift > 0 {
-        x >> shift
-    } else {
-        x << -shift
-    }
+    if shift > 0 { x >> shift } else { x << -shift }
 }
