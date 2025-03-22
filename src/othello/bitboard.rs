@@ -1,4 +1,4 @@
-use crate::othello::{constants::POSITIONS, Position};
+use crate::othello::{Position, constants::POSITIONS};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

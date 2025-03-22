@@ -72,11 +72,7 @@ fn to_hex(num: u64) -> String {
 }
 
 fn dir_shift(x: u64, shift: i8) -> u64 {
-    if shift > 0 {
-        x >> shift
-    } else {
-        x << -shift
-    }
+    if shift > 0 { x >> shift } else { x << -shift }
 }
 
 pub trait HotBits: Sized {

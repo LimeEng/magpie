@@ -1,8 +1,8 @@
 use std::convert::TryFrom;
 
 use crate::othello::{
-    constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
     Bitboard,
+    constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
 };
 
 #[cfg(feature = "serde")]

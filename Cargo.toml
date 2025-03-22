@@ -2,7 +2,7 @@
 name = "magpie"
 version = "0.11.1"
 authors = ["Emil Englesson <englesson.emil@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "Reasonably efficient Othello library built with bitboards"
 repository = "https://github.com/LimeEng/magpie/"
 license = "MIT"
