@@ -2,33 +2,26 @@
 #![allow(clippy::missing_errors_doc)]
 #![doc(html_logo_url = "https://cdn.github.emileng.se/repo/magpie/logo.svg")]
 
-//! Magpie is a reasonably efficient Othello library.
+//! Magpie is a high-performance library for the classic board game [Othello](https://en.wikipedia.org/wiki/Reversi).
 //!
-//! Magpie is built with bitboards which allows for extremely fast updates and
-//! queries. Two abstraction levels are available, the higher level [`Game`]
-//! and lower-level [`Board`]. The [`Game`]-struct guarantees that only legal
-//! moves will be made and that the board will be kept consistent. The drawback
-//! is that it is not as flexible or performant as the alternative. The
-//! [`Board`]-struct does not keep track of whose turn it is, whether a player
-//! passed their turn, or validates inputs, which makes it better suited for
-//! engines.
+//! ## Key Features
 //!
-//! There is no explicit support for Reversi, a similar game. However, magpie
-//! is flexible enough that it is possible to implement Reversi as well, in
-//! exchange for some additional bookkeeping.
+//! - **Built with bitboards**: Uses bitboards for extremely fast board operations
+//! - **Zero dependencies**: Core functionality has no external dependencies
+//! - **Optional Serde support**: Serialization available through an optional feature flag
 //!
-//! Serialization with [Serde](https://serde.rs/) is not supported by default.
-//! If you want to opt into using magpie with Serde you can enable a feature
-//! flag. Simply change your magpie dependency to the following:
+//! Furthermore, the library offers two abstraction levels:
 //!
-//! ```toml
-//! [dependencies]
-//! magpie = {version = "0.11", features = ["serde"]}
-//! ```
+//! - **[`Game`] API**: Ensures rule compliance, tracks turns, and maintains board consistency
+//! - **[`Board`] API**: Provides raw board operations without validation, when performance is critical.
 //!
-//! [`Serde`]: https://serde.rs
+//! ## Module Overview
+//!
+//! The [`othello`] module contains core structures and functions for playing Othello.
+//!
 //! [`Board`]: crate::othello::Board
 //! [`Game`]: crate::othello::Game
+//! [`othello`]: crate::othello
 
-/// Contains structs and functions that are useful when playing Othello.
+/// Contains core structures and functions for playing Othello
 pub mod othello;
