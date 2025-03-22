@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use crate::othello::{
     Bitboard, Position, Stone,
     constants::{

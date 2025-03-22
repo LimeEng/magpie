@@ -52,8 +52,9 @@ impl Bitboard {
     /// assert_eq!(b.count_set(), 64);
     /// ```
     #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub fn count_set(self) -> u8 {
-        self.0.count_ones().try_into().unwrap()
+        self.0.count_ones() as u8
     }
 
     /// Counts the number of bits that are set to zero.

@@ -1,6 +1,5 @@
-use std::cmp::Ordering;
-
 use crate::othello::{Bitboard, Board, BoardDisplay, OthelloError, Position, Stone};
+use std::cmp::Ordering;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

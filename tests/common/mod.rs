@@ -1,6 +1,5 @@
 use magpie::othello::{Bitboard, Board, Game, OthelloError, Position, PositionError, Stone};
 use quickcheck::{Arbitrary, Gen};
-use std::convert::TryFrom;
 
 #[derive(Debug, Clone)]
 pub struct ShadowBitboard(u64);

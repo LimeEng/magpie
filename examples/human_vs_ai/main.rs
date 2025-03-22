@@ -25,7 +25,7 @@ fn play() {
             Action::Move(next_move) => {
                 game.play(next_move)
                     .unwrap_or_else(|_| panic!("{current_turn:?} tried to make an illegal move"));
-                println!("{:?} played {}", current_turn, next_move.to_notation());
+                println!("{current_turn:?} played {}", next_move.to_notation());
             }
             Action::Pass => {
                 println!("{current_turn:?} passed their turn");

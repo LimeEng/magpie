@@ -1,6 +1,5 @@
 use magpie::othello::{Bitboard, Game, Position};
 use quickcheck_macros::quickcheck;
-use std::convert::TryFrom;
 
 mod common;
 
@@ -42,11 +41,7 @@ fn legal_moves_should_be_legal(game: ShadowGame) {
     // Check so that all legal moves returned can be individually verified as legal
     let game = Game::try_from(game).unwrap();
 
-    let result = game
-        .moves()
-        .hot_bits()
-        .map(|pos| game.is_legal_move(pos))
-        .all(|result| result);
+    let result = game.moves().hot_bits().all(|pos| game.is_legal_move(pos));
     assert!(result);
 }
 
@@ -62,8 +57,7 @@ fn illegal_moves_should_be_illegal(game: ShadowGame) {
         .bits()
         .filter(|pos| *pos & legal_positions == 0)
         .filter_map(|pos| Position::try_from(pos).ok())
-        .map(|pos| game.is_legal_move(pos))
-        .any(|result| result);
+        .any(|pos| game.is_legal_move(pos));
 
     assert!(!failed);
 }

@@ -11,7 +11,7 @@ impl Agent for RandomAgent {
         board
             .moves_for(stone)
             .hot_bits()
-            .choose(&mut rand::thread_rng())
+            .choose(&mut rand::rng())
             .map(Action::Move)
             .unwrap_or(Action::Pass)
     }

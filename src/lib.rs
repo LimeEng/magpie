@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc)]
+#![allow(clippy::missing_errors_doc)]
 #![doc(html_logo_url = "https://cdn.github.emileng.se/repo/magpie/logo.svg")]
 
 //! Magpie is a reasonably efficient Othello library.

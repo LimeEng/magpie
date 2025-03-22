@@ -1,5 +1,3 @@
-use std::convert::TryInto;
-
 use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use magpie::othello::{Bitboard, Board, Position, Stone};
 

@@ -33,6 +33,7 @@ fn test_perft(depth: u8) {
 
 // https://web.archive.org/web/20120129063410/http://othello.dk/book/index.php/Aart_Bik
 fn perft_key(depth: u8) -> u64 {
+    #[allow(clippy::unreadable_literal)]
     match depth {
         1 => 4,
         2 => 12,
