@@ -1,0 +1,16 @@
+on: [push, pull_request]
+
+name: Kani
+
+jobs:
+  kani:
+    name: kani
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Kani
+        uses: model-checking/kani-github-action@v1
+        with:
+          command: cargo kani --tests -Fserde -Zconcrete-playback --output-format=terse
