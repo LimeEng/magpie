@@ -10,18 +10,39 @@ use serde::{Deserialize, Serialize};
 ///
 /// [`Position`]: crate::othello::Position
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Bitboard(pub(crate) u64);
 
 impl Bitboard {
+    /// A bitboard with all 64 bits set to 1.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// assert_eq!(Bitboard::FILLED.count_set(), 64);
+    /// assert_eq!(Bitboard::FILLED.raw(), u64::MAX);
+    /// ```
+    pub const FILLED: Self = Bitboard(u64::MAX);
+
+    /// A bitboard with all 64 bits set to 0.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::Bitboard;
+    ///
+    /// assert_eq!(Bitboard::EMPTY.count_set(), 0);
+    /// assert!(Bitboard::EMPTY.is_empty());
+    /// ```
+    pub const EMPTY: Self = Bitboard(0);
+
     /// Retrieves the underlying u64.
     ///
     /// # Examples
     /// ```rust
     /// use magpie::othello::Bitboard;
     ///
-    /// let b: Bitboard = 0.into();
-    /// assert_eq!(b.raw(), 0);
+    /// assert_eq!(Bitboard::EMPTY.raw(), 0);
     /// ```
     #[must_use]
     pub fn raw(self) -> u64 {
@@ -34,8 +55,7 @@ impl Bitboard {
     /// ```rust
     /// use magpie::othello::Bitboard;
     ///
-    /// let b: Bitboard = 0.into();
-    /// assert!(b.is_empty());
+    /// assert!(Bitboard::EMPTY.is_empty());
     /// ```
     #[must_use]
     pub fn is_empty(self) -> bool {
@@ -48,8 +68,7 @@ impl Bitboard {
     /// ```rust
     /// use magpie::othello::Bitboard;
     ///
-    /// let b: Bitboard = u64::MAX.into();
-    /// assert_eq!(b.count_set(), 64);
+    /// assert_eq!(Bitboard::FILLED.count_set(), 64);
     /// ```
     #[must_use]
     #[allow(clippy::cast_possible_truncation)]
@@ -63,8 +82,7 @@ impl Bitboard {
     /// ```rust
     /// use magpie::othello::Bitboard;
     ///
-    /// let b: Bitboard = u64::MAX.into();
-    /// assert_eq!(b.count_empty(), 0);
+    /// assert_eq!(Bitboard::FILLED.count_empty(), 0);
     /// ```
     #[must_use]
     pub fn count_empty(self) -> u8 {
@@ -93,8 +111,7 @@ impl Bitboard {
     /// ```rust
     /// use magpie::othello::Bitboard;
     ///
-    /// let b: Bitboard = 0.into();
-    /// assert_eq!(b.bits().len(), 64);
+    /// assert_eq!(Bitboard::FILLED.bits().len(), 64);
     ///  ```
     #[must_use]
     pub fn bits(self) -> impl ExactSizeIterator<Item = Bitboard> {

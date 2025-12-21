@@ -67,8 +67,8 @@ impl Board {
     #[must_use]
     pub fn empty() -> Self {
         Self {
-            black_stones: 0.into(),
-            white_stones: 0.into(),
+            black_stones: Bitboard::EMPTY,
+            white_stones: Bitboard::EMPTY,
         }
     }
 
@@ -111,7 +111,7 @@ impl Board {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Board, Stone};
+    /// use magpie::othello::{Bitboard, Board, Stone};
     ///
     /// let mut board = Board::empty();
     /// // The board should be valid
@@ -119,8 +119,8 @@ impl Board {
     ///
     /// // Here multiple stones are placed on the same
     /// // squares, which is not valid
-    /// board.place_stone_unchecked(Stone::Black, u64::MAX.into());
-    /// board.place_stone_unchecked(Stone::White, u64::MAX.into());
+    /// board.place_stone_unchecked(Stone::Black, Bitboard::FILLED);
+    /// board.place_stone_unchecked(Stone::White, Bitboard::FILLED);
     /// assert!(!board.is_valid());
     /// ```
     #[must_use]

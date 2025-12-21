@@ -37,22 +37,53 @@ use serde::{Deserialize, Serialize};
 ///   +----+----+----+----+----+----+----+----+
 /// ```
 ///
+/// # Invariant Safety
+///
+/// Position maintains the invariant that exactly one bit is always set.
+/// Operations that could violate this return [`Bitboard`] instead:
+///
+/// - `Position & Position => Bitboard` (may produce 0 or multiple bits)
+/// - `Position << T => Bitboard` (may shift bit out of range)
+/// - `Position >> T => Bitboard` (may shift bit out of range)
+///
+/// The following operations are intentionally NOT implemented:
+///
+/// ```compile_fail
+/// use magpie::othello::Position;
+///
+/// let mut pos = Position::try_from(1 << 63).unwrap();
+/// pos <<= 1u8; // Does not compile - would shift bit out of range (0 bits)
+/// ```
+///
+/// ```compile_fail
+/// use magpie::othello::Position;
+///
+/// let mut pos = Position::try_from(1).unwrap();
+/// pos >>= 1u8; // Does not compile - would shift bit out of range (0 bits)
+/// ```
+///
+/// ```compile_fail
+/// use magpie::othello::{Position, Bitboard};
+///
+/// let mut pos = Position::try_from(1).unwrap();
+/// pos &= Bitboard::from(0); // Does not compile - would violate invariant
+/// ```
+///
+/// ```compile_fail
+/// use magpie::othello::Position;
+///
+/// let pos = Position::try_from(1).unwrap();
+/// let pos = !pos; // Does not compile - would violate invariant
+/// ```
+///
 /// [`Bitboard`]: crate::othello::Bitboard
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Position(pub(crate) u64);
 
 impl Position {
     /// Constructs a new Position from a bitboard but does not check if
     /// a single bit is set.
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::Position;
-    ///
-    /// let b: Position = (1 << 32).try_into().unwrap();
-    /// assert_eq!(b.raw(), (1 << 32));
-    /// ```
     pub(crate) fn new_unchecked(bitboard: u64) -> Self {
         Self(bitboard)
     }

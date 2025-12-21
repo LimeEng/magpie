@@ -1,9 +1,8 @@
-use magpie::othello::{Bitboard, Game, Position};
-use quickcheck_macros::quickcheck;
-
 mod common;
 
 use common::ShadowGame;
+use magpie::othello::{Bitboard, Game, Position};
+use quickcheck_macros::quickcheck;
 
 #[quickcheck]
 fn legal_moves_should_place(game: ShadowGame) {
@@ -26,7 +25,7 @@ fn illegal_moves_should_not_place(game: ShadowGame) {
 
     let legal_positions = game.moves();
 
-    let failed = Bitboard::from(u64::MAX)
+    let failed = Bitboard::FILLED
         .bits()
         .filter(|pos| *pos & legal_positions == 0)
         .filter_map(|pos| Position::try_from(pos).ok())
@@ -53,7 +52,7 @@ fn illegal_moves_should_be_illegal(game: ShadowGame) {
 
     let legal_positions = game.moves();
 
-    let failed = Bitboard::from(u64::MAX)
+    let failed = Bitboard::FILLED
         .bits()
         .filter(|pos| *pos & legal_positions == 0)
         .filter_map(|pos| Position::try_from(pos).ok())

@@ -1,5 +1,5 @@
 use crate::othello::{
-    Board, Position, Stone,
+    Bitboard, Board, Position, Stone,
     constants::{FILES, RANKS},
 };
 
@@ -100,7 +100,7 @@ fn display(
     stone: Option<Stone>,
     display: Format,
 ) -> std::fmt::Result {
-    let legal_moves = stone.map_or(0.into(), |stone| board.moves_for(stone));
+    let legal_moves = stone.map_or(Bitboard::EMPTY, |stone| board.moves_for(stone));
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];
         let pos = Position::new_unchecked(pos);
