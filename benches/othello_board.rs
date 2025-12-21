@@ -1,4 +1,4 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use magpie::othello::{Bitboard, Board, Position, Stone};
 
 fn bench_clone(c: &mut Criterion) {
@@ -47,6 +47,18 @@ fn bench_hot_bits_extraction(c: &mut Criterion) {
     });
 }
 
+fn bench_perft(c: &mut Criterion) {
+    let mut group = c.benchmark_group("perft");
+
+    for depth in 1..=9 {
+        group.bench_with_input(BenchmarkId::from_parameter(depth), &depth, |b, &depth| {
+            b.iter(|| test_perft(black_box(depth)));
+        });
+    }
+
+    group.finish();
+}
+
 criterion_group!(
     benches,
     bench_clone,
@@ -55,6 +67,7 @@ criterion_group!(
     bench_legal_move_check,
     bench_bits_extraction,
     bench_hot_bits_extraction,
+    bench_perft
 );
 criterion_main!(benches);
 
@@ -70,4 +83,63 @@ fn board_for_legal_moves() -> Board {
     let white_pos = 0x00_66_00_52_40_52_56_00;
 
     Board::try_from((black_pos, white_pos)).unwrap()
+}
+
+fn test_perft(depth: u8) {
+    let target = perft_key(depth);
+    let actual = perft(
+        black_box(&Board::standard()),
+        black_box(Stone::Black),
+        black_box(false),
+        black_box(depth),
+    );
+    assert_eq!(target, actual);
+}
+
+// https://web.archive.org/web/20120129063410/http://othello.dk/book/index.php/Aart_Bik
+fn perft_key(depth: u8) -> u64 {
+    #[allow(clippy::unreadable_literal)]
+    match depth {
+        1 => 4,
+        2 => 12,
+        3 => 56,
+        4 => 244,
+        5 => 1396,
+        6 => 8200,
+        7 => 55092,
+        8 => 390216,
+        9 => 3005288,
+        10 => 24571284,
+        11 => 212258800,
+        12 => 1939886636,
+        13 => 18429641748,
+        14 => 184042084512,
+        _ => panic!("Unsupported perft depth"),
+    }
+}
+
+fn perft(board: &Board, stone: Stone, passed: bool, depth: u8) -> u64 {
+    if depth == 0 {
+        return 1;
+    }
+
+    let moves = board.moves_for(stone);
+    if moves == 0 {
+        if passed {
+            1
+        } else {
+            perft(board, stone.flip(), true, depth - 1)
+        }
+    } else if depth == 1 {
+        moves.count_set().into()
+    } else {
+        moves
+            .hot_bits()
+            .map(|pos| {
+                let mut new_board = board.clone();
+                new_board.play(stone, pos);
+                perft(&new_board, stone.flip(), false, depth - 1)
+            })
+            .sum()
+    }
 }
