@@ -1,9 +1,8 @@
-use magpie::othello::{Bitboard, Board, Position, Stone};
-use quickcheck_macros::quickcheck;
-
 mod common;
 
 use common::ShadowBoard;
+use magpie::othello::{Bitboard, Board, Position, Stone};
+use quickcheck_macros::quickcheck;
 
 #[test]
 fn legal_move_check_one_valid() {
@@ -60,17 +59,16 @@ fn stone_at_consistency(board: ShadowBoard) {
     let white = board.bits_for(Stone::White);
     let empty = board.empty_squares();
 
-    let success = Bitboard::from(u64::MAX)
+    let success = Bitboard::FILLED
         .bits()
         .filter_map(|pos| Position::try_from(pos).ok())
         .all(|pos| {
             board
                 .stone_at(pos)
-                .map(|stone| match stone {
+                .map_or(pos & empty != 0, |stone| match stone {
                     Stone::Black => pos & black != 0,
                     Stone::White => pos & white != 0,
                 })
-                .unwrap_or_else(|| pos & empty != 0)
         });
 
     assert!(success);

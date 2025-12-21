@@ -1,7 +1,5 @@
 /// Represents a 8x8 board.
 mod bitboard;
-/// Implements various useful traits for Bitboards and Positions
-mod bitboard_position_impl;
 /// Represents an Othello board and provides convenient functions to manipulate it.
 mod board;
 /// Collection of constants useful for various calculations.
@@ -10,6 +8,8 @@ mod constants;
 mod display;
 /// Represents an Othello game.
 mod game;
+/// Implements various useful traits for Bitboards and Positions
+mod ops;
 /// Represents a single position on a 8x8 board.
 mod position;
 /// An enum that represents the two stone colors players can play with.
