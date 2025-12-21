@@ -1,14 +1,14 @@
 use magpie::othello::{Board, Stone};
 
 macro_rules! perft_test {
-    ($($depth:literal)*) => {
+    (run => $($depth:literal)*) => {
         $(
             perft_test!(#[test] $depth);
         )*
     };
-    (ignore $($depth:literal)*) => {
+    (ignore $reason:literal => $($depth:literal)*) => {
         $(
-            perft_test!(#[ignore] #[test] $depth);
+            perft_test!(#[ignore = $reason] #[test] $depth);
         )*
     };
     ($(#[$m:meta])* $depth:literal) => {
@@ -21,9 +21,9 @@ macro_rules! perft_test {
     };
 }
 
-perft_test!(1 2 3 4 5 6 7 8 9);
+perft_test!(run => 1 2 3 4 5 6 7 8 9);
 // Too expensive to run regularly.
-perft_test!(ignore 10 11 12 13 14);
+perft_test!(ignore "very slow" => 10 11 12 13 14);
 
 fn test_perft(depth: u8) {
     let target = perft_key(depth);

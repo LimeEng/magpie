@@ -297,7 +297,7 @@ impl Game {
     /// println!("{}", game.display());
     ///  ```
     #[must_use]
-    pub fn display(&self) -> BoardDisplay {
+    pub fn display(&'_ self) -> BoardDisplay<'_> {
         self.board.display()
     }
 }

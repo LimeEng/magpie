@@ -386,7 +386,7 @@ impl Board {
     /// println!("{}", board.display());
     ///  ```
     #[must_use]
-    pub fn display(&self) -> BoardDisplay {
+    pub fn display(&'_ self) -> BoardDisplay<'_> {
         BoardDisplay::new(self)
     }
 }
