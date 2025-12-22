@@ -2,6 +2,21 @@ use magpie::othello::{Bitboard, Board, Game, OthelloError, Position, PositionErr
 use quickcheck::{Arbitrary, Gen};
 
 #[derive(Debug, Clone)]
+pub struct ShadowStone(bool);
+
+impl Arbitrary for ShadowStone {
+    fn arbitrary(g: &mut Gen) -> Self {
+        ShadowStone(bool::arbitrary(g))
+    }
+}
+
+impl From<ShadowStone> for Stone {
+    fn from(stone: ShadowStone) -> Self {
+        if stone.0 { Stone::Black } else { Stone::White }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct ShadowBitboard(u64);
 
 impl Arbitrary for ShadowBitboard {
@@ -21,7 +36,7 @@ pub struct ShadowPosition(u64);
 
 impl Arbitrary for ShadowPosition {
     fn arbitrary(g: &mut Gen) -> Self {
-        let bit = (u8::arbitrary(g) % 63) + 1;
+        let bit = u8::arbitrary(g) % 64;
         ShadowPosition(1 << bit)
     }
 }

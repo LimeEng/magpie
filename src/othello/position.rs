@@ -52,33 +52,43 @@ use serde::{Deserialize, Serialize};
 /// use magpie::othello::Position;
 ///
 /// let mut pos = Position::try_from(1 << 63).unwrap();
-/// pos <<= 1u8; // Does not compile - would shift bit out of range (0 bits)
+/// // Does not compile - would shift bit out of range (0 bits)
+/// pos <<= 1u8;
 /// ```
 ///
 /// ```compile_fail
 /// use magpie::othello::Position;
 ///
 /// let mut pos = Position::try_from(1).unwrap();
-/// pos >>= 1u8; // Does not compile - would shift bit out of range (0 bits)
+/// // Does not compile - would shift bit out of range (0 bits)
+/// pos >>= 1u8;
 /// ```
 ///
 /// ```compile_fail
 /// use magpie::othello::{Position, Bitboard};
 ///
 /// let mut pos = Position::try_from(1).unwrap();
-/// pos &= Bitboard::from(0); // Does not compile - would violate invariant
+/// // Does not compile - would violate invariant
+/// pos &= Bitboard::from(0);
 /// ```
 ///
 /// ```compile_fail
 /// use magpie::othello::Position;
 ///
 /// let pos = Position::try_from(1).unwrap();
-/// let pos = !pos; // Does not compile - would violate invariant
+/// // Does not compile - would violate invariant
+/// let pos = !pos;
+/// ```
+///
+/// ```compile_fail
+/// use magpie::othello::Position;
+/// // Does not compile - derived default would be 0 bits
+/// let pos = Position::default();
 /// ```
 ///
 /// [`Bitboard`]: crate::othello::Bitboard
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Position(pub(crate) u64);
 
 impl Position {
@@ -326,4 +336,16 @@ pub enum PositionError {
     NotOneHotBitboard,
     /// Indicates that the position could not be parsed.
     InvalidPosition,
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for Position {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = u64::deserialize(deserializer)?;
+        Position::try_from(value)
+            .map_err(|_| serde::de::Error::custom("Position must have exactly one bit set"))
+    }
 }
