@@ -5,24 +5,37 @@
 
 <img src="https://cdn.github.emileng.se/repo/magpie/logo.svg" width="200" alt="Magpie logo" align="right">
 
-Magpie is a high-performance library for the classic board game [Othello](https://en.wikipedia.org/wiki/Reversi). It provides both a user-friendly API and a low-level interface suitable for AI engines.
+Magpie is a high-performance [Othello](https://en.wikipedia.org/wiki/Reversi) library built with bitboards and zero dependencies.
 
-### Key Features
+Magpie offers two abstraction levels:
 
-- **Built with bitboards**: Uses bitboards for extremely fast board operations
-- **Zero dependencies**: Core functionality has no external dependencies
-- **Optional Serde support**: Serialization available through an optional feature flag
+- **Game API**: rule-checked, turn-aware game logic and state management. Enforces legal moves and tracks turns.
+- **Board API**: lower-level, unchecked board operations for maximum performance.  Useful when building engines.
 
-Furthermore, the library offers two abstraction levels:
+## Getting Started
 
-- **Game API**: Ensures rule compliance, tracks turns, and maintains board consistency
-- **Board API**: Provides raw board operations without validation, when performance is critical.
+```rust
+use magpie::othello::{Game, Status, Stone};
+
+let mut game = Game::new();
+// Black moves first in Othello
+assert_eq!(game.current_turn(), Stone::Black);
+
+// Pick the first available move and play it
+let pos = game.moves().hot_bits().next().unwrap();
+game.play(pos)?;
+
+println!("{}", game.display());
+
+assert_eq!(game.current_turn(), Stone::White);
+assert_eq!(game.status(), Status::Progressing);
+```
 
 ## Installation
 
 ```sh
 cargo add magpie
-# If serialization with Serde is desired, activate the serde feature flag.
+# Serde support is available through the serde feature flag.
 cargo add magpie -F serde
 ```
 
@@ -36,4 +49,4 @@ Curious to play? One example features a functional Othello game with a random AI
 
 Benchmarks are [described here](/benches)
 
-Simply run `cargo bench` to run all benchmarks.
+Run the benchmarks with `cargo bench`.

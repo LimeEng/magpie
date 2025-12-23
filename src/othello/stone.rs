@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// Enum that represents the two different possible stone colors available on a standard Othello board.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum Stone {
     Black,
     White,
@@ -19,8 +19,8 @@ impl Stone {
     /// assert_eq!(Stone::White, Stone::Black.flip());
     /// ```
     #[must_use]
-    pub fn flip(&self) -> Self {
-        match &self {
+    pub fn flip(self) -> Self {
+        match self {
             Self::Black => Self::White,
             Self::White => Self::Black,
         }

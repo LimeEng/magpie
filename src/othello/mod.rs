@@ -16,8 +16,8 @@ mod position;
 mod stone;
 
 pub use bitboard::Bitboard;
-pub use board::{Board, OthelloError};
+pub use board::{Board, BoardError};
 pub use display::{BoardDisplay, Format};
-pub use game::{Game, Status};
+pub use game::{Game, GameError, Status};
 pub use position::{Position, PositionError};
 pub use stone::Stone;

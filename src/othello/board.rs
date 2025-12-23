@@ -6,6 +6,7 @@ use crate::othello::{
     },
     display::BoardDisplay,
 };
+use std::{error, fmt};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -186,7 +187,7 @@ impl Board {
     /// Places a stone in the specified position and updates the board accordingly.
     ///
     /// It is the responsibility of the caller to ensure that the move is legal.
-    /// Playing an illegal move will result in undefined behavior.
+    /// Playing an illegal move will result in an incorrect board state.
     ///
     /// # Examples
     /// ```rust
@@ -400,16 +401,10 @@ struct ShadowBoard {
 
 #[cfg(feature = "serde")]
 impl std::convert::TryFrom<ShadowBoard> for Board {
-    type Error = &'static str;
+    type Error = BoardError;
 
     fn try_from(unchecked: ShadowBoard) -> Result<Self, Self::Error> {
-        // Simply delegate to the main TryFrom trait implementation
-        Board::try_from((unchecked.black_stones, unchecked.white_stones)).map_err(|_| {
-            // While it would be possible to simply implement fmt::Display on OthelloError,
-            // this solution leaves that trait open for future uses.
-            // Furthermore, in this case, no other error will be reasonably returned.
-            "Overlapping stones detected"
-        })
+        Board::try_from((unchecked.black_stones, unchecked.white_stones))
     }
 }
 
@@ -432,7 +427,7 @@ impl Default for Board {
 }
 
 impl TryFrom<(u64, u64)> for Board {
-    type Error = OthelloError;
+    type Error = BoardError;
 
     /// Returns a board built from the two specified bitboards.
     ///
@@ -453,7 +448,7 @@ impl TryFrom<(u64, u64)> for Board {
     fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
         let (black_stones, white_stones) = stones;
         if black_stones & white_stones != 0 {
-            return Err(OthelloError::PiecesOverlapping);
+            return Err(BoardError::OverlappingPieces);
         }
         let board = Self {
             black_stones: black_stones.into(),
@@ -464,7 +459,7 @@ impl TryFrom<(u64, u64)> for Board {
 }
 
 impl TryFrom<(Bitboard, Bitboard)> for Board {
-    type Error = OthelloError;
+    type Error = BoardError;
 
     /// Returns a board built from the two specified bitboards.
     ///
@@ -488,16 +483,24 @@ impl TryFrom<(Bitboard, Bitboard)> for Board {
     }
 }
 
-/// This enum represents errors that may occur when using the Othello board.
-#[derive(Debug, Eq, PartialEq, Hash)]
-pub enum OthelloError {
-    /// Indicates that an illegal move was attempted.
-    IllegalMove,
+/// This enum represents errors that may occur when using a Othello board.
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub enum BoardError {
     /// Indicates that the operation would have resulted in two or more stones overlapping.
-    PiecesOverlapping,
+    OverlappingPieces,
 }
 
-// https://www.chessprogramming.org/General_Setwise_Operations#Generalized%20Shift
+impl fmt::Display for BoardError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::OverlappingPieces => write!(f, "overlapping pieces"),
+        }
+    }
+}
+
+impl error::Error for BoardError {}
+
+// https://www.chessprogramming.org/General_Setwise_Operations#Generalized_Shift
 fn dir_shift(x: Bitboard, shift: i8) -> Bitboard {
     if shift > 0 { x >> shift } else { x << -shift }
 }

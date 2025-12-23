@@ -1,16 +1,18 @@
 # Benchmarks
 
-Simply run `cargo bench` to run all benchmarks.
+Run the benchmarks with `cargo bench`.
 
 - [Clone](#clone)
 - [Legal moves](#legal-moves)
-- [Place stone](#place-stone)
+- [Play](#play)
 - [Legal move check](#legal-move-check)
+- [Individual bitboard extraction](#individual-bitboard-extraction)
 - [Legal moves extraction](#legal-moves-extraction)
+- [Perft](#perft)
 
 ## Clone
 
-Simply measures the performance when cloning the standard opening position of Othello.
+Measures the performance when cloning the standard opening position of Othello.
 
 ## Legal moves
 
@@ -55,6 +57,14 @@ Playing E5 as black will flip 19 white stones.
 
 Measures the performance of checking if playing E5 as black is legal given the same board configuration as used in the [play benchmark](#play).
 
+## Individual bitboard extraction
+
+Measures the performance of extracting each position of a bitboard, as a bitboard, given the same board configuration used in the [legal moves benchmark](#legal-moves).
+
 ## Legal moves extraction
 
 Measures the performance of extracting all individual legal moves as black given the same board configuration used in the [legal moves benchmark](#legal-moves).
+
+## Perft
+
+Measures the performance of a [perft](https://www.chessprogramming.org/Perft) (performance test) calculation from the standard opening position at depths 1 through 9. Perft recursively counts all possible game states at a given depth, exercising move generation, board cloning, and stone placement in aggregate.

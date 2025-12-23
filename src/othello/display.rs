@@ -2,6 +2,7 @@ use crate::othello::{
     Bitboard, Board, Position, Stone,
     constants::{FILES, RANKS},
 };
+use std::fmt;
 
 /// Helper struct to customize the printing of Othello boards.
 ///
@@ -34,7 +35,7 @@ pub struct BoardDisplay<'a> {
 
 /// Represents the different formatting options available when displaying an
 /// Othello board.
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Format {
     /// Formats the board compactly.
     Compact,
@@ -88,18 +89,18 @@ impl<'a> BoardDisplay<'a> {
     }
 }
 
-impl std::fmt::Display for BoardDisplay<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for BoardDisplay<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         display(f, self.board, self.stone, self.display)
     }
 }
 
 fn display(
-    f: &mut std::fmt::Formatter,
+    f: &mut fmt::Formatter,
     board: &Board,
     stone: Option<Stone>,
     display: Format,
-) -> std::fmt::Result {
+) -> fmt::Result {
     let legal_moves = stone.map_or(Bitboard::EMPTY, |stone| board.moves_for(stone));
     let char_at = |rank: usize, file: usize| {
         let pos = RANKS[rank] & FILES[file];

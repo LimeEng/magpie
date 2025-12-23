@@ -1,27 +1,28 @@
-use magpie::othello::{Board, Stone};
-use serde::{Deserialize, Serialize};
-use serde_json::Result;
+use magpie::othello::{Bitboard, Board, Game, Position, Stone};
+use serde::{Serialize, de::DeserializeOwned};
+use std::fmt::Debug;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Game {
-    board: Board,
-    next_player: Stone,
+fn main() -> Result<(), serde_json::Error> {
+    print_serde(&Game::new())?;
+    print_serde(&Board::standard())?;
+    print_serde(&Stone::Black)?;
+    print_serde(&Bitboard::FILLED)?;
+    print_serde(&Position::try_from("A1").unwrap())?;
+
+    Ok(())
 }
 
-fn main() -> Result<()> {
-    let board = Board::standard();
-    // In Othello, black moves first
-    let next_player = Stone::Black;
-
-    let game = Game { board, next_player };
-
-    // Serialize to JSON
-    let json = serde_json::to_string_pretty(&game)?;
+fn print_serde<T>(value: &T) -> Result<(), serde_json::Error>
+where
+    T: Serialize + DeserializeOwned + Debug,
+{
+    let json = serde_json::to_string_pretty(value)?;
+    let value: T = serde_json::from_str(&json)?;
+    println!("-----[ Deserialized ]-----");
+    println!("{value:#?}");
+    println!("-----[  Serialized  ]-----");
     println!("{json}");
-
-    // Deserialize from JSON
-    let game: Game = serde_json::from_str(&json)?;
-    println!("{game:?}");
+    println!("==========================");
 
     Ok(())
 }

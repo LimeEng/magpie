@@ -1,5 +1,6 @@
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use magpie::othello::{Bitboard, Board, Position, Stone};
+use std::hint::black_box;
 
 fn bench_clone(c: &mut Criterion) {
     let board = Board::standard();
@@ -35,7 +36,7 @@ fn bench_bits_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
     c.bench_function("bits_extraction", |b| {
-        b.iter(|| moves.hot_bits().collect::<Vec<Position>>());
+        b.iter(|| moves.bits().collect::<Vec<Bitboard>>());
     });
 }
 
@@ -43,7 +44,7 @@ fn bench_hot_bits_extraction(c: &mut Criterion) {
     let board = board_for_legal_moves();
     let moves = board.moves_for(Stone::Black);
     c.bench_function("hot_bits_extraction", |b| {
-        b.iter(|| moves.bits().collect::<Vec<Bitboard>>());
+        b.iter(|| moves.hot_bits().collect::<Vec<Position>>());
     });
 }
 
