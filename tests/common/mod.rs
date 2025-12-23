@@ -1,4 +1,6 @@
-use magpie::othello::{Bitboard, Board, Game, OthelloError, Position, PositionError, Stone};
+use magpie::othello::{
+    Bitboard, Board, BoardError, Game, GameError, Position, PositionError, Stone,
+};
 use quickcheck::{Arbitrary, Gen};
 
 #[derive(Debug, Clone)]
@@ -64,7 +66,7 @@ impl Arbitrary for ShadowBoard {
         let mut white_stones = 0;
 
         // Iterate over all bits
-        for i in 0..63 {
+        for i in 0..64 {
             // Extract the next bit
             let next_bit = (bits >> i) & 1;
             // Arbitrarily assign this bit to either black or white
@@ -80,12 +82,12 @@ impl Arbitrary for ShadowBoard {
 }
 
 impl TryFrom<(u64, u64)> for ShadowBoard {
-    type Error = OthelloError;
+    type Error = BoardError;
 
     fn try_from(stones: (u64, u64)) -> Result<Self, Self::Error> {
         let (black_stones, white_stones) = stones;
         if black_stones & white_stones != 0 {
-            return Err(OthelloError::PiecesOverlapping);
+            return Err(BoardError::OverlappingPieces);
         }
         let board = ShadowBoard {
             black_stones,
@@ -96,7 +98,7 @@ impl TryFrom<(u64, u64)> for ShadowBoard {
 }
 
 impl TryFrom<ShadowBoard> for Board {
-    type Error = OthelloError;
+    type Error = BoardError;
 
     fn try_from(board: ShadowBoard) -> Result<Self, Self::Error> {
         Board::try_from((board.black_stones, board.white_stones))
@@ -132,7 +134,7 @@ impl Arbitrary for ShadowGame {
 }
 
 impl TryFrom<ShadowGame> for Game {
-    type Error = OthelloError;
+    type Error = GameError;
 
     fn try_from(game: ShadowGame) -> Result<Self, Self::Error> {
         Game::from_state(game.board, game.next_player, game.passed_last_turn)

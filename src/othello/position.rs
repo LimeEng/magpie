@@ -2,6 +2,7 @@ use crate::othello::{
     Bitboard,
     constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
 };
+use std::{error, fmt};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -212,7 +213,7 @@ impl TryFrom<(u8, u8)> for Position {
     fn try_from(pair: (u8, u8)) -> Result<Self, Self::Error> {
         let (rank, file) = pair;
         if rank > 7 || file > 7 {
-            Err(PositionError::InvalidPosition)
+            Err(PositionError::OutOfRange)
         } else {
             let bitboard = RANKS[rank as usize] & FILES[file as usize];
             Ok(Position::new_unchecked(bitboard))
@@ -275,7 +276,7 @@ impl TryFrom<&str> for Position {
             .iter()
             .position(|position| position == &text)
             .map(|index| POSITIONS[index])
-            .ok_or(PositionError::InvalidPosition)?;
+            .ok_or(PositionError::InvalidNotation)?;
         Ok(Position::new_unchecked(bitboard))
     }
 }
@@ -302,7 +303,7 @@ impl TryFrom<u64> for Position {
         if bitboard.is_power_of_two() {
             Ok(Position::new_unchecked(bitboard))
         } else {
-            Err(PositionError::NotOneHotBitboard)
+            Err(PositionError::ExpectedSingleBit)
         }
     }
 }
@@ -330,13 +331,27 @@ impl TryFrom<Bitboard> for Position {
 }
 
 /// This enum represents errors that may occur when handling Positions.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum PositionError {
     /// Indicates that the bitboard did not contain exactly one set bit.
-    NotOneHotBitboard,
-    /// Indicates that the position could not be parsed.
-    InvalidPosition,
+    ExpectedSingleBit,
+    /// Indicates that the textual notation was invalid (e.g. "Z9" or wrong format).
+    InvalidNotation,
+    /// Indicates that the provided rank/file pair was out of the [0, 8) range.
+    OutOfRange,
 }
+
+impl fmt::Display for PositionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ExpectedSingleBit => write!(f, "expected exactly one set bit"),
+            Self::InvalidNotation => write!(f, "invalid notation"),
+            Self::OutOfRange => write!(f, "rank or file out of range (expected [0, 8))"),
+        }
+    }
+}
+
+impl error::Error for PositionError {}
 
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Position {

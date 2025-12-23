@@ -2,25 +2,50 @@
 #![allow(clippy::missing_errors_doc)]
 #![doc(html_logo_url = "https://cdn.github.emileng.se/repo/magpie/logo.svg")]
 
-//! Magpie is a high-performance library for the classic board game [Othello](https://en.wikipedia.org/wiki/Reversi).
+//! Magpie is a high-performance [Othello](https://en.wikipedia.org/wiki/Reversi) library built with bitboards and zero dependencies.
 //!
-//! ## Key Features
+//! All core types live in the [`othello`] module, which offers two abstraction levels:
 //!
-//! - **Built with bitboards**: Uses bitboards for extremely fast board operations
-//! - **Zero dependencies**: Core functionality has no external dependencies
-//! - **Optional Serde support**: Serialization available through an optional feature flag
+//! - [`Game`] — rule-checked, turn-aware game logic and state management.
+//!   Enforces legal moves and tracks turns.
+//! - [`Board`] — lower-level, unchecked board operations for maximum performance.
+//!   Useful when building engines.
 //!
-//! Furthermore, the library offers two abstraction levels:
+//! Supporting types include [`Bitboard`] and [`Position`] for board representation,
+//! [`Stone`] for player identity, and [`BoardDisplay`] for rendering boards.
 //!
-//! - **[`Game`] API**: Ensures rule compliance, tracks turns, and maintains board consistency
-//! - **[`Board`] API**: Provides raw board operations without validation, when performance is critical.
+//! ## Getting Started
 //!
-//! ## Module Overview
+//! ```rust
+//! use magpie::othello::{Game, Status, Stone};
 //!
-//! The [`othello`] module contains core structures and functions for playing Othello.
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let mut game = Game::new();
+//! // Black moves first in Othello
+//! assert_eq!(game.current_turn(), Stone::Black);
+//!
+//! // Pick the first available move and play it
+//! let pos = game.moves().hot_bits().next().unwrap();
+//! game.play(pos)?;
+//!
+//! println!("{}", game.display());
+//!
+//! assert_eq!(game.current_turn(), Stone::White);
+//! assert_eq!(game.status(), Status::Progressing);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! More examples are available in the
+//! [examples directory](https://github.com/LimeEng/magpie/tree/master/examples),
+//! including a playable game against a random AI (`cargo run --example human_vs_ai`).
 //!
 //! [`Board`]: crate::othello::Board
+//! [`BoardDisplay`]: crate::othello::BoardDisplay
+//! [`Bitboard`]: crate::othello::Bitboard
 //! [`Game`]: crate::othello::Game
+//! [`Position`]: crate::othello::Position
+//! [`Stone`]: crate::othello::Stone
 //! [`othello`]: crate::othello
 
 /// Contains core structures and functions for playing Othello

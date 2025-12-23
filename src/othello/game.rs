@@ -1,8 +1,46 @@
-use crate::othello::{Bitboard, Board, BoardDisplay, OthelloError, Position, Stone};
-use std::cmp::Ordering;
+use crate::othello::{Bitboard, Board, BoardDisplay, BoardError, Position, Stone};
+use std::{cmp::Ordering, error, fmt};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+/// This enum represents errors that may occur when playing an Othello game.
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub enum GameError {
+    /// Indicates that an illegal move was attempted.
+    IllegalMove,
+    /// The provided board is invalid.
+    InvalidBoard(BoardError),
+}
+
+impl From<BoardError> for GameError {
+    fn from(e: BoardError) -> Self {
+        GameError::InvalidBoard(e)
+    }
+}
+
+// https://doc.rust-lang.org/std/error/trait.Error.html#error-source
+//
+// "In error types that wrap an underlying error, the underlying error should be
+// either returned by the outer error's `Error::source()`, or rendered by the
+// outer error's `Display` implementation, but not both."
+impl fmt::Display for GameError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::IllegalMove => write!(f, "illegal move"),
+            Self::InvalidBoard(_) => write!(f, "invalid board"),
+        }
+    }
+}
+
+impl error::Error for GameError {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        match self {
+            Self::IllegalMove => None,
+            Self::InvalidBoard(e) => Some(e),
+        }
+    }
+}
 
 /// Represents an Othello game.
 ///
@@ -17,7 +55,7 @@ pub struct Game {
 }
 
 /// This enum represents all states the game can be in.
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum Status {
     /// Indicates that the game has concluded with the specified winner.
     Win(Stone),
@@ -75,7 +113,7 @@ impl Game {
         board: Board,
         next_player: Stone,
         passed_last_turn: bool,
-    ) -> Result<Self, OthelloError> {
+    ) -> Result<Self, GameError> {
         if board.is_valid() {
             Ok(Self {
                 board,
@@ -83,7 +121,7 @@ impl Game {
                 passed_last_turn,
             })
         } else {
-            Err(OthelloError::PiecesOverlapping)
+            Err(BoardError::OverlappingPieces.into())
         }
     }
 
@@ -165,13 +203,14 @@ impl Game {
     ///     .unwrap();
     /// assert!(game.play(pos).is_ok());
     /// ```
-    pub fn play(&mut self, pos: Position) -> Result<(), OthelloError> {
+    pub fn play(&mut self, pos: Position) -> Result<(), GameError> {
         if self.is_legal_move(pos) {
             self.board.play(self.next_player, pos);
             self.next_player = self.next_player.flip();
+            self.passed_last_turn = false;
             Ok(())
         } else {
-            Err(OthelloError::IllegalMove)
+            Err(GameError::IllegalMove)
         }
     }
 

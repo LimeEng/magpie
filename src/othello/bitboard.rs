@@ -85,8 +85,9 @@ impl Bitboard {
     /// assert_eq!(Bitboard::FILLED.count_empty(), 0);
     /// ```
     #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub fn count_empty(self) -> u8 {
-        self.0.count_zeros().try_into().unwrap()
+        self.0.count_zeros() as u8
     }
 
     /// Extracts each bit as its own bitboard.
