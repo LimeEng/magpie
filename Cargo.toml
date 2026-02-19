@@ -1,6 +1,6 @@
 [package]
 name = "magpie"
-version = "0.11.2"
+version = "0.12.0"
 edition = "2024"
 description = "High-performance Othello library built with bitboards"
 repository = "https://github.com/LimeEng/magpie/"
