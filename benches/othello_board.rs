@@ -16,7 +16,7 @@ fn bench_legal_moves(c: &mut Criterion) {
 
 fn bench_play(c: &mut Criterion) {
     let board = board_for_play();
-    let pos: Position = (0x00_00_00_00_08_00_00_00).try_into().unwrap();
+    let pos = "e5".parse().unwrap();
     c.bench_function("play", |b| {
         b.iter(|| {
             board.clone().play(black_box(Stone::Black), black_box(pos));
@@ -26,7 +26,7 @@ fn bench_play(c: &mut Criterion) {
 
 fn bench_legal_move_check(c: &mut Criterion) {
     let board = board_for_play();
-    let pos: Position = (0x00_00_00_00_08_00_00_00).try_into().unwrap();
+    let pos = "e5".parse().unwrap();
     c.bench_function("legal_move_check", |b| {
         b.iter(|| board.is_legal_move(black_box(Stone::Black), black_box(pos)));
     });

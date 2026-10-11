@@ -1,7 +1,7 @@
 use crate::agent::{Action, Agent, HumanAgent, RandomAgent};
 use magpie::othello::{Game, Status, Stone};
 
-pub mod agent;
+mod agent;
 
 fn main() {
     play();
@@ -25,7 +25,7 @@ fn play() {
             Action::Move(next_move) => {
                 game.play(next_move)
                     .unwrap_or_else(|_| panic!("{current_turn:?} tried to make an illegal move"));
-                println!("{current_turn:?} played {}", next_move.to_notation());
+                println!("{current_turn:?} played {next_move}");
             }
             Action::Pass => {
                 println!("{current_turn:?} passed their turn");

@@ -66,21 +66,6 @@ fn dir_shift(x: u64, shift: i8) -> u64 {
     if shift > 0 { x >> shift } else { x << -shift }
 }
 
-// pub trait HotBits: Sized {
-//     type Iter: Iterator<Item = Self>;
-//     fn hot_bits(&self) -> Self::Iter;
-// }
-
-// impl HotBits for u64 {
-//     type Iter = Box<dyn Iterator<Item = u64>>;
-//     fn hot_bits(&self) -> Self::Iter {
-//         let this = *self;
-//         let iter = POSITIONS.iter().map(move |m| m & this).filter(|m| *m != 0);
-
-//         Box::new(iter)
-//     }
-// }
-
 pub trait Bits: Sized {
     type Iter: Iterator<Item = Self>;
     fn bits(&self) -> Self::Iter;

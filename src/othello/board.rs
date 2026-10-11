@@ -6,7 +6,10 @@ use crate::othello::{
     },
     display::BoardDisplay,
 };
-use std::{error, fmt};
+use std::{
+    error,
+    fmt::{self, Display, Formatter},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -144,12 +147,13 @@ impl Board {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Board, Stone};
+    /// use magpie::othello::{Board, Position, Stone};
     ///
     /// let mut board = Board::empty();
-    /// let pos = 1_u64.try_into().unwrap();
-    /// board.place_stone_unchecked(Stone::Black, pos);
+    /// let pos:Position = "h8".parse()?;
+    /// board.place_stone_unchecked(Stone::Black, pos.into());
     /// assert_ne!(board, Board::empty());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     pub fn place_stone_unchecked(&mut self, stone: Stone, pos: Bitboard) {
         match stone {
@@ -264,11 +268,12 @@ impl Board {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Board, Stone};
+    /// use magpie::othello::{Board, Position, Stone};
     ///
     /// let board = Board::standard();
-    /// let pos = 1_u64.try_into().unwrap();
+    /// let pos = "h8".parse()?;
     /// assert!(!board.is_legal_move(Stone::Black, pos));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     #[must_use]
     pub fn is_legal_move(&self, stone: Stone, pos: Position) -> bool {
@@ -358,11 +363,12 @@ impl Board {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Board, Stone};
+    /// use magpie::othello::{Board, Position, Stone};
     ///
     /// let board = Board::standard();
-    /// let pos = 0x8000000.try_into().unwrap();
+    /// let pos = "e5".parse()?;
     /// assert_eq!(Some(Stone::White), board.stone_at(pos));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     ///  ```
     #[must_use]
     pub fn stone_at(&self, pos: Position) -> Option<Stone> {
@@ -490,8 +496,9 @@ pub enum BoardError {
     OverlappingPieces,
 }
 
-impl fmt::Display for BoardError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+/// Formats the board error as a human-readable message.
+impl Display for BoardError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::OverlappingPieces => write!(f, "overlapping pieces"),
         }

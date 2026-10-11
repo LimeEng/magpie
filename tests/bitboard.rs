@@ -55,6 +55,20 @@ fn full_bitboard_bits_equal_hot_bits() {
 }
 
 #[test]
+fn hot_bits_exact_size_tracks_remaining_positions() {
+    let mut positions = Bitboard::FILLED.hot_bits();
+    assert_eq!(positions.len(), 64);
+
+    for remaining in (0..64).rev() {
+        assert!(positions.next().is_some());
+        assert_eq!(positions.len(), remaining);
+    }
+
+    assert_eq!(positions.next(), None);
+    assert_eq!(positions.len(), 0);
+}
+
+#[test]
 fn bitboard_filled_constant() {
     assert_eq!(Bitboard::FILLED.raw(), u64::MAX);
     assert_eq!(Bitboard::FILLED.count_set(), 64);

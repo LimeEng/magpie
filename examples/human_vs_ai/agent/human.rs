@@ -1,5 +1,5 @@
 use crate::agent::{Action, Agent};
-use magpie::othello::{Board, Position, Stone};
+use magpie::othello::{Board, Stone};
 use std::io::{self, Write};
 
 /// Queries the user to provide a valid move to play. The user can also pass
@@ -17,7 +17,7 @@ impl Agent for HumanAgent {
             let input = input.trim();
             if input.to_lowercase() == "pass" {
                 break Action::Pass;
-            } else if let Ok(pos) = Position::try_from(input) {
+            } else if let Ok(pos) = input.parse() {
                 if board.is_legal_move(stone, pos) {
                     break Action::Move(pos);
                 }

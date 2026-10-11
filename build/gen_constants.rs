@@ -1,11 +1,16 @@
-use std::{env, fs::File, io::Write, path::Path};
+use std::{
+    env,
+    fs::File,
+    io::{self, Write},
+    path::Path,
+};
 
 #[allow(dead_code)]
 mod common;
 mod shift_rays;
 
-pub fn generate_constants() -> std::io::Result<()> {
-    let common = include_str!("./common.rs").to_string();
+pub fn generate_constants() -> io::Result<()> {
+    let common = include_str!("./gen_constants/common.rs").to_string();
     let shift_rays = shift_rays::generate();
 
     let out_dir = env::var("OUT_DIR").unwrap();
