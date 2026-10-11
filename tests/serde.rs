@@ -57,10 +57,10 @@ fn board_roundtrip(shadow: ShadowBoard) -> bool {
 }
 
 #[quickcheck]
-fn game_roundtrip(shadow: ShadowBoard, stone: ShadowStone, passed: bool) -> bool {
+fn game_roundtrip(shadow: ShadowBoard, stone: ShadowStone) -> bool {
     let board = Board::try_from(shadow).unwrap();
     let stone = Stone::from(stone);
-    let game = Game::from_state(board, stone, passed).unwrap();
+    let game = Game::from_state(board, stone).unwrap();
     serde_roundtrip(&game)
 }
 
@@ -100,16 +100,11 @@ fn board_rejects_overlapping_stones(black: u64, white: u64) -> TestResult {
 }
 
 #[quickcheck]
-fn game_rejects_invalid_board(
-    black: u64,
-    white: u64,
-    stone: ShadowStone,
-    passed: bool,
-) -> TestResult {
+fn game_rejects_invalid_board(black: u64, white: u64, stone: ShadowStone) -> TestResult {
     let stone = Stone::from(stone);
     if black & white != 0 {
         let json = format!(
-            r#"{{"board":{{"black_stones":{black},"white_stones":{white}}},"next_player":{},"passed_last_turn":{passed}}}"#,
+            r#"{{"board":{{"black_stones":{black},"white_stones":{white}}},"next_player":{}}}"#,
             if stone == Stone::Black {
                 r#""Black""#
             } else {

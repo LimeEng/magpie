@@ -9,7 +9,7 @@ Magpie is a high-performance [Othello](https://en.wikipedia.org/wiki/Reversi) li
 
 Magpie offers two abstraction levels:
 
-- **Game API**: rule-checked, turn-aware game logic and state management. Enforces legal moves and tracks turns.
+- **Game API**: rule-checked, turn-aware game logic and state management. Enforces legal moves, tracks turns, and passes automatically when a player has no legal moves.
 - **Board API**: lower-level, unchecked board operations for maximum performance.  Useful when building engines.
 
 ## Getting Started

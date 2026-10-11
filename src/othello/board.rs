@@ -150,7 +150,7 @@ impl Board {
     /// use magpie::othello::{Board, Position, Stone};
     ///
     /// let mut board = Board::empty();
-    /// let pos:Position = "h8".parse()?;
+    /// let pos: Position = "h8".parse()?;
     /// board.place_stone_unchecked(Stone::Black, pos.into());
     /// assert_ne!(board, Board::empty());
     /// # Ok::<(), Box<dyn std::error::Error>>(())

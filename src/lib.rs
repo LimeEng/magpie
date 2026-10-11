@@ -7,7 +7,8 @@
 //! All core types live in the [`othello`] module, which offers two abstraction levels:
 //!
 //! - [`Game`] — rule-checked, turn-aware game logic and state management.
-//!   Enforces legal moves and tracks turns.
+//!   Enforces legal moves, tracks turns, and passes automatically when a
+//!   player has no legal moves.
 //! - [`Board`] — lower-level, unchecked board operations for maximum performance.
 //!   Useful when building engines.
 //!
