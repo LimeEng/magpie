@@ -1,7 +1,7 @@
 mod common;
 
 use common::ShadowGame;
-use magpie::othello::{Bitboard, Game, Position};
+use magpie::othello::{Bitboard, Game, Position, Status};
 use quickcheck_macros::quickcheck;
 
 #[quickcheck]
@@ -59,4 +59,19 @@ fn illegal_moves_should_be_illegal(game: ShadowGame) {
         .any(|pos| game.is_legal_move(pos));
 
     assert!(!failed);
+}
+
+#[quickcheck]
+fn current_player_has_moves_unless_game_over(game: ShadowGame) {
+    // After every move the current player has at least
+    // one legal move, unless the game is over
+    let game = Game::try_from(game).unwrap();
+
+    for pos in game.moves().hot_bits() {
+        let mut next = game.clone();
+        next.play(pos).unwrap();
+        if next.status() == Status::Progressing {
+            assert!(!next.moves().is_empty());
+        }
+    }
 }

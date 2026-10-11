@@ -46,12 +46,19 @@ impl error::Error for GameError {
 ///
 /// To interact with the game it is useful to understand the bitboards that
 /// the board uses. The [`Board`]-struct documents these.
+///
+/// The game maintains the invariant that the current player always has at
+/// least one legal move, unless the game is over. If a move leaves the
+/// opponent without any legal moves, their turn is automatically passed.
+/// The game ends when neither player can move, which [`status`] reports.
+///
+/// [`status`]: crate::othello::Game::status
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(try_from = "ShadowGame"))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Game {
     board: Board,
     next_player: Stone,
-    passed_last_turn: bool,
 }
 
 /// This enum represents all states the game can be in.
@@ -92,12 +99,19 @@ impl Game {
     /// ```
     #[must_use]
     pub fn new() -> Self {
-        Game::from_state(Board::standard(), Stone::Black, false).unwrap()
+        // The standard opening position always gives Black legal moves
+        Game::from_state(Board::standard(), Stone::Black).unwrap()
     }
 
     /// Returns a game with the specified parameters set.
     ///
     /// If the supplied board is invalid an error will be returned instead.
+    ///
+    /// If `next_player` has no legal moves but the opponent does, the turn is
+    /// passed to the opponent automatically, mirroring how [`play`] resolves
+    /// forced passes during a game.
+    ///
+    /// [`play`]: crate::othello::Game::play
     ///
     /// # Examples
     /// ```rust
@@ -105,24 +119,24 @@ impl Game {
     ///
     /// let board = Board::empty();
     ///
-    /// let game = Game::from_state(board, Stone::Black, false)?;
+    /// let game = Game::from_state(board, Stone::Black)?;
     /// assert_eq!(game.board(), Board::empty());
     /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
-    pub fn from_state(
-        board: Board,
-        next_player: Stone,
-        passed_last_turn: bool,
-    ) -> Result<Self, GameError> {
-        if board.is_valid() {
-            Ok(Self {
-                board,
-                next_player,
-                passed_last_turn,
-            })
-        } else {
-            Err(BoardError::OverlappingPieces.into())
+    pub fn from_state(board: Board, next_player: Stone) -> Result<Self, GameError> {
+        if !board.is_valid() {
+            return Err(BoardError::OverlappingPieces.into());
         }
+        // Maintain the invariant that the current player always has a legal
+        // move, unless the game is over
+        let next_player = if board.moves_for(next_player).is_empty()
+            && !board.moves_for(next_player.flip()).is_empty()
+        {
+            next_player.flip()
+        } else {
+            next_player
+        };
+        Ok(Self { board, next_player })
     }
 
     /// Returns the stone of the current player.
@@ -139,28 +153,11 @@ impl Game {
         self.next_player
     }
 
-    /// The current player will pass their turn.
-    ///
-    /// If two players pass in a row the game is considered concluded.
-    /// Do note that it is up to the caller to determine this by
-    /// calling [`.status()`].
-    ///
-    /// [`.status()`]: crate::othello::Game::status
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::{Game, Stone};
-    ///
-    /// let mut game = Game::new();
-    /// game.pass_turn();
-    /// assert!(game.current_turn() == Stone::White);
-    /// ```
-    pub fn pass_turn(&mut self) {
-        self.next_player = self.next_player.flip();
-        self.passed_last_turn = true;
-    }
-
     /// Reports the status of the game.
+    ///
+    /// The game is finished when neither player can make a legal move. Since
+    /// forced passes are resolved automatically, this is detected by checking
+    /// if the current player has any legal moves.
     ///
     /// # Examples
     /// ```rust
@@ -171,7 +168,7 @@ impl Game {
     /// ```
     #[must_use]
     pub fn status(&self) -> Status {
-        let finished = self.passed_last_turn && self.board.moves_for(self.next_player).is_empty();
+        let finished = self.board.moves_for(self.next_player).is_empty();
         if finished {
             let black_stones = self.board.bits_for(Stone::Black).count_set();
             let white_stones = self.board.bits_for(Stone::White).count_set();
@@ -191,6 +188,10 @@ impl Game {
     /// If the move is illegal an error will be returned leaving the game
     /// untouched.
     ///
+    /// If the move leaves the opponent without any legal moves, their turn is
+    /// automatically passed and the current player moves again, unless the
+    /// game is over.
+    ///
     /// # Examples
     /// ```rust
     /// use magpie::othello::{Game, Stone};
@@ -203,11 +204,35 @@ impl Game {
     ///     .unwrap();
     /// assert!(game.play(pos).is_ok());
     /// ```
+    ///
+    /// Passing is automatic. In this example Black flips White's only stone,
+    /// leaving neither player with a legal move and ending the game:
+    ///
+    /// ```rust
+    /// use magpie::othello::{Bitboard, Board, Game, Position, Status, Stone};
+    ///
+    /// // White has a single stone on b1 which Black can flip by playing a1
+    /// let black = Bitboard::from("c1".parse::<Position>()?);
+    /// let white = Bitboard::from("b1".parse::<Position>()?);
+    /// let board = Board::try_from((black, white))?;
+    /// let mut game = Game::from_state(board, Stone::Black)?;
+    ///
+    /// game.play("a1".parse()?)?;
+    ///
+    /// assert_eq!(game.status(), Status::Win(Stone::Black));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
     pub fn play(&mut self, pos: Position) -> Result<(), GameError> {
         if self.is_legal_move(pos) {
             self.board.play(self.next_player, pos);
             self.next_player = self.next_player.flip();
-            self.passed_last_turn = false;
+            // If the opponent has no legal moves their turn is passed,
+            // unless the game is over
+            if self.board.moves_for(self.next_player).is_empty()
+                && !self.board.moves_for(self.next_player.flip()).is_empty()
+            {
+                self.next_player = self.next_player.flip();
+            }
             Ok(())
         } else {
             Err(GameError::IllegalMove)
@@ -227,20 +252,6 @@ impl Game {
     #[must_use]
     pub fn board(&self) -> Board {
         self.board.clone()
-    }
-
-    /// Returns whether or not the previous player passed their turn.
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::Game;
-    ///
-    /// let mut game = Game::new();
-    /// assert_eq!(game.passed_last_turn(), false);
-    /// ```
-    #[must_use]
-    pub fn passed_last_turn(&self) -> bool {
-        self.passed_last_turn
     }
 
     /// Checks if the supplied position is a legal move for the current player.
@@ -357,5 +368,25 @@ impl Default for Game {
     /// ```
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// Some validation need to be performed when deserializing a game. Instead of
+// writing a custom serde deserializer, a shadow type is created. This shadow
+// type can be deserialized and nothing else. Thanks to some Serde magic it is
+// possible to reuse the TryFrom trait and get proper validation.
+#[cfg_attr(feature = "serde", derive(Deserialize))]
+#[cfg(feature = "serde")]
+struct ShadowGame {
+    board: Board,
+    next_player: Stone,
+}
+
+#[cfg(feature = "serde")]
+impl std::convert::TryFrom<ShadowGame> for Game {
+    type Error = GameError;
+
+    fn try_from(unchecked: ShadowGame) -> Result<Self, Self::Error> {
+        Game::from_state(unchecked.board, unchecked.next_player)
     }
 }
