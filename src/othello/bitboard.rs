@@ -114,7 +114,6 @@ impl Bitboard {
     ///
     /// assert_eq!(Bitboard::FILLED.bits().len(), 64);
     ///  ```
-    #[must_use]
     pub fn bits(self) -> impl ExactSizeIterator<Item = Bitboard> {
         POSITIONS.iter().map(move |m| self & *m)
     }
@@ -143,13 +142,11 @@ impl Bitboard {
     /// let b: Bitboard = u64::from(u32::MAX).into();
     /// assert_eq!(b.hot_bits().len(), 32);
     ///  ```
-    #[must_use]
     pub fn hot_bits(self) -> impl ExactSizeIterator<Item = Position> {
-        let positions = HotBits {
+        HotBits {
             remaining: self.count_set(),
             bitboard: self,
-        };
-        positions.into_iter()
+        }
     }
 }
 
@@ -159,25 +156,7 @@ struct HotBits {
     bitboard: Bitboard,
 }
 
-#[derive(Clone, Debug)]
-struct HotBitsIntoIterator {
-    remaining: u8,
-    bitboard: Bitboard,
-}
-
-impl IntoIterator for HotBits {
-    type Item = Position;
-    type IntoIter = HotBitsIntoIterator;
-
-    fn into_iter(self) -> Self::IntoIter {
-        HotBitsIntoIterator {
-            remaining: self.remaining,
-            bitboard: self.bitboard,
-        }
-    }
-}
-
-impl Iterator for HotBitsIntoIterator {
+impl Iterator for HotBits {
     type Item = Position;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -185,7 +164,8 @@ impl Iterator for HotBitsIntoIterator {
             None
         } else {
             self.remaining -= 1;
-            let position = 1 << (63 - self.bitboard.raw().leading_zeros());
+            // Original line: 1 << (63 - self.bitboard.raw().leading_zeros());
+            let position = 1 << self.bitboard.raw().ilog2();
             self.bitboard ^= position;
 
             Some(Position::new_unchecked(position))
@@ -193,7 +173,7 @@ impl Iterator for HotBitsIntoIterator {
     }
 }
 
-impl ExactSizeIterator for HotBitsIntoIterator {
+impl ExactSizeIterator for HotBits {
     fn len(&self) -> usize {
         self.remaining.into()
     }

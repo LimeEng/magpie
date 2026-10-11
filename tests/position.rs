@@ -1,7 +1,7 @@
 mod common;
 
 use common::ShadowPosition;
-use magpie::othello::{Bitboard, Position};
+use magpie::othello::{Bitboard, Position, PositionError};
 use quickcheck_macros::quickcheck;
 
 #[quickcheck]
@@ -67,10 +67,27 @@ fn position_notation_matches() {
     ];
     let all_equal = Bitboard::FILLED
         .hot_bits()
-        .map(Position::to_notation)
+        .map(|pos| pos.to_string())
         .zip(expected_order)
         .all(|(a, b)| a == b);
     assert!(all_equal);
+}
+
+#[test]
+fn position_notation_parses_case_insensitively() {
+    let pos_1 = "E7".parse::<Position>().unwrap();
+    let pos_2 = "e7".parse::<Position>().unwrap();
+    assert_eq!(pos_1, pos_2);
+}
+
+#[test]
+fn position_notation_rejects_invalid_input() {
+    for input in ["", "a", "a0", "i1", "a10", "é1"] {
+        assert_eq!(
+            input.parse::<Position>(),
+            Err(PositionError::InvalidNotation)
+        );
+    }
 }
 
 #[test]
@@ -88,7 +105,7 @@ fn position_notation_identity() {
     ];
 
     for n in &full_notation {
-        let identity = Position::try_from(*n).map(Position::to_notation).unwrap();
+        let identity = n.parse().map(|pos: Position| pos.to_string()).unwrap();
         assert_eq!(*n, identity);
     }
 }

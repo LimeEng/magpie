@@ -19,7 +19,6 @@
 //! ```rust
 //! use magpie::othello::{Game, Status, Stone};
 //!
-//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let mut game = Game::new();
 //! // Black moves first in Othello
 //! assert_eq!(game.current_turn(), Stone::Black);
@@ -32,8 +31,7 @@
 //!
 //! assert_eq!(game.current_turn(), Stone::White);
 //! assert_eq!(game.status(), Status::Progressing);
-//! # Ok(())
-//! # }
+//! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 //!
 //! More examples are available in the

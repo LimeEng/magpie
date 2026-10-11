@@ -2,7 +2,7 @@ use crate::othello::{
     Bitboard, Board, Position, Stone,
     constants::{FILES, RANKS},
 };
-use std::fmt;
+use std::fmt::{self, Display, Formatter};
 
 /// Helper struct to customize the printing of Othello boards.
 ///
@@ -89,8 +89,9 @@ impl<'a> BoardDisplay<'a> {
     }
 }
 
-impl fmt::Display for BoardDisplay<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+/// Formats the board using the selected display options.
+impl Display for BoardDisplay<'_> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         display(f, self.board, self.stone, self.display)
     }
 }

@@ -2,7 +2,11 @@ use crate::othello::{
     Bitboard,
     constants::{FILES, POSITIONS, POSITIONS_AS_NOTATION, RANKS},
 };
-use std::{error, fmt};
+use std::{
+    error,
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -52,33 +56,37 @@ use serde::{Deserialize, Serialize};
 /// ```compile_fail
 /// use magpie::othello::Position;
 ///
-/// let mut pos = Position::try_from(1 << 63).unwrap();
+/// let mut pos = Position::try_from(1 << 63)?;
 /// // Does not compile - would shift bit out of range (0 bits)
 /// pos <<= 1u8;
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 ///
 /// ```compile_fail
 /// use magpie::othello::Position;
 ///
-/// let mut pos = Position::try_from(1).unwrap();
+/// let mut pos = Position::try_from(1)?;
 /// // Does not compile - would shift bit out of range (0 bits)
 /// pos >>= 1u8;
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 ///
 /// ```compile_fail
 /// use magpie::othello::{Position, Bitboard};
 ///
-/// let mut pos = Position::try_from(1).unwrap();
+/// let mut pos = Position::try_from(1)?;
 /// // Does not compile - would violate invariant
 /// pos &= Bitboard::from(0);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 ///
 /// ```compile_fail
 /// use magpie::othello::Position;
 ///
-/// let pos = Position::try_from(1).unwrap();
+/// let pos = Position::try_from(1)?;
 /// // Does not compile - would violate invariant
 /// let pos = !pos;
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 ///
 /// ```compile_fail
@@ -105,8 +113,9 @@ impl Position {
     /// ```rust
     /// use magpie::othello::Position;
     ///
-    /// let p: Position = (1 << 32).try_into().unwrap();
+    /// let p: Position = (1 << 32).try_into()?;
     /// assert_eq!(p.raw(), (1 << 32));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     #[must_use]
     pub fn raw(self) -> u64 {
@@ -123,9 +132,10 @@ impl Position {
     /// use magpie::othello::Position;
     ///
     /// let rank_and_file = (3, 4);
-    /// let p = Position::try_from(rank_and_file).unwrap();
+    /// let p = Position::try_from(rank_and_file)?;
     /// assert_eq!(p.rank(), rank_and_file.0);
     /// assert_eq!(p.file(), rank_and_file.1);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     ///
     /// [`Position`]: crate::othello::Position
@@ -144,9 +154,10 @@ impl Position {
     /// use magpie::othello::Position;
     ///
     /// let rank_and_file = (3, 4);
-    /// let p = Position::try_from(rank_and_file).unwrap();
+    /// let p = Position::try_from(rank_and_file)?;
     /// assert_eq!(p.rank(), rank_and_file.0);
     /// assert_eq!(p.file(), rank_and_file.1);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     ///
     /// [`Position`]: crate::othello::Position
@@ -154,25 +165,27 @@ impl Position {
     pub fn file(self) -> u8 {
         (self.0.leading_zeros() % 8).try_into().unwrap()
     }
+}
 
-    /// Calculates a human-readable board position.
-    ///
-    /// How board positions are represented can be found in the top-level
-    /// documentation for [`Position`].
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::Position;
-    ///
-    /// let notation = "A1";
-    /// let p = Position::try_from(notation).unwrap();
-    /// assert_eq!(p.to_notation().to_lowercase(), notation.to_lowercase());
-    /// ```
-    ///
-    /// [`Position`]: crate::othello::Position
-    #[must_use]
-    pub fn to_notation(self) -> String {
-        POSITIONS_AS_NOTATION[self.0.leading_zeros() as usize].to_string()
+/// Calculates a human-readable board position.
+///
+/// How board positions are represented can be found in the top-level
+/// documentation for [`Position`].
+///
+/// # Examples
+/// ```rust
+/// use magpie::othello::Position;
+///
+/// let notation = "A1";
+/// let p: Position = notation.parse()?;
+/// assert_eq!(p.to_string().to_lowercase(), notation.to_lowercase());
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// [`Position`]: crate::othello::Position
+impl Display for Position {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(POSITIONS_AS_NOTATION[self.0.leading_zeros() as usize])
     }
 }
 
@@ -204,9 +217,10 @@ impl TryFrom<(u8, u8)> for Position {
     /// use magpie::othello::Position;
     ///
     /// let rank_and_file = (3, 4);
-    /// let p = Position::try_from(rank_and_file).unwrap();
+    /// let p = Position::try_from(rank_and_file)?;
     /// assert_eq!(p.rank(), rank_and_file.0);
     /// assert_eq!(p.file(), rank_and_file.1);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     ///
     /// [`Position`]: crate::othello::Position
@@ -221,56 +235,26 @@ impl TryFrom<(u8, u8)> for Position {
     }
 }
 
-impl TryFrom<String> for Position {
-    type Error = PositionError;
+/// Constructs a position from human-readable notation.
+///
+/// The conversion is case-insensitive. Returns an error if the notation is invalid.
+///
+/// How board positions are represented can be found in the top-level
+/// documentation for [`Position`].
+///
+/// # Examples
+/// ```rust
+/// use magpie::othello::Position;
+///
+/// let notation = "A1";
+/// let p: Position = notation.parse()?;
+/// assert_eq!(p.to_string().to_lowercase(), notation.to_lowercase());
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+impl FromStr for Position {
+    type Err = PositionError;
 
-    /// Constructs a position from human-readable notation.
-    ///
-    /// Returns an error if the notation is invalid.
-    ///
-    /// The conversion is case-insensitive.
-    ///
-    /// How board positions are represented can be found in the top-level
-    /// documentation for [`Position`].
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::Position;
-    ///
-    /// let notation = "A1";
-    /// let p = Position::try_from(notation).unwrap();
-    /// assert_eq!(p.to_notation().to_lowercase(), notation.to_lowercase());
-    /// ```
-    ///
-    /// [`Position`]: crate::othello::Position
-    fn try_from(text: String) -> Result<Self, Self::Error> {
-        Position::try_from(text.as_ref())
-    }
-}
-
-impl TryFrom<&str> for Position {
-    type Error = PositionError;
-
-    /// Constructs a position from human-readable notation.
-    ///
-    /// Returns an error if the notation is invalid.
-    ///
-    /// The conversion is case-insensitive.
-    ///
-    /// How board positions are represented can be found in the top-level
-    /// documentation for [`Position`].
-    ///
-    /// # Examples
-    /// ```rust
-    /// use magpie::othello::Position;
-    ///
-    /// let notation = "A1";
-    /// let p = Position::try_from(notation).unwrap();
-    /// assert_eq!(p.to_notation().to_lowercase(), notation.to_lowercase());
-    /// ```
-    ///
-    /// [`Position`]: crate::othello::Position
-    fn try_from(text: &str) -> Result<Self, Self::Error> {
+    fn from_str(text: &str) -> Result<Self, Self::Err> {
         let text = text.to_lowercase();
         let bitboard = POSITIONS_AS_NOTATION
             .iter()
@@ -293,8 +277,9 @@ impl TryFrom<u64> for Position {
     /// use magpie::othello::Position;
     ///
     /// let num = 1 << 32;
-    /// let p = Position::try_from(num).unwrap();
+    /// let p = Position::try_from(num)?;
     /// assert_eq!(p.raw(), num);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     fn try_from(bitboard: u64) -> Result<Self, Self::Error> {
         // Equivalent to bitboard.count_ones() == 1
@@ -320,8 +305,9 @@ impl TryFrom<Bitboard> for Position {
     /// use magpie::othello::{Bitboard, Position};
     ///
     /// let bitboard = Bitboard::from(1 << 32);
-    /// let p = Position::try_from(bitboard).unwrap();
+    /// let p = Position::try_from(bitboard)?;
     /// assert_eq!(p.raw(), bitboard);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     ///
     /// [`Bitboard`]: crate::othello::Bitboard
@@ -341,8 +327,9 @@ pub enum PositionError {
     OutOfRange,
 }
 
-impl fmt::Display for PositionError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+/// Formats the position error as a human-readable message.
+impl Display for PositionError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::ExpectedSingleBit => write!(f, "expected exactly one set bit"),
             Self::InvalidNotation => write!(f, "invalid notation"),

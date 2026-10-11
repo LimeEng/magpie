@@ -1,5 +1,9 @@
 use crate::othello::{Bitboard, Board, BoardDisplay, BoardError, Position, Stone};
-use std::{cmp::Ordering, error, fmt};
+use std::{
+    cmp::Ordering,
+    error,
+    fmt::{self, Display, Formatter},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -19,13 +23,9 @@ impl From<BoardError> for GameError {
     }
 }
 
-// https://doc.rust-lang.org/std/error/trait.Error.html#error-source
-//
-// "In error types that wrap an underlying error, the underlying error should be
-// either returned by the outer error's `Error::source()`, or rendered by the
-// outer error's `Display` implementation, but not both."
-impl fmt::Display for GameError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+/// Formats the game error as a human-readable message.
+impl Display for GameError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::IllegalMove => write!(f, "illegal move"),
             Self::InvalidBoard(_) => write!(f, "invalid board"),
@@ -105,9 +105,9 @@ impl Game {
     ///
     /// let board = Board::empty();
     ///
-    /// let game = Game::from_state(board, Stone::Black, false)
-    ///                .expect("The supplied board is invalid");
+    /// let game = Game::from_state(board, Stone::Black, false)?;
     /// assert_eq!(game.board(), Board::empty());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     pub fn from_state(
         board: Board,
@@ -313,11 +313,12 @@ impl Game {
     ///
     /// # Examples
     /// ```rust
-    /// use magpie::othello::{Game, Stone};
+    /// use magpie::othello::{Game, Position, Stone};
     ///
     /// let game = Game::new();
-    /// let pos = 0x8000000.try_into().unwrap();
+    /// let pos = "e5".parse()?;
     /// assert_eq!(Some(Stone::White), game.stone_at(pos));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
     ///  ```
     #[must_use]
     pub fn stone_at(&self, pos: Position) -> Option<Stone> {

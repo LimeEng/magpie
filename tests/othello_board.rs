@@ -7,19 +7,18 @@ use quickcheck_macros::quickcheck;
 #[test]
 fn legal_move_check_one_valid() {
     let board = board_one_legal_move();
-    let pos = 0x00_00_00_00_08_00_00_00;
-    assert!(board.is_legal_move(Stone::Black, pos.try_into().unwrap()));
+    let pos = "e5".parse().unwrap();
+    assert!(board.is_legal_move(Stone::Black, pos));
 }
 
 #[test]
 fn legal_move_check_none_valid() {
     let board = board_no_legal_moves();
-    let pos = 0x00_00_00_00_08_00_00_00;
-    assert!(!board.is_legal_move(Stone::Black, pos.try_into().unwrap()));
+    let pos = "e5".parse().unwrap();
+    assert!(!board.is_legal_move(Stone::Black, pos));
 }
 
-// Returns a board with only one legal move for black, that is, the following
-// move represented as a bitboard: 0x00_00_00_00_08_00_00_00.
+// Returns a board with only one legal move for black, at e5.
 fn board_one_legal_move() -> Board {
     let black_pos = 0x88_01_00_00_81_00_00_49;
     let white_pos = 0x00_48_2a_1c_76_1c_2a_00;
@@ -46,8 +45,8 @@ fn bits_should_be_consistent(board: ShadowBoard) {
     let white = board.bits_for(Stone::White);
     let empty = board.empty_squares();
 
-    assert!(black & white == 0);
-    assert!((black | white) & empty == 0);
+    assert_eq!(black & white, 0);
+    assert_eq!((black | white) & empty, 0);
 }
 
 #[quickcheck]

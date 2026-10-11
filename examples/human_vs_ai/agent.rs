@@ -1,7 +1,7 @@
 use magpie::othello::{Board, Position, Stone};
 
-pub mod human;
-pub mod random;
+mod human;
+mod random;
 
 pub use human::HumanAgent;
 pub use random::RandomAgent;

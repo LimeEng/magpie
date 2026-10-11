@@ -7,7 +7,7 @@ fn main() -> Result<(), serde_json::Error> {
     print_serde(&Board::standard())?;
     print_serde(&Stone::Black)?;
     print_serde(&Bitboard::FILLED)?;
-    print_serde(&Position::try_from("A1").unwrap())?;
+    print_serde(&"A1".parse::<Position>().unwrap())?;
 
     Ok(())
 }
