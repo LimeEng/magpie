@@ -105,26 +105,26 @@ impl BitXorAssign<u64> for Bitboard {
     }
 }
 
-// u64 OP Bitboard => u64
+// u64 OP Bitboard => Bitboard
 
 impl BitAnd<Bitboard> for u64 {
-    type Output = u64;
-    fn bitand(self, rhs: Bitboard) -> u64 {
-        self & rhs.0
+    type Output = Bitboard;
+    fn bitand(self, rhs: Bitboard) -> Bitboard {
+        Bitboard(self & rhs.0)
     }
 }
 
 impl BitOr<Bitboard> for u64 {
-    type Output = u64;
-    fn bitor(self, rhs: Bitboard) -> u64 {
-        self | rhs.0
+    type Output = Bitboard;
+    fn bitor(self, rhs: Bitboard) -> Bitboard {
+        Bitboard(self | rhs.0)
     }
 }
 
 impl BitXor<Bitboard> for u64 {
-    type Output = u64;
-    fn bitxor(self, rhs: Bitboard) -> u64 {
-        self ^ rhs.0
+    type Output = Bitboard;
+    fn bitxor(self, rhs: Bitboard) -> Bitboard {
+        Bitboard(self ^ rhs.0)
     }
 }
 

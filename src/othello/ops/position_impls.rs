@@ -21,23 +21,23 @@ impl PartialOrd<u64> for Position {
 // =====[ u64 OP Position ]=====
 
 impl BitAnd<Position> for u64 {
-    type Output = u64;
-    fn bitand(self, rhs: Position) -> u64 {
-        self & rhs.0
+    type Output = Bitboard;
+    fn bitand(self, rhs: Position) -> Bitboard {
+        Bitboard::from(self & rhs.0)
     }
 }
 
 impl BitOr<Position> for u64 {
-    type Output = u64;
-    fn bitor(self, rhs: Position) -> u64 {
-        self | rhs.0
+    type Output = Bitboard;
+    fn bitor(self, rhs: Position) -> Bitboard {
+        Bitboard::from(self | rhs.0)
     }
 }
 
 impl BitXor<Position> for u64 {
-    type Output = u64;
-    fn bitxor(self, rhs: Position) -> u64 {
-        self ^ rhs.0
+    type Output = Bitboard;
+    fn bitxor(self, rhs: Position) -> Bitboard {
+        Bitboard::from(self ^ rhs.0)
     }
 }
 
