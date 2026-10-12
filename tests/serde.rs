@@ -1,7 +1,7 @@
 mod common;
 
 use common::{ShadowBitboard, ShadowBoard, ShadowPosition, ShadowStone};
-use magpie::othello::{Bitboard, Board, Game, Position, Stone};
+use magpie::othello::{Bitboard, Board, Game, Position, Status, Stone};
 use quickcheck::TestResult;
 use quickcheck_macros::quickcheck;
 use serde_json::Result;
@@ -68,6 +68,14 @@ fn game_roundtrip(shadow: ShadowBoard, stone: ShadowStone) -> bool {
 fn stone_roundtrip(stone: ShadowStone) -> bool {
     let stone = Stone::from(stone);
     serde_roundtrip(&stone)
+}
+
+#[test]
+fn status_roundtrip() {
+    assert!(serde_roundtrip(&Status::Win(Stone::Black)));
+    assert!(serde_roundtrip(&Status::Win(Stone::White)));
+    assert!(serde_roundtrip(&Status::Draw));
+    assert!(serde_roundtrip(&Status::Progressing));
 }
 
 #[test]

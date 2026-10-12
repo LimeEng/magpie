@@ -62,6 +62,7 @@ pub struct Game {
 }
 
 /// This enum represents all states the game can be in.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum Status {
     /// Indicates that the game has concluded with the specified winner.
@@ -70,6 +71,45 @@ pub enum Status {
     Draw,
     /// Indicates that the game is still in progress.
     Progressing,
+}
+
+impl Status {
+    /// Returns true if the game has concluded, either with a winner or in a
+    /// draw.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::{Status, Stone};
+    ///
+    /// assert!(Status::Win(Stone::Black).is_finished());
+    /// assert!(Status::Draw.is_finished());
+    /// assert!(!Status::Progressing.is_finished());
+    /// ```
+    #[must_use]
+    pub fn is_finished(self) -> bool {
+        !matches!(self, Status::Progressing)
+    }
+
+    /// Returns the winner of the game, if there is one.
+    ///
+    /// Returns `None` if the game is still in progress or concluded in a
+    /// draw.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use magpie::othello::{Status, Stone};
+    ///
+    /// assert_eq!(Some(Stone::Black), Status::Win(Stone::Black).winner());
+    /// assert_eq!(None, Status::Draw.winner());
+    /// assert_eq!(None, Status::Progressing.winner());
+    /// ```
+    #[must_use]
+    pub fn winner(self) -> Option<Stone> {
+        match self {
+            Status::Win(stone) => Some(stone),
+            Status::Draw | Status::Progressing => None,
+        }
+    }
 }
 
 impl Game {
@@ -223,7 +263,7 @@ impl Game {
     /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     pub fn play(&mut self, pos: Position) -> Result<(), GameError> {
-        if self.is_legal_move(pos) {
+        if self.moves() & pos != 0 {
             self.board.play(self.next_player, pos);
             self.next_player = self.next_player.flip();
             // If the opponent has no legal moves their turn is passed,
